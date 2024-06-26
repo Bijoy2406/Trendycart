@@ -30,8 +30,9 @@
 .shopcategory-products {
     margin: 20px 170px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     row-gap: 80px;
+    gap: 30px;
 }
 
 .shopcategory-sort img {
@@ -51,5 +52,5 @@
     background-color:aliceblue;
     font-size: 18px;
     font-weight: 500;
-
+    
 }
