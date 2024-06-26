@@ -37,3 +37,19 @@
 .shopcategory-sort img {
     margin-left: 10px;
 }
+
+.shopcategory-loadmore{
+ 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 150px auto;
+    width: 233px;
+    height: 69px;
+    border-radius: 75px;
+    color: black;
+    background-color:aliceblue;
+    font-size: 18px;
+    font-weight: 500;
+
+}
