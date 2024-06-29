@@ -22,6 +22,7 @@ const Navbar = () => {
                 <img src={logo} alt="logo" />
                 <p>TRANDYCART</p>
             </div>
+            
             <input
                 type="text"
                 placeholder="   Search item..."
