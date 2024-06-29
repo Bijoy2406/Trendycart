@@ -5,7 +5,6 @@ import './CSS/search.css';
 
 const SearchResults = () => {
   const { searchTerm } = useParams();
-  const [items, setItems] = useState([]);
   const [query, setQuery] = useState(searchTerm || '');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -36,13 +35,23 @@ const SearchResults = () => {
     const value = inputRef.current.value.trim();
     if (value === '') return;
     setQuery(value);
-    navigate(`/search/${value}`); 
+    navigate(`/search/${value}`);
     inputRef.current.value = '';
-
+  };
 
   return (
     <div className="search-container">
-     
+      <form onSubmit={onSubmit}>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          type="search"
+          ref={inputRef}
+          placeholder="Search products..."
+        />
+        <button type="submit">Search</button>
+      </form>
+
       <div className="price-filter">
         <label>Min Price:</label>
         <input
@@ -59,6 +68,7 @@ const SearchResults = () => {
           placeholder="Max Price"
         />
       </div>
+
       <div className="search-results">
         {searchResults.length > 0 ? (
           <div className="products-grid">
