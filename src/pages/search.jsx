@@ -38,7 +38,7 @@ const SearchResults = () => {
     setQuery(value);
     navigate(`/search/${value}`); 
     inputRef.current.value = '';
-  };
+
 
   return (
     <div className="search-container">
