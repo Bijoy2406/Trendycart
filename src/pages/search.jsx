@@ -6,17 +6,17 @@ import data_product from '../components/Assets/data';
 import './CSS/search.css'
 
 const SearchResults = () => {
-    const { searchTerm } = useParams(); // get the search term from the URL
+    const { searchTerm } = useParams(); 
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(1000);
     const [showFilter, setShowFilter] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
 
-    // Combine all products into one array
+
     const allProducts = [...all_product, ...new_collections, ...data_product];
 
     useEffect(() => {
-        // clear the search results
+        
         setSearchResults([]);
 
         const filteredProducts = allProducts.filter(product => {
@@ -25,10 +25,10 @@ const SearchResults = () => {
                    product.new_price <= maxPrice;
         });
 
-        // set the search results
+        
         setSearchResults(filteredProducts);
 
-        // cleanup function
+        
         return () => {
             setSearchResults([]);
         };
