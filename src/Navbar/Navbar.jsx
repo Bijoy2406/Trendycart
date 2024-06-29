@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from "../components/Assets/logo.png";
+import logo from "../components/Assets/svg-viewer.svg";
 import cart_icon from "../components/Assets/cart_icon.png";
 import './Navbar.css';
 import { ShopContext } from '../components/Context/ShopContext';
@@ -25,16 +25,11 @@ const Navbar = () => {
     return (
         <div className='navbar'>
         <div className='nav-logo'>
-            <img src={logo} alt="logo" />
-            <p>TRANDYCART</p>
+            <img src={logo} alt="logo" />          
         </div>
 
         <input type="text" placeholder="Search item..." onChange={(e) => setSearchTerm(e.target.value)} />
-
-
-
             <button className='search' onClick={handleSearchClick}>Search</button>
-
             <ul className="nav-menu">
                 <li onClick={() => handleMenuClick("shop")}><Link style={{ textDecoration: 'none' }} to='/'>Home</Link>{menu === "shop" ? <hr /> : <></>}</li>
                 <li onClick={() => handleMenuClick("mens")}><Link style={{ textDecoration: 'none' }} to='/mens'>Men</Link>{menu === "mens" ? <hr /> : <></>}</li>
@@ -44,8 +39,8 @@ const Navbar = () => {
             </ul>
 
             <div className="nav-login-cart">
-                <Link to='/login'><button>Login</button></Link>
-                <Link to='/cart'><img src={cart_icon} alt="" /></Link>
+            <Link to='/login'><button className='login'>Login</button></Link>
+            <Link to='/cart'><img className='cart-img' src={cart_icon} alt="" /></Link>
                 <div className="nav-cart-count">{getTotalCartItem()}</div>
             </div>
         </div>

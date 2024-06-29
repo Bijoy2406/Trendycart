@@ -41,16 +41,7 @@ const SearchResults = () => {
 
   return (
     <div className="search-container">
-      <form onSubmit={onSubmit}>
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          type="search"
-          ref={inputRef}
-          placeholder="Search products..."
-        />
-        <button type="submit">Search</button>
-      </form>
+    
 
       <div className="price-filter">
         <label>Min Price:</label>

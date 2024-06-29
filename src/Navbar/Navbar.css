@@ -6,19 +6,18 @@
 }
 
 .nav-logo{
+    width: 40px;
+    height: auto;
     display: flex;
     align-items: center;
     gap: 10px;
-}
-
-.nav-logo p{
-    color: #171717;
-    font-size: 20px;
-    font-weight: 600;
+    cursor: pointer;
 }
 
 .nav-menu{
     display: flex;
+    position: relative;
+    top: 20px;
     align-items: center;
     list-style: none;
     gap: 50px;
@@ -50,6 +49,12 @@
     gap: 45px;
 }
 
+.navbar .cart-img {
+    position: relative;
+    top: 20px; 
+}
+
+
 .nav-login-cart button{
     width: 157px;
     height: 58px;
@@ -67,7 +72,9 @@
     background: #f3f3f3;
 }
 
-.nav-cart-count{
+.nav-cart-count{  
+    position: relative;
+    top: 20px;
     width: 22px;
     height: 22px;
     display: flex;
@@ -82,8 +89,9 @@
 }
 
 .navbar input[type="text"] {
-    
-    width: 500px;
+    position: relative;
+    top: 20px;
+    width: 450px;
     height: 45px;
     align-items: center;
     padding: 0px;
@@ -104,7 +112,10 @@ input[type="text"]::placeholder {
 }
 
 
-.navbar button {
+.navbar .search {   
+    position: relative;
+    top: 30px;
+    right: 10px;
     width: 147px;
     height: 45px;
     outline: none;
@@ -113,11 +124,28 @@ input[type="text"]::placeholder {
     color: #515151;
     font-size: 20px;
     font-weight: 500;
-    margin-top: 10px;
     margin-left: 10px;
     background: white;
     cursor: pointer;
 }
+
+.navbar .login {
+    
+    position: relative;
+    top: 20px;
+    width: 147px;
+    height: 45px;
+    outline: none;
+    border: 1px solid #7a7a7a;
+    border-radius: 75px;
+    color: #515151;
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: 10px;
+    background: white;
+    cursor: pointer;
+}
+
 
 .navbar button:hover {
     background-color: #f3f3f3;
