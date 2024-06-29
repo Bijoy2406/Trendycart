@@ -1,36 +1,52 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // import useNavigate
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from "../components/Assets/logo.png";
 import cart_icon from "../components/Assets/cart_icon.png";
 import './Navbar.css';
+import { ShopContext } from '../components/Context/ShopContext';
 
 const Navbar = () => {
-    const [menu,setMenu] = useState("shop");
+    const [menu, setMenu] = useState("shop");
+    const { getTotalCartItem } = useContext(ShopContext);
     const [searchTerm, setSearchTerm] = useState("");
-    const navigate = useNavigate(); // get the navigate function
+    const navigate = useNavigate();
 
-    const handleSearchClick = () => {
-        navigate(`/search/${searchTerm}`); // navigate to the search results page
+    const handleSearchClick = (e) => {
+        e.preventDefault();
+        if (searchTerm.trim() !== '') {
+            navigate(`/search/${searchTerm}`);
+        }
+    };
+
+    const handleMenuClick = (menuItem) => {
+        setMenu(menuItem);
     };
 
     return (
         <div className='navbar'>
-            <input type="text" placeholder="Search item..." onChange={(e) => setSearchTerm(e.target.value)} />
-            <button onClick={handleSearchClick}>Search</button>           
-            <div className='nav-logo'>
-                <img src={logo} alt="logo" />
-                <p>TRANDYCART</p>
-            </div>
+        <div className='nav-logo'>
+            <img src={logo} alt="logo" />
+            <p>TRANDYCART</p>
+        </div>
+
+        <input type="text" placeholder="Search item..." onChange={(e) => setSearchTerm(e.target.value)} />
+
+
+
+            <button className='search' onClick={handleSearchClick}>Search</button>
+
             <ul className="nav-menu">
-                <li onClick={()=>{setMenu("shop")}}><Link style={{ textDecoration:'none'}} to='/'>Home</Link>{menu =="shop"?<hr/>:<></>}</li>
-                <li onClick={()=>{setMenu("mens")}}><Link style={{ textDecoration:'none'}} to='/mens'>Men</Link>{menu =="mens"?<hr/>:<></>}</li>
-                <li onClick={()=>{setMenu("womens")}}><Link style={{ textDecoration:'none'}} to='/womens'>Women</Link>{menu =="womens"?<hr/>:<></>}</li>
-                <li onClick={()=>{setMenu("kids")}}><Link style={{ textDecoration:'none'}} to='/kids'>Kids</Link>{menu =="kids"?<hr/>:<></>}</li>
+                <li onClick={() => handleMenuClick("shop")}><Link style={{ textDecoration: 'none' }} to='/'>Home</Link>{menu === "shop" ? <hr /> : <></>}</li>
+                <li onClick={() => handleMenuClick("mens")}><Link style={{ textDecoration: 'none' }} to='/mens'>Men</Link>{menu === "mens" ? <hr /> : <></>}</li>
+                <li onClick={() => handleMenuClick("womens")}><Link style={{ textDecoration: 'none' }} to='/womens'>Women</Link>{menu === "womens" ? <hr /> : <></>}</li>
+                <li onClick={() => handleMenuClick("kids")}><Link style={{ textDecoration: 'none' }} to='/kids'>Kids</Link>{menu === "kids" ? <hr /> : <></>}</li>
+
             </ul>
+
             <div className="nav-login-cart">
                 <Link to='/login'><button>Login</button></Link>
                 <Link to='/cart'><img src={cart_icon} alt="" /></Link>
-                <div className="nav-cart-count">0</div>
+                <div className="nav-cart-count">{getTotalCartItem()}</div>
             </div>
         </div>
     );
