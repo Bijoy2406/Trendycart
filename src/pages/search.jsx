@@ -4,34 +4,7 @@ import all_products from '../components/Assets/all_product';
 import './CSS/search.css';
 
 const SearchResults = () => {
-  const { searchTerm } = useParams();
-  const [items, setItems] = useState([]);
-  const [query, setQuery] = useState(searchTerm || '');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const inputRef = useRef();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    setQuery(searchTerm || '');
-  }, [searchTerm]);
-
-  const searchResults = useMemo(() => {
-    return all_products.filter(product =>
-      product.name.toLowerCase().includes(query.toLowerCase()) &&
-      (!minPrice || product.new_price >= minPrice) &&
-      (!maxPrice || product.new_price <= maxPrice)
-    );
-  }, [query, minPrice, maxPrice]);
-
-  const onSubmit = (e) => {
-    e.preventDefault();
-    const value = inputRef.current.value.trim();
-    if (value === '') return;
-    setQuery(value);
-    navigate(`/search/${value}`); 
-    inputRef.current.value = '';
-  };
 
   return (
     <div className="search-container">
