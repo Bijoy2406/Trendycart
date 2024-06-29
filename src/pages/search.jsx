@@ -4,29 +4,71 @@ import all_products from '../components/Assets/all_product';
 import './CSS/search.css';
 
 const SearchResults = () => {
+  const { searchTerm } = useParams();
+  const [query, setQuery] = useState(searchTerm || '');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const inputRef = useRef();
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    setQuery(searchTerm || '');
+  }, [searchTerm]);
+
+  const searchResults = useMemo(() => {
+    let filteredProducts = all_products.filter(product =>
+      product.name.toLowerCase().includes(query.toLowerCase())
+    );
+
+    if (minPrice !== '') {
+      filteredProducts = filteredProducts.filter(product => product.new_price >= minPrice);
+    }
+    if (maxPrice !== '') {
+      filteredProducts = filteredProducts.filter(product => product.new_price <= maxPrice);
+    }
+
+    return filteredProducts;
+  }, [query, minPrice, maxPrice]);
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const value = inputRef.current.value.trim();
+    if (value === '') return;
+    setQuery(value);
+    navigate(`/search/${value}`);
+    inputRef.current.value = '';
+  };
 
   return (
     <div className="search-container">
       <form onSubmit={onSubmit}>
-      
-        <label>
-          Min Price:
-          <input
-            type="number"
-            value={minPrice}
-            onChange={(e) => setMinPrice(parseInt(e.target.value))}
-          />
-        </label>
-        <label>
-          Max Price:
-          <input
-            type="number"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(parseInt(e.target.value))}
-          />
-        </label>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          type="search"
+          ref={inputRef}
+          placeholder="Search products..."
+        />
+        <button type="submit">Search</button>
       </form>
+
+      <div className="price-filter">
+        <label>Min Price:</label>
+        <input
+          type="number"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+          placeholder="Min Price"
+        />
+        <label>Max Price:</label>
+        <input
+          type="number"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+          placeholder="Max Price"
+        />
+      </div>
+
       <div className="search-results">
         {searchResults.length > 0 ? (
           <div className="products-grid">
