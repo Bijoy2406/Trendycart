@@ -50,14 +50,14 @@ const priceList = generatePrices();
 let all_product = [
   {
     id: 1,
-    name: "Striped Flutter Sleeve Overlap Collar Peplum Hem Blouse",
+    name: " Leather Jacket",
     category: "women",
     image: p1_img,
     ...priceList[0],
   },
   {
     id: 2,
-    name: "Striped Flutter Sleeve Overlap Collar Peplum Hem Blouse",
+    name: "Pink Dress",
     category: "women",
     image: p2_img,
     ...priceList[1],
@@ -71,14 +71,14 @@ let all_product = [
   },
   {
     id: 4,
-    name: "Striped Flutter Sleeve Overlap Collar Peplum Hem Blouse",
+    name: "Striped Flutter Sleeve ",
     category: "women",
     image: p4_img,
     ...priceList[3],
   },
   {
     id: 5,
-    name: "Striped Flutter Sleeve Overlap Collar Peplum Hem Blouse",
+    name: "Striped Flutter Sleeve  Peplum Dress",
     category: "women",
     image: p5_img,
     ...priceList[4],
@@ -218,7 +218,7 @@ let all_product = [
   },
   {
     id: 25,
-    name: "Boys Orange Colourblocked Hooded Sweatshirt",
+    name: "Blue Hoodie",
     category: "kid",
     image: p25_img,
     ...priceList[24],
@@ -260,7 +260,7 @@ let all_product = [
   },
   {
     id: 31,
-    name: "Boys Orange Colourblocked Hooded Sweatshirt",
+    name: "Blue Jacket",
     category: "kid",
     image: p31_img,
     ...priceList[30],
