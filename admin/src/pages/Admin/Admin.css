@@ -1,0 +1,16 @@
+.admin {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .admin .sidebar {
+    flex: 0 0 250px; /* Sidebar takes up 250px */
+    background-color: #f4f4f4;
+  }
+  
+  .admin .content {
+    flex: 1; /* Take up the remaining space */
+    padding: 20px;
+    overflow-y: auto;
+  }
+  
