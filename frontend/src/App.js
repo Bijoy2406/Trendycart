@@ -12,7 +12,8 @@ import women_banner from './components/Assets/banner_women.png';
 import kids_banner from './components/Assets/banner_kids.png';
 import ShopContextProvider from './components/Context/ShopContext'; // Import ShopContextProvider
 import SearchResults from './pages/search'; // Import SearchResults
-
+import axios from 'axios';
+axios.defaults.baseURL = 'https://backend-kappa-mocha.vercel.app/';
 function App() {
   return (
     <div>
