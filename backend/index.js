@@ -8,7 +8,13 @@ const path = require("path");
 const cors = require("cors");
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(
+    {
+        origin:["https://tcart.vercel.app/"],
+        methods: ['POST', 'GET'],
+        credentials: true
+    }
+));
 
 mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART");
 
