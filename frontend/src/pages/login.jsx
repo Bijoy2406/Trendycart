@@ -7,8 +7,8 @@ import { Link } from 'react-router-dom';
 
 function Login() {
     const [showLogin, setShowLogin] = useState(true);
-    const [loginForm, setLoginForm] = useState({ username: '', password: '' });
-    const [registerForm, setRegisterForm] = useState({ fullName: '', phoneNumber: '', password: '', dob: new Date() });
+    const [loginForm, setLoginForm] = useState({ Email: '', password: '' });
+    const [registerForm, setRegisterForm] = useState({ username: '', Email: '', password: '', dob: new Date() });
     const datePickerRef = useRef(null);
 
     const handleLoginClick = () => {
@@ -92,9 +92,9 @@ function Login() {
                                     <input
                                         type="text"
                                         className="input-field"
-                                        placeholder="Username"
-                                        name="username"
-                                        value={loginForm.username}
+                                        placeholder="Email"
+                                        name="Email"
+                                        value={loginForm.Email}
                                         onChange={handleLoginInputChange}
                                         required />
                                     <i className="bx bx-user icon"></i>
@@ -137,9 +137,9 @@ function Login() {
                                     <input
                                         type="text"
                                         className="input-field"
-                                        placeholder="Full Name"
-                                        name="fullName"
-                                        value={registerForm.fullName}
+                                        placeholder="Username"
+                                        name="username"
+                                        value={registerForm.username}
                                         onChange={handleRegisterInputChange}
                                         required />
                                     <i className="bx bx-user icon"></i>
@@ -148,9 +148,9 @@ function Login() {
                                     <input
                                         type="text"
                                         className="input-field"
-                                        placeholder="Phone Number"
-                                        name="phoneNumber"
-                                        value={registerForm.phoneNumber}
+                                        placeholder="Email"
+                                        name="Email"
+                                        value={registerForm.Email}
                                         onChange={handleRegisterInputChange}
                                         required />
                                     <i className="bx bx-mobile icon"></i>
