@@ -10,7 +10,7 @@ const cors = require("cors");
 app.use(express.json());
 app.use(cors(
     {
-        origin:["https://tcart.vercel.app/"],
+        origin:["https://tcart.vercel.app"],
         methods: ['POST', 'GET'],
         credentials: true
     }
