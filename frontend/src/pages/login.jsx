@@ -11,6 +11,61 @@ function Login() {
     const [registerForm, setRegisterForm] = useState({ username: '', Email: '', password: '', dob: new Date() });
     const datePickerRef = useRef(null);
 
+    const [state,setState] = useState("login");
+    const [formData,setFormData] = useState({
+        username:"",
+        password:"",
+        email:"",
+    })
+
+    const changeHandler =(e)=>{
+        setFormData({...formData,[e.target.name]:e.target.value})
+    }
+
+    const signin = async () => {
+        console.log("sign in executed",formData);
+        let responseData;
+
+        await fetch('http://localhost:4001/login',{
+            method:'POST',
+            headers:{
+                Accept:'application/form-data',
+                'Content-Type':'application/json',
+            },
+            body: JSON.stringify(formData)
+        }).then((response)=> response.json()).then((data)=>responseData=data)
+
+        if(responseData.success){
+            localStorage.setItem('auth-token',responseData.token);
+            window.location.replace("/");
+        }
+        else{
+            alert(responseData.errors)
+        }
+    };
+
+    const signup = async () => {
+        console.log("sign up executed",formData);
+        let responseData;
+
+        await fetch('http://localhost:4001/signup',{
+            method:'POST',
+            headers:{
+                Accept:'application/form-data',
+                'Content-Type':'application/json',
+            },
+            body: JSON.stringify(formData)
+        }).then((response)=> response.json()).then((data)=>responseData=data)
+
+        if(responseData.success){
+            localStorage.setItem('auth-token',responseData.token);
+            window.location.replace("/");
+        }
+        else{
+            alert(responseData.errors)
+        }
+    };
+
     const handleLoginClick = () => {
         setShowLogin(true);
     };
@@ -39,12 +94,12 @@ function Login() {
 
     const handleLoginSubmit = (e) => {
         e.preventDefault();
-        // Handle login logic here
+        signin();
     };
 
     const handleRegisterSubmit = (e) => {
         e.preventDefault();
-        // Handle registration logic here
+        signup();
     };
 
     return (
@@ -82,124 +137,111 @@ function Login() {
                         </button>
                     </div>
 
-                    {showLogin ? (
-                        <form className="login-form" onSubmit={handleLoginSubmit}>
-                            <div className="form-title">
-                                <span>Sign In</span>
-                            </div>
-                            <div className="form-inputs">
-                                <div className="input-box">
-                                    <input
-                                        type="text"
-                                        className="input-field"
-                                        placeholder="Email"
-                                        name="Email"
-                                        value={loginForm.Email}
-                                        onChange={handleLoginInputChange}
-                                        required />
-                                    <i className="bx bx-user icon"></i>
-                                </div>
-                                <div className="input-box">
-                                    <input
-                                        type="password"
-                                        className="input-field"
-                                        placeholder="Password"
-                                        name="password"
-                                        value={loginForm.password}
-                                        onChange={handleLoginInputChange}
-                                        required />
-                                    <i className="bx bx-lock-alt icon"></i>
-                                </div>
-                                <div className="forgot-pass">
-                                    <a href="#">Forgot Password?</a>
-                                </div>
-                                <div className="input-box">
-                                    <button className="input-submit">
-                                        <span>Sign In</span>
-                                        <i className="bx bx-right-arrow-alt"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="social-login">
-                                <i className="bx bxl-google"></i>
-                                <i className="bx bxl-facebook"></i>
-                                <i className="bx bxl-github"></i>
-                                <i className="bx bxl-twitter"></i>
-                            </div>
-                        </form>
-                    ) : (
-                        <form className="register-form" onSubmit={handleRegisterSubmit}>
-                            <div className="form-title">
-                                <span>Create Account</span>
-                            </div>
-                            <div className="form-inputs">
-                                <div className="input-box">
-                                    <input
-                                        type="text"
-                                        className="input-field"
-                                        placeholder="Username"
-                                        name="username"
-                                        value={registerForm.username}
-                                        onChange={handleRegisterInputChange}
-                                        required />
-                                    <i className="bx bx-user icon"></i>
-                                </div>
-                                <div className="input-box">
-                                    <input
-                                        type="text"
-                                        className="input-field"
-                                        placeholder="Email"
-                                        name="Email"
-                                        value={registerForm.Email}
-                                        onChange={handleRegisterInputChange}
-                                        required />
-                                    <i className="bx bx-mobile icon"></i>
-                                </div>
-                                <div className="input-box">
-                                    <input
-                                        type="password"
-                                        className="input-field"
-                                        placeholder="Password"
-                                        name="password"
-                                        value={registerForm.password}
-                                        onChange={handleRegisterInputChange}
-                                        required />
-                                    <i className="bx bx-lock-alt icon"></i>
-                                </div>
-                                <div className="input-box">
-                                    <label htmlFor="dob" className="label">Date of Birth</label>
-                                    <div className="dob-container">
-                                        <DatePicker
-                                            ref={datePickerRef}
-                                            id="dob"
-                                            className="input-select"
-                                            selected={registerForm.dob}
-                                            onChange={handleDateChange}
-                                            dateFormat="MM/dd/yyyy"
-                                            placeholderText="Select Date"
-                                            peekNextMonth
-                                            showMonthDropdown
-                                            showYearDropdown
-                                            dropdownMode="select"
-                                        />
-                                        <FaRegCalendarAlt className="calendar-icon" onClick={handleCalendarIconClick} />
+                    <form className={showLogin ? "login-form" : "register-form"} onSubmit={showLogin ? handleLoginSubmit : handleRegisterSubmit}>
+                        <div className="form-title">
+                            <span>{showLogin ? "Sign In" : "Create Account"}</span>
+                        </div>
+                        {showLogin ? (
+                            <>
+                                <div className="form-inputs">
+                                    <div className="input-box">
+                                        <input
+                                            type="text"
+                                            className="input-field"
+                                            placeholder="Email"
+                                            name="email"
+                                            value={formData.Email}
+                                            onChange={changeHandler}
+                                             />
+                                        <i className="bx bx-user icon"></i>
+                                    </div>
+                                    <div className="input-box">
+                                        <input
+                                            type="password"
+                                            className="input-field"
+                                            placeholder="Password"
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={changeHandler}
+                                             />
+                                        <i className="bx bx-lock-alt icon"></i>
+                                    </div>
+                                    <div className="forgot-pass">
+                                        <a href="#">Forgot Password?</a>
                                     </div>
                                 </div>
-                                <div className="input-box">
-                                    <button className="input-submit">
-                                        <span>Sign Up</span>
-                                        <i className="bx bx-right-arrow-alt"></i>
-                                    </button>
+                            </>
+                        ) : (
+                            <>
+                                <div className="form-inputs">
+                                    <div className="input-box">
+                                        <input 
+                                            type="text"
+                                            className="input-field"
+                                            placeholder="Username"
+                                            name="username" 
+                                            value={formData.username}
+                                            onChange={changeHandler}
+                                             />
+                                        <i className="bx bx-user icon"></i>
+                                    </div>
+                                    <div className="input-box">
+                                        <input
+                                            type="text"
+                                            className="input-field"
+                                            placeholder="Email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={changeHandler}
+                                             />
+                                        <i className="bx bx-mobile icon"></i>
+                                    </div>
+                                    <div className="input-box">
+                                        <input
+                                            type="password"
+                                            className="input-field"
+                                            placeholder="Password"
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={changeHandler}
+                                            required />
+                                        <i className="bx bx-lock-alt icon"></i>
+                                    </div>
+                                    <div className="input-box">
+                                        <label htmlFor="dob" className="label">Date of Birth</label>
+                                        <div className="dob-container">
+                                            <DatePicker
+                                                ref={datePickerRef}
+                                                id="dob"
+                                                className="input-select"
+                                                selected={registerForm.dob}
+                                                onChange={handleDateChange}
+                                                dateFormat="MM/dd/yyyy"
+                                                placeholderText="Select Date"
+                                                peekNextMonth
+                                                showMonthDropdown
+                                                showYearDropdown
+                                                dropdownMode="select"
+                                            />
+                                            <FaRegCalendarAlt className="calendar-icon" onClick={handleCalendarIconClick} />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="social-login">
-                                <i className="bx bxl-google"></i>
-                                <i className="bx bxl-facebook"></i>
-                                <i className="bx bxl-github"></i>
-                                <i className="bx bxl-twitter"></i>
-                            </div>
-                        </form>
-                    )}
+                            </>
+                        )}
+                        <div className="input-box">
+                            <button className="input-submit" type="submit">
+                                <span onClick={()=>{state==="login"?signin():signup()}}>Continue</span>
+                                <i className="bx bx-right-arrow-alt"></i>
+                            </button>
+                        </div>
+                        <div className="social-login">
+                            <i className="bx bxl-google"></i>
+                            <i className="bx bxl-facebook"></i>
+                            <i className="bx bxl-github"></i>
+                            <i className="bx bxl-twitter"></i>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
