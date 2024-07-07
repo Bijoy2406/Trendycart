@@ -15,7 +15,7 @@ const ShopContextProvider = (props) => {
   const [all_product,setAll_Product] =useState([]);
   const [cartItems, setCartItems] = useState(getDefaultCart());
   useEffect(()=>{
-      fetch('https://backend-kappa-mocha.vercel.app//allproducts')
+      fetch('http://localhost:4001/allproducts')
       .then((response)=>response.json())
       .then((data)=>setAll_Product(data))
   },[])
