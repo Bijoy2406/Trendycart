@@ -4,12 +4,17 @@ import logo from "../components/Assets/svg-viewer.svg";
 import cart_icon from "../components/Assets/cart_icon.png";
 import './Navbar.css';
 import { ShopContext } from '../components/Context/ShopContext';
+import Admin from '../pages/Admin/Admin';
 
 const Navbar = () => {
     const [menu, setMenu] = useState("shop");
     const { getTotalCartItem } = useContext(ShopContext);
     const [searchTerm, setSearchTerm] = useState("");
     const navigate = useNavigate();
+
+    const handleAdminClick = () => {
+        navigate('/Admin'); // This will navigate to the Admin page
+    };
 
     const handleSearchClick = (e) => {
         e.preventDefault();
@@ -41,7 +46,8 @@ const Navbar = () => {
             <div className="nav-login-cart">
                 {localStorage.getItem('auth-token')
                 ?<button onClick={()=>{localStorage.removeItem('auth-token');window.location.replace('/')}}>Logout</button>
-                :<Link to='/login'><button className='login'>Login</button></Link>}         
+                :<Link to='/login'><button className='login'>Login</button></Link>} 
+                <button className='new-button' onClick={handleAdminClick}>Admin panel</button> {/* Add this line for your new button */}        
             <Link to='/cart'><img className='cart-img' src={cart_icon} alt="" /></Link>
                 <div className="nav-cart-count">{getTotalCartItem()}</div>
             </div>
