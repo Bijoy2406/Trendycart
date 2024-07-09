@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import all_products from '../components/Assets/all_product'; 
 import './CSS/search.css';
 
 const SearchResults = () => {
@@ -10,25 +9,47 @@ const SearchResults = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const inputRef = useRef();
   const navigate = useNavigate();
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     setQuery(searchTerm || '');
   }, [searchTerm]);
 
-  const searchResults = useMemo(() => {
-    let filteredProducts = all_products.filter(product =>
-      product.name.toLowerCase().includes(query.toLowerCase())
-    );
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`http://localhost:4001/allproducts`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const products = await response.json();
+        setSearchResults(products);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const filteredProducts = useMemo(() => {
+    let filteredProducts = searchResults;
+
+    if (query.trim() !== '') {
+      filteredProducts = filteredProducts.filter(product =>
+        product.name.toLowerCase().includes(query.toLowerCase())
+      );
+    }
 
     if (minPrice !== '') {
-      filteredProducts = filteredProducts.filter(product => product.new_price >= minPrice);
+      filteredProducts = filteredProducts.filter(product => product.new_price >= parseInt(minPrice));
     }
     if (maxPrice !== '') {
-      filteredProducts = filteredProducts.filter(product => product.new_price <= maxPrice);
+      filteredProducts = filteredProducts.filter(product => product.new_price <= parseInt(maxPrice));
     }
 
     return filteredProducts;
-  }, [query, minPrice, maxPrice]);
+  }, [query, minPrice, maxPrice, searchResults]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -41,7 +62,7 @@ const SearchResults = () => {
 
   return (
     <div className="search-container">
-    
+      
 
       <div className="price-filter">
         <label>Min Price:</label>
@@ -61,18 +82,18 @@ const SearchResults = () => {
       </div>
 
       <div className="search-results">
-        {searchResults.length > 0 ? (
+        {filteredProducts.length > 0 ? (
           <div className="products-grid">
-            {searchResults.map(product => (
+            {filteredProducts.map(product => (
               <Link to={`/product/${product.id}`} key={product.id} className="product-card">
                 <img className="product-image" src={product.image} alt={product.name} />
                 <h2 className="product-name">{product.name}</h2>
-                <p className="product-price">Price: {product.new_price}</p>
+                <p className="product-price">Price: ৳{product.new_price}</p>
               </Link>
             ))}
           </div>
         ) : (
-          <div className='not-found'> 
+          <div className='not-found'>
             <h2>We're sorry.</h2>
             <p>We cannot find any matches for your search term.</p>
           </div>
