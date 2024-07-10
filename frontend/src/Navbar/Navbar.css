@@ -24,9 +24,8 @@
     color: #626262;
     font-size: 20px;
     font-weight: 500;
-    /* Removed top property */
+   left: 20px;
 }
-
 .nav-menu li{
     display: flex;
     flex-direction: column;
@@ -55,10 +54,25 @@
     top: 20px; 
 }
 
-
+.new-button{
+    position: relative;
+    top: 20px;
+    left: 10px;
+    width: 147px;
+    height: 45px;
+    outline: none;
+    border: 1px solid #7a7a7a;
+    border-radius: 75px;
+    color: #515151;
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: 10px;
+    background: white;
+    cursor: pointer;
+}
 .nav-login-cart button{
     width: 157px;
-    height: 58px;
+    height: 45px;
     outline: none;
     border: 1px solid #7a7a7a;
     border-radius: 75px;
@@ -130,6 +144,22 @@ input[type="text"]::placeholder {
     cursor: pointer;
 }
 
+.nav-login-cart .logout{
+    position: relative;
+    top: 20px;
+    left: 50px;
+    width: 147px;
+    height: 45px;
+    outline: none;
+    border: 1px solid #7a7a7a;
+    border-radius: 75px;
+    color: #515151;
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: 10px;
+    background: white;
+    cursor: pointer;
+}
 .navbar .login {
     
     position: relative;

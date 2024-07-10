@@ -6,7 +6,8 @@ import './Navbar.css';
 import { ShopContext } from '../components/Context/ShopContext';
 
 const Navbar = () => {
-    const [menu, setMenu] = useState("shop");
+    const initialMenu = localStorage.getItem('selectedMenu') || "shop";
+    const [menu, setMenu] = useState(initialMenu);
     const { getTotalCartItem, setAll_Product } = useContext(ShopContext);
     const [searchTerm, setSearchTerm] = useState("");
     const navigate = useNavigate();
@@ -38,6 +39,7 @@ const Navbar = () => {
 
     const handleMenuClick = (menuItem) => {
         setMenu(menuItem);
+        localStorage.setItem('selectedMenu', menuItem);
         if (menuItem === 'shop') {
             navigate('/');
         } else {
@@ -45,7 +47,6 @@ const Navbar = () => {
         }
         window.location.reload();
     };
-    
 
     return (
         <div className='navbar'>
@@ -64,7 +65,7 @@ const Navbar = () => {
 
             <div className="nav-login-cart">
                 {localStorage.getItem('auth-token')
-                ? <button onClick={() => {localStorage.removeItem('auth-token'); window.location.replace('/')}}>Logout</button>
+                ? <button className='logout' onClick={() => {localStorage.removeItem('auth-token'); window.location.replace('/')}}>Logout</button>
                 : <Link to='/login'><button className='login'>Login</button></Link>} 
                 <button className='new-button' onClick={handleAdminClick}>Admin panel</button>        
                 <Link to='/cart'><img className='cart-img' src={cart_icon} alt="" /></Link>

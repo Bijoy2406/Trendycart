@@ -152,7 +152,6 @@ function Login() {
                     </Link>
                     <p className="featured-words">Welcome To <span>Trendycart</span></p>
                 </div>
-
                 <div className="col col-2">
                     <div className="btn-box">
                         <button
@@ -168,7 +167,6 @@ function Login() {
                             Sign Up
                         </button>
                     </div>
-
                     <form className={showLogin ? "login-form" : "register-form"} onSubmit={showLogin ? handleLoginSubmit : handleRegisterSubmit}>
                         <div className="form-title">
                             <span>{showLogin ? "Sign In" : "Create Account"}</span>
