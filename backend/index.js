@@ -1,3 +1,4 @@
+// Import necessary modules and set up the server
 require('dotenv').config();
 const express = require("express");
 const app = express();
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
     res.send("Express App is running");
 });
 
+// Set up storage for uploaded images
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'upload/images');
@@ -36,6 +38,7 @@ app.post("/upload", upload.single('product'), (req, res) => {
     });
 });
 
+// Define the product schema
 const ProductSchema = new mongoose.Schema({
     id: Number,
     name: String,
@@ -49,6 +52,7 @@ const ProductSchema = new mongoose.Schema({
 
 const Product = mongoose.model("Product", ProductSchema);
 
+// Add a new product
 app.post('/addproduct', async (req, res) => {
     try {
         const { name, image, category, new_price, old_price } = req.body;
@@ -64,21 +68,40 @@ app.post('/addproduct', async (req, res) => {
     }
 });
 
+// Update an existing product
+app.put('/updateproduct', async (req, res) => {
+    try {
+        const { id, name, image, category, new_price, old_price } = req.body;
+        const updatedProduct = await Product.findOneAndUpdate(
+            { id },
+            { name, image, category, new_price, old_price },
+            { new: true }
+        );
+
+        if (updatedProduct) {
+            res.json({ success: true, product: updatedProduct });
+        } else {
+            res.status(404).json({ success: false, message: "Product not found" });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Error updating product" });
+    }
+});
+
+// Remove a product
 app.post('/remove', async (req, res) => {
     const { id } = req.body;
     await Product.findOneAndDelete({ id });
     res.json({ success: true, id });
 });
 
-app.get('/allproducts',async(req,res)=>{
-   
+// Get all products
+app.get('/allproducts', async (req, res) => {
     let products = await Product.find({});
-    console.log("All product fetched.");
     res.send(products);
+});
 
-
-})
-
+// User schema and endpoints
 const UserSchema = new mongoose.Schema({
     name: String,
     email: { type: String, unique: true },
@@ -89,58 +112,55 @@ const UserSchema = new mongoose.Schema({
 
 const Users = mongoose.model('Users', UserSchema);
 
-//creating endpoint for registering the user
-
-app.post('/signup', async(req,res)=>{
-    let check = await Users.findOne({email:req.body.email});
+// User registration
+app.post('/signup', async (req, res) => {
+    let check = await Users.findOne({ email: req.body.email });
     if (check) {
-        return res.status(400).json({success:false,errors:"Existing user found with same email"})    
+        return res.status(400).json({ success: false, errors: "Existing user found with same email" });
     }
-    
+
     let cart = {};
     for (let i = 0; i < 300; i++) {
-        cart[i]=0;       
+        cart[i] = 0;
     }
     const user = new Users({
-        name:req.body.username,
-        email:req.body.email,
-        password:req.body.password,
-        cartData:cart,
-    })
+        name: req.body.username,
+        email: req.body.email,
+        password: req.body.password,
+        cartData: cart,
+    });
     await user.save();
 
-    const data ={
-        user:{
-            id:user.id
+    const data = {
+        user: {
+            id: user.id
         }
-    }
+    };
 
     const token = jwt.sign(data, process.env.JWT_SECRET);
-    res.json({success:true,token})
-})
+    res.json({ success: true, token });
+});
 
-//user login
-app.post('/login',async (req,res)=>{
-    let user = await Users.findOne({email:req.body.email});
+// User login
+app.post('/login', async (req, res) => {
+    let user = await Users.findOne({ email: req.body.email });
     if (user) {
         const passCompare = req.body.password === user.password;
         if (passCompare) {
             const data = {
-                user:{
-                    id:user.id
+                user: {
+                    id: user.id
                 }
-            }
+            };
             const token = jwt.sign(data, process.env.JWT_SECRET);
-            res.json({success:true,token})
+            res.json({ success: true, token });
+        } else {
+            res.json({ success: false, errors: "Wrong Password" });
         }
-        else{
-            res.json({success:false,errors:"Wrong Password"});
-        }
+    } else {
+        res.json({ success: false, errors: "Wrong email" });
     }
-    else{
-        res.json({success:false,errors:"Wrong email"})
-    }
-})
+});
 
 const port = process.env.PORT || 4001;
 app.listen(port, () => console.log(`Server running on port ${port}`));
