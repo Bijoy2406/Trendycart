@@ -47,6 +47,13 @@ function Login() {
     const signup = async () => {
         console.log("sign up executed",formData);
         let responseData;
+    
+        const passwordValidationResult = validatePassword(formData.password);
+        if (passwordValidationResult !== true) {
+            alert(passwordValidationResult);
+            return;
+        }
+    
 
         await fetch('http://localhost:4001/signup',{
             method:'POST',
@@ -101,6 +108,31 @@ function Login() {
         e.preventDefault();
         signup();
     };
+    const validatePassword = (password) => {
+        // Check password length
+        if (password.length < 8 || password.length > 32) {
+            return "Password must be between 8 and 32 characters.";
+        }
+    
+        // Check for lowercase letter
+        if (!/[a-z]/.test(password)) {
+            return "Password must contain at least one lowercase character.";
+        }
+    
+        // Check for uppercase letter
+        if (!/[A-Z]/.test(password)) {
+            return "Password must contain at least one uppercase character.";
+        }
+    
+        // Check for special character
+        if (!/[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(password)) {
+            return "Password must contain at least one special character.";
+        }
+    
+        // If all conditions are met
+        return true;
+    };
+    
 
     return (
         <div className="login-background">
