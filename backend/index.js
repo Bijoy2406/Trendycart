@@ -11,7 +11,7 @@ const bcrypt = require('bcryptjs');
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.get("/", (req, res) => {
     res.send("Express App is running");
@@ -70,77 +70,193 @@ app.post('/remove', async (req, res) => {
     res.json({ success: true, id });
 });
 
-app.get('/allproducts',async(req,res)=>{
-   
+app.get('/allproducts', async (req, res) => {
     let products = await Product.find({});
     console.log("All product fetched.");
     res.send(products);
-
-
-})
+});
 
 const UserSchema = new mongoose.Schema({
     name: String,
     email: { type: String, unique: true },
     password: String,
     cartData: Object,
+    refreshToken: String,
     date: { type: Date, default: Date.now }
 });
 
+const RefreshTokenSchema = new mongoose.Schema({
+    userId: mongoose.Schema.Types.ObjectId,
+    token: String,
+    expiryDate: Date
+});
+
 const Users = mongoose.model('Users', UserSchema);
+const RefreshTokens = mongoose.model('RefreshTokens', RefreshTokenSchema);
 
-//creating endpoint for registering the user
-
-app.post('/signup', async(req,res)=>{
-    let check = await Users.findOne({email:req.body.email});
-    if (check) {
-        return res.status(400).json({success:false,errors:"Existing user found with same email"})    
-    }
-    
-    let cart = {};
-    for (let i = 0; i < 300; i++) {
-        cart[i]=0;       
-    }
-    const user = new Users({
-        name:req.body.username,
-        email:req.body.email,
-        password:req.body.password,
-        cartData:cart,
-    })
-    await user.save();
-
-    const data ={
-        user:{
-            id:user.id
+const generateToken = (user) => {
+    const data = {
+        user: {
+            id: user.id
         }
+    };
+    const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    return token;
+};
+
+const generateRefreshToken = async (user) => {
+    const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET, { expiresIn: '7d' });
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 7);
+
+    const newRefreshToken = new RefreshTokens({
+        userId: user.id,
+        token: refreshToken,
+        expiryDate: expiryDate
+    });
+    await newRefreshToken.save();
+    return refreshToken;
+};
+
+// Creating endpoint for registering the user
+app.post('/signup', async (req, res) => {
+    try {
+        // Check if the username is already in use
+        let checkUsername = await Users.findOne({ name: req.body.username });
+        if (checkUsername) {
+            return res.status(400).json({ success: false, errors: "Username already in use" });
+        }
+
+        // Check if the email is already in use
+        let checkEmail = await Users.findOne({ email: req.body.email });
+        if (checkEmail) {
+            return res.status(400).json({ success: false, errors: "Email already in use" });
+        }
+
+        let cart = {};
+        for (let i = 0; i < 300; i++) {
+            cart[i] = 0;
+        }
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+        // Create a new user
+        const user = new Users({
+            name: req.body.username,
+            email: req.body.email,
+            password: hashedPassword,
+            cartData: cart,
+        });
+
+        // Save the new user
+        await user.save();
+
+        // Generate access and refresh tokens
+        const data = {
+            user: {
+                id: user.id
+            }
+        };
+
+        const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        const refreshToken = jwt.sign(data, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+
+        // Save the refresh token in the database
+        user.refreshToken = refreshToken;
+        await user.save();
+
+        // Respond with the tokens
+        res.json({ success: true, token, refreshToken });
+    } catch (error) {
+        if (error.code === 11000) {
+            // Duplicate key error (should only occur for email)
+            return res.status(400).json({ success: false, errors: "Email already in use" });
+        }
+        // Other errors
+        return res.status(500).json({ success: false, errors: "Internal server error" });
     }
+});
 
-    const token = jwt.sign(data, process.env.JWT_SECRET);
-    res.json({success:true,token})
-})
-
-//user login
-app.post('/login',async (req,res)=>{
-    let user = await Users.findOne({email:req.body.email});
+// User login
+app.post('/login', async (req, res) => {
+    let user = await Users.findOne({ email: req.body.email });
     if (user) {
-        const passCompare = req.body.password === user.password;
+        const passCompare = await bcrypt.compare(req.body.password, user.password);
         if (passCompare) {
             const data = {
-                user:{
-                    id:user.id
+                user: {
+                    id: user.id
                 }
+            };
+
+            const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+            const refreshToken = jwt.sign(data, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+
+            user.refreshToken = refreshToken;
+            await user.save();
+
+            res.json({ success: true, token, refreshToken });
+        } else {
+            res.json({ success: false, errors: "Wrong Password" });
+        }
+    } else {
+        res.json({ success: false, errors: "Wrong email" });
+    }
+});
+
+// Refresh token endpoint
+app.post('/refresh-token', async (req, res) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        return res.status(401).json({ success: false, errors: "Refresh token required" });
+    }
+
+    try {
+        const userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        const user = await Users.findById(userData.user.id);
+
+        if (!user || user.refreshToken !== refreshToken) {
+            return res.status(403).json({ success: false, errors: "Invalid refresh token" });
+        }
+
+        const data = {
+            user: {
+                id: user.id
             }
-            const token = jwt.sign(data, process.env.JWT_SECRET);
-            res.json({success:true,token})
-        }
-        else{
-            res.json({success:false,errors:"Wrong Password"});
-        }
+        };
+
+        const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.json({ success: true, token });
+    } catch (error) {
+        res.status(403).json({ success: false, errors: "Invalid refresh token" });
     }
-    else{
-        res.json({success:false,errors:"Wrong email"})
+});
+
+// Logout endpoint to invalidate refresh tokens
+app.post('/logout', async (req, res) => {
+    const { refreshToken } = req.body;
+
+    try {
+        const userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        const user = await Users.findById(userData.user.id);
+
+        if (user) {
+            user.refreshToken = null;
+            await user.save();
+            res.json({ success: true });
+        } else {
+            res.status(403).json({ success: false, errors: "Invalid refresh token" });
+        }
+    } catch (error) {
+        res.status(403).json({ success: false, errors: "Invalid refresh token" });
     }
-})
+});
 
 const port = process.env.PORT || 4001;
 app.listen(port, () => console.log(`Server running on port ${port}`));

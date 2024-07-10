@@ -7,6 +7,7 @@ const SearchResults = () => {
   const [query, setQuery] = useState(searchTerm || '');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [sortOrder, setSortOrder] = useState(''); // State for sort order
   const inputRef = useRef();
   const navigate = useNavigate();
   const [searchResults, setSearchResults] = useState([]);
@@ -48,8 +49,15 @@ const SearchResults = () => {
       filteredProducts = filteredProducts.filter(product => product.new_price <= parseInt(maxPrice));
     }
 
+    // Sort products based on sortOrder
+    if (sortOrder === 'lowToHigh') {
+      filteredProducts.sort((a, b) => a.new_price - b.new_price);
+    } else if (sortOrder === 'highToLow') {
+      filteredProducts.sort((a, b) => b.new_price - a.new_price);
+    }
+
     return filteredProducts;
-  }, [query, minPrice, maxPrice, searchResults]);
+  }, [query, minPrice, maxPrice, sortOrder, searchResults]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -62,16 +70,7 @@ const SearchResults = () => {
 
   return (
     <div className="search-container">
-      
-
       <div className="price-filter">
-        <label>Min Price:</label>
-        <input
-          type="number"
-          value={minPrice}
-          onChange={(e) => setMinPrice(e.target.value)}
-          placeholder="Min Price"
-        />
         <label>Max Price:</label>
         <input
           type="number"
@@ -79,6 +78,22 @@ const SearchResults = () => {
           onChange={(e) => setMaxPrice(e.target.value)}
           placeholder="Max Price"
         />
+        <label>Min Price:</label>
+        <input
+          type="number"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+          placeholder="Min Price"
+        />
+
+        <div className="sort-by">
+          <label>Sort by:</label>
+          <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+            <option value="">Select</option>
+            <option value="lowToHigh">Price: Low to High</option>
+            <option value="highToLow">Price: High to Low</option>
+          </select>
+        </div>
       </div>
 
       <div className="search-results">
