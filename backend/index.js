@@ -1,54 +1,41 @@
 require('dotenv').config();
 const express = require("express");
+const app = express();
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
-const GridFsStorage = require("multer-gridfs-storage");
-const Grid = require("gridfs-stream");
+const path = require("path");
 const cors = require("cors");
 const bcrypt = require('bcryptjs');
 
-const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-const conn = mongoose.connection;
 
-let gfs;
-conn.once("open", () => {
-    // Initialize stream
-    gfs = Grid(conn.db, mongoose.mongo);
-    gfs.collection("uploads"); // Set the collection name
+app.get("/", (req, res) => {
+    res.send("Express App is running");
 });
 
-// Multer storage configuration for GridFS
-const storage = new GridFsStorage({
-    url: process.env.MONGO_URI,
-    file: (req, file) => {
-        return {
-            filename: `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`,
-            bucketName: "uploads" // Name of the MongoDB collection
-        };
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'upload/images');
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`);
     }
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage: storage });
+app.use('/images', express.static('upload/images'));
 
-// Upload image route
-app.post("/upload", upload.single("product"), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ success: false, message: "No file uploaded." });
-    }
-
+app.post("/upload", upload.single('product'), (req, res) => {
     res.json({
-        success: true,
-        image_url: `${req.protocol}://${req.get("host")}/file/${req.file.id}`
+        success: 1,
+        image_url: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
 });
 
-// Product Schema
 const ProductSchema = new mongoose.Schema({
     id: Number,
     name: String,
@@ -62,7 +49,6 @@ const ProductSchema = new mongoose.Schema({
 
 const Product = mongoose.model("Product", ProductSchema);
 
-// Add product route
 app.post('/addproduct', async (req, res) => {
     try {
         const { name, image, category, new_price, old_price } = req.body;
@@ -78,30 +64,16 @@ app.post('/addproduct', async (req, res) => {
     }
 });
 
-// Remove product route
 app.post('/remove', async (req, res) => {
     const { id } = req.body;
     await Product.findOneAndDelete({ id });
     res.json({ success: true, id });
 });
 
-// Get all products
 app.get('/allproducts', async (req, res) => {
     let products = await Product.find({});
-    console.log("All products fetched.");
+    console.log("All product fetched.");
     res.send(products);
-});
-
-// Get image by id
-app.get("/file/:id", (req, res) => {
-    gfs.files.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }, (err, file) => {
-        if (!file || file.length === 0) {
-            return res.status(404).json({ err: "No file exists." });
-        }
-
-        const readstream = gfs.createReadStream(file.filename);
-        readstream.pipe(res);
-    });
 });
 
 const UserSchema = new mongoose.Schema({
