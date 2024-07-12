@@ -50,7 +50,6 @@ const Navbar = () => {
             navigate(`/${menuItem}`);
         }
         setDropdownOpen(false); 
-        window.location.reload();
     };
 
     const toggleDropdown = () => {
@@ -64,9 +63,9 @@ const Navbar = () => {
 
     return (
         <div className='navbar'>
-            <div className='nav-logo'>
+            <Link to="/" className='nav-logo'>
                 <img src={logo} alt="logo" />          
-            </div>
+            </Link>
 
             <input type="text" placeholder="Search item..." onChange={(e) => setSearchTerm(e.target.value)} />
             <button className='search' onClick={handleSearchClick}>Search</button>

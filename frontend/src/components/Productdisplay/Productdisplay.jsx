@@ -50,14 +50,14 @@ const Productdisplay = (props) => {
                         <div>XL</div>
                     </div>
                     <button onClick={()=>{addToCart(product.id)}}>ADD TO CART</button>
-                    <p className='productdisplay-right-category'>
-                        <span>Category :</span>
-                        WOMEN, T-SHIRT, CROP, TOP
-                    </p>
+                   
                 </div>
             </div>
         </div>
     );
 }
 
+
+
 export default Productdisplay;
+
