@@ -7,7 +7,6 @@ const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
 const bcrypt = require('bcryptjs');
-import { put } from '@vercel/blob';
 
 app.use(express.json());
 app.use(cors());
@@ -18,26 +17,23 @@ app.get("/", (req, res) => {
     res.send("Express App is running");
 });
 
-const storage = multer.memoryStorage(); // Use memory storage for Vercel Blob
-
-app.post("/upload", storage.single('product'), async (req, res) => {
-    try {
-        const { buffer, originalname } = req.file;
-        const blob = await put(buffer, {
-            contentType: 'image/jpeg', // Change if necessary
-            name: `${Date.now()}_${originalname}`
-        });
-
-        const imageUrl = `https://your-vercel-blob-url/${blob.id}`; // Update with your Vercel Blob URL
-
-        res.json({
-            success: 1,
-            image_url: imageUrl
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: 0, message: "Image upload failed" });
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'upload/images');
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`);
     }
+});
+
+const upload = multer({ storage: storage });
+app.use('/images', express.static('upload/images'));
+
+app.post("/upload", upload.single('product'), (req, res) => {
+    res.json({
+        success: 1,
+        image_url: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    });
 });
 
 const ProductSchema = new mongoose.Schema({
@@ -105,6 +101,7 @@ const generateToken = (user) => {
         }
     };
     const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
+
     return token;
 };
 
@@ -122,14 +119,16 @@ const generateRefreshToken = async (user) => {
     return refreshToken;
 };
 
-// User signup endpoint
+// Creating endpoint for registering the user
 app.post('/signup', async (req, res) => {
     try {
+        // Check if the username is already in use
         let checkUsername = await Users.findOne({ name: req.body.username });
         if (checkUsername) {
             return res.status(400).json({ success: false, errors: "Username already in use" });
         }
 
+        // Check if the email is already in use
         let checkEmail = await Users.findOne({ email: req.body.email });
         if (checkEmail) {
             return res.status(400).json({ success: false, errors: "Email already in use" });
@@ -140,8 +139,10 @@ app.post('/signup', async (req, res) => {
             cart[i] = 0;
         }
 
+        // Hash the password
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
+        // Create a new user
         const user = new Users({
             name: req.body.username,
             email: req.body.email,
@@ -149,19 +150,32 @@ app.post('/signup', async (req, res) => {
             cartData: cart,
         });
 
+        // Save the new user
         await user.save();
 
-        const token = generateToken(user);
-        const refreshToken = await generateRefreshToken(user);
+        // Generate access and refresh tokens
+        const data = {
+            user: {
+                id: user.id
+            }
+        };
 
+        const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        const refreshToken = jwt.sign(data, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+
+        // Save the refresh token in the database
         user.refreshToken = refreshToken;
         await user.save();
 
+        // Respond with the tokens
         res.json({ success: true, token, refreshToken });
     } catch (error) {
         if (error.code === 11000) {
+            // Duplicate key error (should only occur for email)
             return res.status(400).json({ success: false, errors: "Email already in use" });
         }
+        // Other errors
         return res.status(500).json({ success: false, errors: "Internal server error" });
     }
 });
@@ -172,8 +186,15 @@ app.post('/login', async (req, res) => {
     if (user) {
         const passCompare = await bcrypt.compare(req.body.password, user.password);
         if (passCompare) {
-            const token = generateToken(user);
-            const refreshToken = await generateRefreshToken(user);
+            const data = {
+                user: {
+                    id: user.id
+                }
+            };
+
+            const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+            const refreshToken = jwt.sign(data, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
             user.refreshToken = refreshToken;
             await user.save();
@@ -196,14 +217,21 @@ app.post('/refresh-token', async (req, res) => {
     }
 
     try {
-        const userData = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+        const userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
         const user = await Users.findById(userData.user.id);
 
         if (!user || user.refreshToken !== refreshToken) {
             return res.status(403).json({ success: false, errors: "Invalid refresh token" });
         }
 
-        const token = generateToken(user);
+        const data = {
+            user: {
+                id: user.id
+            }
+        };
+
+        const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
+
         res.json({ success: true, token });
     } catch (error) {
         res.status(403).json({ success: false, errors: "Invalid refresh token" });
@@ -215,7 +243,7 @@ app.post('/logout', async (req, res) => {
     const { refreshToken } = req.body;
 
     try {
-        const userData = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+        const userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
         const user = await Users.findById(userData.user.id);
 
         if (user) {
