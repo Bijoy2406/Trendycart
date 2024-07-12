@@ -12,9 +12,9 @@ const Listproduct = () => {
 
   useEffect(() => {
     const fetchInfo = async () => {
-      await fetch('https://backend-beryl-nu-15.vercel.app/allproducts')
-        .then((res) => res.json())
-        .then((data) => { setAllProducts(data) });
+      const response = await fetch('https://backend-beryl-nu-15.vercel.app/allproducts');
+      const data = await response.json();
+      setAllProducts(data);
     };
 
     fetchInfo();
@@ -31,7 +31,6 @@ const Listproduct = () => {
     });
 
     if (response.ok) {
-      // Update the local state to remove the product
       setAllProducts(currentProducts => currentProducts.filter(product => product.id !== id));
     } else {
       alert('Failed to delete the product.');
@@ -62,10 +61,13 @@ const Listproduct = () => {
       <div className="listproduct-allproducts">
         <hr />
         {allproducts.map((product, index) => {
+          // Construct the image URL from the product's image ID
+          const imageUrl = `https://backend-beryl-nu-15.vercel.app/file/${product.image}`; // Assuming product.image contains the file ID
+
           return (
             <div key={index}>
               <div className="listproduct-format-main listproduct-format">
-                <img src={product.image} alt="" className="listproduct-product-icon" />
+                <img src={imageUrl} alt={product.name} className="listproduct-product-icon" />
                 <p>{product.name}</p>
                 <p>৳{product.old_price}</p>
                 <p>৳{product.new_price}</p>
