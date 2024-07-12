@@ -39,59 +39,77 @@ const Addproduct = () => {
     let responseData;
     let product = { ...productDetails };
     let formData = new FormData();
-    
-    // Append the image file
-    if (image) {
-        formData.append('product', image);
-    }
+    formData.append('product', image);
 
     // Upload image if there's a new one
     if (image) {
-        await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json'
-            },
-            body: formData,
-        }).then((resp) => resp.json())
-        .then((data) => {
-            responseData = data;
+      try {
+        const response = await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
+          method: 'POST',
+          body: formData,
         });
+        const data = await response.json();
+        responseData = data;
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert("Failed to upload image");
+        return;
+      }
 
-        if (!responseData.success) {
-            alert("Failed to upload image");
-            return;
-        }
+      if (!responseData.success) {
+        alert("Failed to upload image");
+        return;
+      }
 
-        product.image = responseData.image_url; // Store the MongoDB image URL
+      product.image = responseData.image_url;
     }
 
-    // Add or update product logic
-    const apiUrl = product.id ? 'https://backend-beryl-nu-15.vercel.app/updateproduct' : 'https://backend-beryl-nu-15.vercel.app/addproduct';
-
-    await fetch(apiUrl, {
-        method: product.id ? 'PUT' : 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(product),
-    }).then((resp) => resp.json()).then((data) => {
+    if (product.id) {
+      // Update product
+      try {
+        const response = await fetch('https://backend-beryl-nu-15.vercel.app/updateproduct', {
+          method: 'PUT',
+          headers: {
+            'Content-type': 'application/json',
+          },
+          body: JSON.stringify(product),
+        });
+        const data = await response.json();
         if (data.success) {
-            if (product.id) {
-                updateProduct(product);
-                alert("Product updated successfully");
-            } else {
-                addProduct(product);
-                alert("Product added successfully");
-            }
-            navigate('/admin');
+          updateProduct(product);
+          alert("Product updated successfully");
+          navigate('/admin');
         } else {
-            alert("Failed to save product");
+          alert("Failed to update product");
         }
-    });
-};
-
+      } catch (error) {
+        console.error('Error updating product:', error);
+        alert("Failed to update product");
+      }
+    } else {
+      // Add new product
+      try {
+        const response = await fetch('https://backend-beryl-nu-15.vercel.app/addproduct', {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json',
+          },
+          body: JSON.stringify(product),
+        });
+        const data = await response.json();
+        if (data.success) {
+          addProduct(product);
+          alert("Product added successfully");
+          navigate('/admin');
+        } else {
+          alert("Failed to add product");
+        }
+      } catch (error) {
+        console.error('Error adding product:', error);
+        alert("Failed to add product");
+      }
+    }
+  };
 
   const goBack = () => {
     navigate('/admin'); // Navigate back to the Admin component
@@ -105,68 +123,68 @@ const Addproduct = () => {
         </button>
 
         <p>Product Title</p>
-                <input
-                    value={productDetails.name}
-                    onChange={changeHandler}
-                    type="text"
-                    name='name'
-                    placeholder='Type here'
-                />
-            </div>
-            <div className="addproduct-price">
-                <div className="addproduct-itemfields">
-                    <p>Price</p>
-                    <input
-                        value={productDetails.old_price}
-                        onChange={changeHandler}
-                        type="text"
-                        name="old_price"
-                        placeholder='Type here'
-                    />
-                </div>
-                <div className="addproduct-itemfields">
-                    <p>Offer Price</p>
-                    <input
-                        value={productDetails.new_price}
-                        onChange={changeHandler}
-                        type="text"
-                        name="new_price"
-                        placeholder='Type here'
-                    />
-                </div>
-            </div>
-            <div className="addproduct-itemfields">
-                <p>Product Category</p>
-                <select
-                    value={productDetails.category}
-                    onChange={changeHandler}
-                    name="category"
-                    className='add-product-selector'
-                >
-                    <option value="">Select category</option>
-                    <option value="women">Women</option>
-                    <option value="men">Men</option>
-                    <option value="kid">Kid</option>
-                </select>
-            </div>
-            <div className="addproduct-itemfields" onClick={() => document.getElementById('file-input').click()}>
-                <label>
-                    <img
-                        src={image ? URL.createObjectURL(image) : upload_area}
-                        className='addproduct-thumbnail-image'
-                        alt=""
-                    />
-                </label>
-                <input
-                    onChange={imageHandler}
-                    type="file"
-                    name='image'
-                    id='file-input'
-                    style={{ display: 'none' }}
-                />
-            </div>
-            <button onClick={handleSubmit} className='addproduct-btn'>SAVE</button>
+        <input
+          value={productDetails.name}
+          onChange={changeHandler}
+          type="text"
+          name='name'
+          placeholder='Type here'
+        />
+      </div>
+      <div className="addproduct-price">
+        <div className="addproduct-itemfields">
+          <p>Price</p>
+          <input
+            value={productDetails.old_price}
+            onChange={changeHandler}
+            type="text"
+            name="old_price"
+            placeholder='Type here'
+          />
         </div>
+        <div className="addproduct-itemfields">
+          <p>Offer Price</p>
+          <input
+            value={productDetails.new_price}
+            onChange={changeHandler}
+            type="text"
+            name="new_price"
+            placeholder='Type here'
+          />
+        </div>
+      </div>
+      <div className="addproduct-itemfields">
+        <p>Product Category</p>
+        <select
+          value={productDetails.category}
+          onChange={changeHandler}
+          name="category"
+          className='add-product-selector'
+        >
+          <option value="">Select category</option>
+          <option value="women">Women</option>
+          <option value="men">Men</option>
+          <option value="kid">Kid</option>
+        </select>
+      </div>
+      <div className="addproduct-itemfields" onClick={() => document.getElementById('file-input').click()}>
+        <label>
+          <img
+            src={image ? URL.createObjectURL(image) : upload_area}
+            className='addproduct-thumbnail-image'
+            alt=""
+          />
+        </label>
+        <input
+          onChange={imageHandler}
+          type="file"
+          name='image'
+          id='file-input'
+          style={{ display: 'none' }}
+        />
+      </div>
+      <button onClick={handleSubmit} className='addproduct-btn'>SAVE</button>
+    </div>
   );
 };
 
