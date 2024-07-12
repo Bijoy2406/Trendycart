@@ -9,7 +9,7 @@ const RelatedProduct = ({ category }) => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get(`http://localhost:4001/allproducts?category=${category}`);
+                const response = await axios.get(`https://backend-beryl-nu-15.vercel.app/allproducts?category=${category}`);
                 setProducts(response.data.slice(0, 4)); // Limit to the first 4 products
             } catch (error) {
                 console.error('Error fetching products:', error);

@@ -125,7 +125,7 @@ function Login() {
         }
     
         // Check for special character
-        if (!/[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(password)) {
+        if (!/[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(password)) {
             return "Password must contain at least one special character.";
         }
     
@@ -278,4 +278,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default Login
