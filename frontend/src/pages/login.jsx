@@ -26,7 +26,7 @@ function Login() {
         console.log("sign in executed",formData);
         let responseData;
 
-        await fetch('http://localhost:4001/login',{
+        await fetch('https://backend-beryl-nu-15.vercel.app/login',{
             method:'POST',
             headers:{
                 Accept:'application/form-data',
@@ -55,7 +55,7 @@ function Login() {
         }
     
 
-        await fetch('http://localhost:4001/signup',{
+        await fetch('https://backend-beryl-nu-15.vercel.app/signup',{
             method:'POST',
             headers:{
                 Accept:'application/form-data',

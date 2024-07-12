@@ -43,7 +43,7 @@ const Addproduct = () => {
 
     // Upload image if there's a new one
     if (image) {
-      await fetch('http://localhost:4001/upload', {
+      await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
         method: 'POST',
         headers: {
           Accept: 'application/json'
@@ -64,7 +64,7 @@ const Addproduct = () => {
 
     if (product.id) {
       // Update product
-      await fetch('http://localhost:4001/updateproduct', {
+      await fetch('https://backend-beryl-nu-15.vercel.app/updateproduct', {
         method: 'PUT',
         headers: {
           Accept: 'application/json',
@@ -82,7 +82,7 @@ const Addproduct = () => {
       });
     } else {
       // Add new product
-      await fetch('http://localhost:4001/addproduct', {
+      await fetch('https://backend-beryl-nu-15.vercel.app/addproduct', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
