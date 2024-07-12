@@ -15,6 +15,7 @@ import women_banner from './components/Assets/banner_women.png';
 import kids_banner from './components/Assets/banner_kids.png';
 import ShopContextProvider from './components/Context/ShopContext';
 import SearchResults from './pages/search';
+import Profile from './components/Profile/profile'; // Import the Profile component
 
 function App() {
   return (
@@ -22,7 +23,6 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path='/login/*' element={<Login />} />
-          
           <Route path='/addproduct' element={<Addproduct />} />
           <Route path='/listproduct' element={<Listproduct />} />
           <Route path='*' element={<WithNavbar />} />
@@ -45,7 +45,8 @@ function WithNavbar() {
         <Route path='cart' element={<Cart />} />
         <Route path='search/:searchTerm' element={<SearchResults />} />
         <Route path='/admin' element={<Admin />} />
-        {/* Other routes can be added here as needed */}
+        <Route path='/profile' element={<Profile />} /> 
+      
       </Routes>
       <Footer />
     </div>

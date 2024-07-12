@@ -4,12 +4,14 @@ import logo from "../components/Assets/svg-viewer.svg";
 import cart_icon from "../components/Assets/cart_icon.png";
 import './Navbar.css';
 import { ShopContext } from '../components/Context/ShopContext';
+import navProfile from '../components/Assets/pic/nav-profile.png';
 
 const Navbar = () => {
     const initialMenu = localStorage.getItem('selectedMenu') || "shop";
     const [menu, setMenu] = useState(initialMenu);
     const { getTotalCartItem, setAll_Product } = useContext(ShopContext);
     const [searchTerm, setSearchTerm] = useState("");
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     const navigate = useNavigate();
 
     const fetchProducts = async (category) => {
@@ -28,6 +30,7 @@ const Navbar = () => {
 
     const handleAdminClick = () => {
         navigate('/Admin');
+        setDropdownOpen(false); 
     };
 
     const handleSearchClick = (e) => {
@@ -35,6 +38,7 @@ const Navbar = () => {
         if (searchTerm.trim() !== '') {
             navigate(`/search/${searchTerm}`);
         }
+        setDropdownOpen(false); 
     };
 
     const handleMenuClick = (menuItem) => {
@@ -45,7 +49,17 @@ const Navbar = () => {
         } else {
             navigate(`/${menuItem}`);
         }
+        setDropdownOpen(false); 
         window.location.reload();
+    };
+
+    const toggleDropdown = () => {
+        setDropdownOpen(!dropdownOpen);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('auth-token');
+        window.location.replace('/');
     };
 
     return (
@@ -65,10 +79,20 @@ const Navbar = () => {
 
             <div className="nav-login-cart">
                 {localStorage.getItem('auth-token')
-                ? <button className='logout' onClick={() => {localStorage.removeItem('auth-token'); window.location.replace('/')}}>Logout</button>
-                : <Link to='/login'><button className='login'>Login</button></Link>} 
+                ? (
+                    <div className="profile-dropdown">
+                        <img src={navProfile} alt="Profile" className="profile-icon" onClick={toggleDropdown} />
+                        {dropdownOpen && (
+                            <div className="dropdown-menu">
+                                <Link to="/profile" onClick={() => setDropdownOpen(false)}><button>Profile</button></Link>
+                                <button onClick={handleLogout}>Logout</button>
+                            </div>
+                        )}
+                    </div>
+                )
+                : <Link to='/login'><button className='login'>login</button></Link>} 
                 <button className='new-button' onClick={handleAdminClick}>Admin panel</button>        
-                <Link to='/cart'><img className='cart-img' src={cart_icon} alt="" /></Link>
+                <Link to='/cart' onClick={() => setDropdownOpen(false)}><img className='cart-img' src={cart_icon} alt="" /></Link>
                 <div className="nav-cart-count">{getTotalCartItem()}</div>
             </div>
         </div>
