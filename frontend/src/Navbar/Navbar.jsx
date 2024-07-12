@@ -15,7 +15,7 @@ const Navbar = () => {
     const navigate = useNavigate();
 
     const fetchProducts = async (category) => {
-        let url = 'http://localhost:4001/products';
+        let url = 'https://backend-beryl-nu-15.vercel.app/products';
         if (category && category !== 'shop') {
             url += `/${category}`;
         }
@@ -23,6 +23,7 @@ const Navbar = () => {
         const data = await response.json();
         setAll_Product(data);
     };
+    
 
     useEffect(() => {
         fetchProducts(menu);

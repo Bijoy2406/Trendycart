@@ -8,7 +8,7 @@ const Popular = () => {
   useEffect(() => {
     const fetchPopularItems = async () => {
       try {
-        const response = await fetch('http://localhost:4001/allproducts');
+        const response = await fetch('https://backend-beryl-nu-15.vercel.app/allproducts');
         if (response.ok) {
           const data = await response.json();
           const womenItems = data.filter(item => item.category === 'women').slice(0, 4);
