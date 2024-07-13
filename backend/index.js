@@ -45,7 +45,6 @@ app.post("/upload", upload.single('product'), (req, res) => {
     });
 });
 
-
 const ProductSchema = new mongoose.Schema({
     id: Number,
     name: String,
@@ -116,7 +115,7 @@ const generateToken = (user) => {
 };
 
 const generateRefreshToken = async (user) => {
-    const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET, { expiresIn: '7d' });
+    const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + 7);
 
@@ -127,6 +126,22 @@ const generateRefreshToken = async (user) => {
     });
     await newRefreshToken.save();
     return refreshToken;
+};
+
+// Middleware to verify the JWT token
+const verifyToken = (req, res, next) => {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    if (!token) {
+        return res.status(401).json({ success: false, errors: "Access denied. No token provided." });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded.user;
+        next();
+    } catch (error) {
+        res.status(400).json({ success: false, errors: "Invalid token" });
+    }
 };
 
 // Creating endpoint for registering the user
@@ -267,22 +282,6 @@ app.post('/logout', async (req, res) => {
         res.status(403).json({ success: false, errors: "Invalid refresh token" });
     }
 });
-
-// Middleware to verify the JWT token
-const verifyToken = (req, res, next) => {
-    const token = req.header('Authorization').replace('Bearer ', '');
-    if (!token) {
-        return res.status(401).json({ success: false, errors: "Access denied. No token provided." });
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded.user;
-        next();
-    } catch (error) {
-        res.status(400).json({ success: false, errors: "Invalid token" });
-    }
-};
 
 // Endpoint to get user information
 app.get('/userinfo', verifyToken, async (req, res) => {
