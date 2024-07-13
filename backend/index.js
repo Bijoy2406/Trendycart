@@ -31,7 +31,7 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'some-folder-name',
-        format: async (req, file) => path.extname(file.originalname).substring(1),
+        format: async (req, file) => path.extname(file.originalname).substring(1), // supports promises as well
         public_id: (req, file) => `${file.fieldname}_${Date.now()}`
     },
 });
@@ -115,7 +115,7 @@ const generateToken = (user) => {
 };
 
 const generateRefreshToken = async (user) => {
-    const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+    const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET, { expiresIn: '7d' });
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + 7);
 
@@ -126,22 +126,6 @@ const generateRefreshToken = async (user) => {
     });
     await newRefreshToken.save();
     return refreshToken;
-};
-
-// Middleware to verify the JWT token
-const verifyToken = (req, res, next) => {
-    const token = req.header('Authorization').replace('Bearer ', '');
-    if (!token) {
-        return res.status(401).json({ success: false, errors: "Access denied. No token provided." });
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded.user;
-        next();
-    } catch (error) {
-        res.status(400).json({ success: false, errors: "Invalid token" });
-    }
 };
 
 // Creating endpoint for registering the user
@@ -283,19 +267,19 @@ app.post('/logout', async (req, res) => {
     }
 });
 
-// Endpoint to get user information
-app.get('/userinfo', verifyToken, async (req, res) => {
-    try {
-        console.log('Fetching user info for user ID:', req.user.id); // Add logging here
-        const user = await Users.findById(req.user.id).select('-password -refreshToken');
-        if (!user) {
-            return res.status(404).json({ success: false, errors: "User not found" });
-        }
-        res.json({ success: true, user });
-    } catch (error) {
-        console.error('Error fetching user info:', error); // Add error logging here
-        res.status(500).json({ success: false, errors: "Internal server error" });
+// Endpoint to get user data
+app.get('/user', async (req, res) => {
+    const token = req.headers['authorization'];
+    if (!token) {
+        return res.status(403).json({ success: false, message: 'No token provided.' });
     }
+    jwt.verify(token, process.env.JWT_SECRET, async function(err, decoded) {
+        if (err) {
+            return res.status(500).json({ success: false, message: 'Failed to authenticate token.' });
+        }
+        const user = await Users.findById(decoded.user.id);
+        res.json({ success: true, user: { name: user.name, email: user.email } });
+    });
 });
 
 const port = process.env.PORT || 4001;
