@@ -12,11 +12,49 @@
 }
 
 .shopcategory-sort {
+    position: relative;
     display: flex;
-    align-items: center;
-    padding: 10px 20px;
+    align-items: center; /* Vertically center the items */
+    justify-content: space-between; 
+    padding: 10px 90px;
     border-radius: 40px;
     border: 1px solid black;
+    position: relative; /* Position relative for absolute positioning of dropdown */
+    cursor: pointer; /* Change cursor to indicate clickable */
+}
+.shopcategory-sort span {
+    position: relative;
+    right: 70px;
+    top: 15px;
+    transform: translateY(-50%);
+    font-size: 20px;
+}
+.shopcategory-sort select {
+    position: absolute;
+    top: 50%;
+    left: 28px;
+    transform: translate(50%, -50%);
+    appearance: none;
+    border: none;
+    background: transparent;
+    padding-right: 30px;
+    cursor: pointer;
+    margin-left: auto;
+    font-size: 20px;
+}
+
+.shopcategory-sort .down-arrow {
+    position: absolute;
+    right: 15px; /* Adjust as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Makes it non-clickable */
+}
+
+
+.shopcategory-sort img {
+    margin-left: 10px;
+    pointer-events: none; /* Prevent the icon from being clickable */
 }
 
 .shopcategory-indexsort p {
@@ -30,17 +68,12 @@
 .shopcategory-products {
     margin: 20px 170px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     row-gap: 80px;
     gap: 30px;
 }
 
-.shopcategory-sort img {
-    margin-left: 10px;
-}
-
-.shopcategory-loadmore{
- 
+.shopcategory-loadmore {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -49,8 +82,37 @@
     height: 69px;
     border-radius: 75px;
     color: black;
-    background-color:aliceblue;
+    background-color: aliceblue;
     font-size: 18px;
     font-weight: 500;
+    cursor: pointer; /* Change cursor to indicate clickable */
+    transition: background-color 0.3s ease; /* Transition for background color */
+}
+
+.shopcategory-loadmore:hover {
+    background-color: #f0f0f0; /* Change background color on hover */
+}
+
+/* Additional styles for dropdown menu */
+.dropdown-menu {
+    position: absolute;
+    top: 100%; /* Position below the sort div */
+    right: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000; /* Ensure dropdown is above other content */
+    width: auto; /* Width as per content */
+}
+
+.dropdown-menu li {
     
+    padding: 10px 20px;
+    list-style: none; /* Remove default list style */
+    cursor: pointer; /* Change cursor to indicate clickable */
+}
+
+.dropdown-menu li:hover {
+    background-color: #f0f0f0; /* Change background color on hover */
 }

@@ -46,12 +46,13 @@ const Navbar = () => {
         setMenu(menuItem);
         localStorage.setItem('selectedMenu', menuItem);
         if (menuItem === 'shop') {
-            navigate('/');
+            window.location.href = '/';
         } else {
-            navigate(`/${menuItem}`);
+            window.location.href = `/${menuItem}`;
         }
         setDropdownOpen(false); 
     };
+    
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
@@ -64,9 +65,9 @@ const Navbar = () => {
 
     return (
         <div className='navbar'>
-            <Link to="/" className='nav-logo'>
-                <img src={logo} alt="logo" />          
-            </Link>
+            <Link to="/" className='nav-logo' onClick={() => handleMenuClick("shop")}>
+            <img src={logo} alt="logo" />          
+        </Link>
 
             <input type="text" placeholder="Search item..." onChange={(e) => setSearchTerm(e.target.value)} />
             <button className='search' onClick={handleSearchClick}>Search</button>

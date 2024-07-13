@@ -89,7 +89,6 @@ const SearchResults = () => {
         <div className="sort-by">
           <label>Sort by:</label>
           <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-            <option value="">Select</option>
             <option value="lowToHigh">Price: Low to High</option>
             <option value="highToLow">Price: High to Low</option>
           </select>
