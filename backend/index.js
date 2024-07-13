@@ -46,7 +46,6 @@ app.post("/upload", upload.single('product'), (req, res) => {
 });
 
 
-
 const ProductSchema = new mongoose.Schema({
     id: Number,
     name: String,
