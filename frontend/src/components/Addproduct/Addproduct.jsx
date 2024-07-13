@@ -22,7 +22,6 @@ const Addproduct = () => {
   useEffect(() => {
     if (location.state && location.state.product) {
       setProductDetails(location.state.product);
-      setImage(null); // Reset image if editing
     }
   }, [location.state]);
 
@@ -44,15 +43,16 @@ const Addproduct = () => {
 
     // Upload image if there's a new one
     if (image) {
-      const response = await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
+      await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
         method: 'POST',
         headers: {
           Accept: 'application/json'
         },
         body: formData,
-      });
-
-      responseData = await response.json();
+      }).then((resp) => resp.json())
+        .then((data) => {
+          responseData = data;
+        });
 
       if (!responseData.success) {
         alert("Failed to upload image");
@@ -64,47 +64,45 @@ const Addproduct = () => {
 
     if (product.id) {
       // Update product
-      const updateResponse = await fetch('https://backend-beryl-nu-15.vercel.app/updateproduct', {
+      await fetch('https://backend-beryl-nu-15.vercel.app/updateproduct', {
         method: 'PUT',
         headers: {
           Accept: 'application/json',
           'Content-type': 'application/json',
         },
         body: JSON.stringify(product),
+      }).then((resp) => resp.json()).then((data) => {
+        if (data.success) {
+          updateProduct(product);
+          alert("Product updated successfully");
+          navigate('/admin');
+        } else {
+          alert("Failed to update product");
+        }
       });
-
-      const updateData = await updateResponse.json();
-      if (updateData.success) {
-        updateProduct(product);
-        alert("Product updated successfully");
-        navigate('/admin');
-      } else {
-        alert("Failed to update product");
-      }
     } else {
       // Add new product
-      const addResponse = await fetch('https://backend-beryl-nu-15.vercel.app/addproduct', {
+      await fetch('https://backend-beryl-nu-15.vercel.app/addproduct', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-type': 'application/json',
         },
         body: JSON.stringify(product),
+      }).then((resp) => resp.json()).then((data) => {
+        if (data.success) {
+          addProduct(product);
+          alert("Product added successfully");
+          navigate('/admin');
+        } else {
+          alert("Failed to add product");
+        }
       });
-
-      const addData = await addResponse.json();
-      if (addData.success) {
-        addProduct(product);
-        alert("Product added successfully");
-        navigate('/admin');
-      } else {
-        alert("Failed to add product");
-      }
     }
   };
 
   const goBack = () => {
-    navigate('/admin');
+    navigate('/admin'); // Navigate back to the Admin component
   };
 
   return (

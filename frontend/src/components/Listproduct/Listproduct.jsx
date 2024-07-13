@@ -12,9 +12,9 @@ const Listproduct = () => {
 
   useEffect(() => {
     const fetchInfo = async () => {
-      const response = await fetch('https://backend-beryl-nu-15.vercel.app/allproducts');
-      const data = await response.json();
-      setAllProducts(data);
+      await fetch('https://backend-beryl-nu-15.vercel.app/allproducts')
+        .then((res) => res.json())
+        .then((data) => { setAllProducts(data) });
     };
 
     fetchInfo();
@@ -27,10 +27,11 @@ const Listproduct = () => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ id })
+      body: JSON.stringify({ id: id })
     });
 
     if (response.ok) {
+      // Update the local state to remove the product
       setAllProducts(currentProducts => currentProducts.filter(product => product.id !== id));
     } else {
       alert('Failed to delete the product.');
@@ -42,7 +43,7 @@ const Listproduct = () => {
   };
 
   const goBack = () => {
-    navigate('/admin');
+    navigate('/admin'); // Navigate back to the Admin component
   };
 
   return (
@@ -60,22 +61,24 @@ const Listproduct = () => {
       </div>
       <div className="listproduct-allproducts">
         <hr />
-        {allproducts.map((product, index) => (
-          <div key={index}>
-            <div className="listproduct-format-main listproduct-format">
-              <img src={product.image} alt="" className="listproduct-product-icon" />
-              <p>{product.name}</p>
-              <p>৳{product.old_price}</p>
-              <p>৳{product.new_price}</p>
-              <p>{product.category}</p>
-              <div className="icon-container">
-                <img onClick={() => remove_product(product.id)} className='listproduct-remove-icon' src={cross_icon} alt="Remove" />
-                <img onClick={() => edit_product(product)} className='listproduct-edit-icon' src={edit_icon} alt="Edit" />
+        {allproducts.map((product, index) => {
+          return (
+            <div key={index}>
+              <div className="listproduct-format-main listproduct-format">
+                <img src={product.image} alt="" className="listproduct-product-icon" />
+                <p>{product.name}</p>
+                <p>৳{product.old_price}</p>
+                <p>৳{product.new_price}</p>
+                <p>{product.category}</p>
+                <div className="icon-container">
+                  <img onClick={() => { remove_product(product.id) }} className='listproduct-remove-icon' src={cross_icon} alt="Remove" />
+                  <img onClick={() => { edit_product(product) }} className='listproduct-edit-icon' src={edit_icon} alt="Edit" />
+                </div>
               </div>
+              <hr />
             </div>
-            <hr />
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
