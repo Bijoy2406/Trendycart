@@ -268,5 +268,34 @@ app.post('/logout', async (req, res) => {
     }
 });
 
+// Middleware to verify the JWT token
+const verifyToken = (req, res, next) => {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    if (!token) {
+        return res.status(401).json({ success: false, errors: "Access denied. No token provided." });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded.user;
+        next();
+    } catch (error) {
+        res.status(400).json({ success: false, errors: "Invalid token" });
+    }
+};
+
+// Endpoint to get user information
+app.get('/userinfo', verifyToken, async (req, res) => {
+    try {
+        const user = await Users.findById(req.user.id).select('-password -refreshToken');
+        if (!user) {
+            return res.status(404).json({ success: false, errors: "User not found" });
+        }
+        res.json({ success: true, user });
+    } catch (error) {
+        res.status(500).json({ success: false, errors: "Internal server error" });
+    }
+});
+
 const port = process.env.PORT || 4001;
 app.listen(port, () => console.log(`Server running on port ${port}`));
