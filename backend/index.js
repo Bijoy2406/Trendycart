@@ -86,6 +86,23 @@ app.get('/allproducts', async (req, res) => {
     res.send(products);
 });
 
+app.get('/profile', async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await Users.findById(decoded.user.id).select('-password -refreshToken');
+
+    if (!user) {
+      return res.status(404).json({ success: false, errors: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(401).json({ success: false, errors: "Unauthorized" });
+  }
+});
+
 const UserSchema = new mongoose.Schema({
     name: String,
     email: { type: String, unique: true },
