@@ -45,6 +45,7 @@ app.post("/upload", upload.single('product'), (req, res) => {
     });
 });
 
+
 const ProductSchema = new mongoose.Schema({
     id: Number,
     name: String,
@@ -265,21 +266,6 @@ app.post('/logout', async (req, res) => {
     } catch (error) {
         res.status(403).json({ success: false, errors: "Invalid refresh token" });
     }
-});
-
-// Endpoint to get user data
-app.get('/user', async (req, res) => {
-    const token = req.headers['authorization'];
-    if (!token) {
-        return res.status(403).json({ success: false, message: 'No token provided.' });
-    }
-    jwt.verify(token, process.env.JWT_SECRET, async function(err, decoded) {
-        if (err) {
-            return res.status(500).json({ success: false, message: 'Failed to authenticate token.' });
-        }
-        const user = await Users.findById(decoded.user.id);
-        res.json({ success: true, user: { name: user.name, email: user.email } });
-    });
 });
 
 const port = process.env.PORT || 4001;
