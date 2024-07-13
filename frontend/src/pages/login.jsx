@@ -4,71 +4,75 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './CSS/login.css';
 import { Link } from 'react-router-dom';
+import Loader from '../Loader';
 
 function Login() {
     const [showLogin, setShowLogin] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [loginForm, setLoginForm] = useState({ Email: '', password: '' });
     const [registerForm, setRegisterForm] = useState({ username: '', Email: '', password: '', dob: new Date() });
     const datePickerRef = useRef(null);
 
-    const [state,setState] = useState("login");
-    const [formData,setFormData] = useState({
-        username:"",
-        password:"",
-        email:"",
+    const [state, setState] = useState("login");
+    const [formData, setFormData] = useState({
+        username: "",
+        password: "",
+        email: "",
     })
 
-    const changeHandler =(e)=>{
-        setFormData({...formData,[e.target.name]:e.target.value})
+    const changeHandler = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
     const signin = async () => {
-        console.log("sign in executed",formData);
+        setLoading(true);
+        console.log("sign in executed", formData);
         let responseData;
 
-        await fetch('https://backend-beryl-nu-15.vercel.app/login',{
-            method:'POST',
-            headers:{
-                Accept:'application/form-data',
-                'Content-Type':'application/json',
+        await fetch('https://backend-beryl-nu-15.vercel.app/login', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/form-data',
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify(formData)
-        }).then((response)=> response.json()).then((data)=>responseData=data)
+        }).then((response) => response.json()).then((data) => responseData = data)
 
-        if(responseData.success){
-            localStorage.setItem('auth-token',responseData.token);
+        if (responseData.success) {
+            localStorage.setItem('auth-token', responseData.token);
             window.location.replace("/");
         }
-        else{
+        else {
             alert(responseData.errors)
         }
+        setLoading(false);
     };
 
     const signup = async () => {
-        console.log("sign up executed",formData);
+        console.log("sign up executed", formData);
         let responseData;
-    
+
         const passwordValidationResult = validatePassword(formData.password);
         if (passwordValidationResult !== true) {
             alert(passwordValidationResult);
             return;
         }
-    
 
-        await fetch('https://backend-beryl-nu-15.vercel.app/signup',{
-            method:'POST',
-            headers:{
-                Accept:'application/form-data',
-                'Content-Type':'application/json',
+
+        await fetch('https://backend-beryl-nu-15.vercel.app/signup', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/form-data',
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify(formData)
-        }).then((response)=> response.json()).then((data)=>responseData=data)
+        }).then((response) => response.json()).then((data) => responseData = data)
 
-        if(responseData.success){
-            localStorage.setItem('auth-token',responseData.token);
+        if (responseData.success) {
+            localStorage.setItem('auth-token', responseData.token);
             window.location.replace("/");
         }
-        else{
+        else {
             alert(responseData.errors)
         }
     };
@@ -113,26 +117,26 @@ function Login() {
         if (password.length < 8 || password.length > 32) {
             return "Password must be between 8 and 32 characters.";
         }
-    
+
         // Check for lowercase letter
         if (!/[a-z]/.test(password)) {
             return "Password must contain at least one lowercase character.";
         }
-    
+
         // Check for uppercase letter
         if (!/[A-Z]/.test(password)) {
             return "Password must contain at least one uppercase character.";
         }
-    
+
         // Check for special character
         if (!/[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(password)) {
             return "Password must contain at least one special character.";
         }
-    
+
         // If all conditions are met
         return true;
     };
-    
+
 
     return (
         <div className="login-background">
@@ -182,7 +186,7 @@ function Login() {
                                             name="email"
                                             value={formData.Email}
                                             onChange={changeHandler}
-                                             />
+                                        />
                                         <i className="bx bx-user icon"></i>
                                     </div>
                                     <div className="input-box">
@@ -193,7 +197,7 @@ function Login() {
                                             name="password"
                                             value={formData.password}
                                             onChange={changeHandler}
-                                             />
+                                        />
                                         <i className="bx bx-lock-alt icon"></i>
                                     </div>
                                     <div className="forgot-pass">
@@ -205,14 +209,14 @@ function Login() {
                             <>
                                 <div className="form-inputs">
                                     <div className="input-box">
-                                        <input 
+                                        <input
                                             type="text"
                                             className="input-field"
                                             placeholder="Username"
-                                            name="username" 
+                                            name="username"
                                             value={formData.username}
                                             onChange={changeHandler}
-                                             />
+                                        />
                                         <i className="bx bx-user icon"></i>
                                     </div>
                                     <div className="input-box">
@@ -223,7 +227,7 @@ function Login() {
                                             name="email"
                                             value={formData.email}
                                             onChange={changeHandler}
-                                             />
+                                        />
                                         <i className="bx bx-mobile icon"></i>
                                     </div>
                                     <div className="input-box">
@@ -260,8 +264,8 @@ function Login() {
                             </>
                         )}
                         <div className="input-box">
-                            <button className="input-submit" type="submit">
-                                <span onClick={()=>{state==="login"?signin():signup()}}>Continue</span>
+                            <button className="input-submit" type="submit" disabled={loading}>
+                                {loading ? <Loader /> : <span onClick={() => { state === "login" ? signin() : signup() }}>Continue</span>}
                                 <i className="bx bx-right-arrow-alt"></i>
                             </button>
                         </div>

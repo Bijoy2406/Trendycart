@@ -7,12 +7,24 @@ import Item from '../components/Item/Item';
 const ShopCategory = (props) => {
   const { all_product } = useContext(ShopContext);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [sortOrder, setSortOrder] = useState(''); // Empty string for no sort order
 
   // Update the filteredProducts state whenever all_product changes
   useEffect(() => {
-    const updatedProducts = all_product.filter(item => item.category === props.category);
+    let updatedProducts = all_product.filter(item => item.category === props.category);
+
+    // Sort the products based on the sortOrder
+    if (sortOrder !== '') {
+      updatedProducts.sort((a, b) => sortOrder === 'lowToHigh' ? a.new_price - b.new_price : b.new_price - a.new_price);
+    }
+
     setFilteredProducts(updatedProducts);
-  }, [all_product, props.category]);
+  }, [all_product, props.category, sortOrder]);
+
+  // Function to handle sort order change from dropdown
+  const handleSortChange = (e) => {
+    setSortOrder(e.target.value);
+  };
 
   return (
     <div className='shop-category'>
@@ -23,8 +35,15 @@ const ShopCategory = (props) => {
         </p>
 
         <div className="shopcategory-sort">
-          Sort by <img src={dropdown_icon} alt="Sort Icon" />
+          <span>Sort by</span>
+          <select onChange={handleSortChange} value={sortOrder}>           
+            <option value="lowToHigh">Low to High</option>
+            <option value="highToLow">High to Low</option>
+          </select>
+          <img src={dropdown_icon} alt="Sort Icon" className="down-arrow" />
         </div>
+
+
       </div>
       <div className="shopcategory-products">
         {filteredProducts.map((item, index) => (
