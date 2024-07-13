@@ -31,7 +31,7 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'some-folder-name',
-        format: async (req, file) => path.extname(file.originalname).substring(1), // supports promises as well
+        format: async (req, file) => path.extname(file.originalname).substring(1),
         public_id: (req, file) => `${file.fieldname}_${Date.now()}`
     },
 });
@@ -286,12 +286,14 @@ app.post('/logout', async (req, res) => {
 // Endpoint to get user information
 app.get('/userinfo', verifyToken, async (req, res) => {
     try {
+        console.log('Fetching user info for user ID:', req.user.id); // Add logging here
         const user = await Users.findById(req.user.id).select('-password -refreshToken');
         if (!user) {
             return res.status(404).json({ success: false, errors: "User not found" });
         }
         res.json({ success: true, user });
     } catch (error) {
+        console.error('Error fetching user info:', error); // Add error logging here
         res.status(500).json({ success: false, errors: "Internal server error" });
     }
 });
