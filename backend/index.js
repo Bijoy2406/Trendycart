@@ -86,31 +86,29 @@ app.get('/allproducts', async (req, res) => {
     res.send(products);
 });
 
-app.get('/profile', async (req, res) => {
-  try {
+// User info endpoint
+app.get('/userinfo', async (req, res) => {
+    // Extract the token from the Authorization header
     const token = req.headers.authorization.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await Users.findById(decoded.user.id).select('-password -refreshToken');
+    try {
+        // Verify the token
+        const userData = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!user) {
-      return res.status(404).json({ success: false, errors: "User not found" });
+        // Find the user
+        const user = await Users.findById(userData.user.id);
+
+        if (user) {
+            // Respond with the user's name and email
+            res.json({ success: true, name: user.name, email: user.email });
+        } else {
+            res.status(404).json({ success: false, errors: "User not found" });
+        }
+    } catch (error) {
+        res.status(403).json({ success: false, errors: "Invalid token" });
     }
-
-    res.json(user);
-  } catch (error) {
-    res.status(401).json({ success: false, errors: "Unauthorized" });
-  }
 });
 
-const UserSchema = new mongoose.Schema({
-    name: String,
-    email: { type: String, unique: true },
-    password: String,
-    cartData: Object,
-    refreshToken: String,
-    date: { type: Date, default: Date.now }
-});
 
 const RefreshTokenSchema = new mongoose.Schema({
     userId: mongoose.Schema.Types.ObjectId,
