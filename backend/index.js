@@ -86,29 +86,14 @@ app.get('/allproducts', async (req, res) => {
     res.send(products);
 });
 
-// User info endpoint
-app.get('/userinfo', async (req, res) => {
-    // Extract the token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
-
-    try {
-        // Verify the token
-        const userData = jwt.verify(token, process.env.JWT_SECRET);
-
-        // Find the user
-        const user = await Users.findById(userData.user.id);
-
-        if (user) {
-            // Respond with the user's name and email
-            res.json({ success: true, name: user.name, email: user.email });
-        } else {
-            res.status(404).json({ success: false, errors: "User not found" });
-        }
-    } catch (error) {
-        res.status(403).json({ success: false, errors: "Invalid token" });
-    }
+const UserSchema = new mongoose.Schema({
+    name: String,
+    email: { type: String, unique: true },
+    password: String,
+    cartData: Object,
+    refreshToken: String,
+    date: { type: Date, default: Date.now }
 });
-
 
 const RefreshTokenSchema = new mongoose.Schema({
     userId: mongoose.Schema.Types.ObjectId,
