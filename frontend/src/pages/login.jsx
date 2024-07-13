@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './CSS/login.css';
 import { Link } from 'react-router-dom';
-import Loader from '../Loader';
+import Loader_login from '../loader_login';
 
 function Login() {
     const [showLogin, setShowLogin] = useState(true);
@@ -140,7 +140,10 @@ function Login() {
 
     return (
         <div className="login-background">
+             {loading && <Loader_login />}
             <div className="form-container">
+           
+           
                 <div className="col col-1" style={{ borderRadius: showLogin ? '0 30% 20% 0' : '0 20% 30% 0' }}>
                     <div className="image-layer">
                         <img src="/assets/img/white-outline.png" className="form-image-main" alt="main" />
@@ -265,7 +268,7 @@ function Login() {
                         )}
                         <div className="input-box">
                             <button className="input-submit" type="submit" disabled={loading}>
-                                {loading ? <Loader /> : <span onClick={() => { state === "login" ? signin() : signup() }}>Continue</span>}
+                                { <span onClick={() => { state === "login" ? signin() : signup() }}>Continue</span>}
                                 <i className="bx bx-right-arrow-alt"></i>
                             </button>
                         </div>
