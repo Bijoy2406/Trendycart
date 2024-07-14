@@ -176,7 +176,7 @@ app.post('/login', async (req, res) => {
             user.refreshToken = refreshToken;
             await user.save();
 
-            res.json({ success: true, token, refreshToken });
+            res.json({ success: true, token, refreshToken, name: user.name  });
         } else {
             res.json({ success: false, errors: "Wrong Password" });
         }
