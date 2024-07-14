@@ -192,31 +192,29 @@ app.post('/signup', async (req, res) => {
 
 // User login
 app.post('/login', async (req, res) => {
-    let user = await Users.findOne({ email: req.body.email });
+    const { email, password } = req.body;
+    const user = await Users.findOne({ email });
     if (user) {
-        const passCompare = await bcrypt.compare(req.body.password, user.password);
+        const passCompare = await bcrypt.compare(password, user.password);
         if (passCompare) {
-            const data = {
-                user: {
-                    id: user.id
-                }
-            };
-
-            const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-            const refreshToken = jwt.sign(data, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+            const token = generateToken(user);
+            const refreshToken = await generateRefreshToken(user);
 
             user.refreshToken = refreshToken;
             await user.save();
 
-            res.json({ success: true, token, refreshToken });
+            res.json({ success: true,
+                 token, 
+                 refreshToken, 
+                 name: user.name });
         } else {
-            res.json({ success: false, errors: "Wrong Password" });
+            res.status(400).json({ success: false, errors: "Wrong Password" });
         }
     } else {
-        res.json({ success: false, errors: "Wrong email" });
+        res.status(400).json({ success: false, errors: "Wrong email" });
     }
 });
+
 
 // Refresh token endpoint
 app.post('/refresh-token', async (req, res) => {
