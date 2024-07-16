@@ -165,9 +165,19 @@ app.post('/login', async (req, res) => {
 });
 
 
-app.post('/addtocart',async(req,res)=>{
-    console.log(req.body);
+app.post('/addtocart', async (req, res) => {
+    try {
+        const { itemId } = req.body; // Ensure correct parsing of itemId from JSON body
+        console.log(itemId); // Log to check the received itemId
+        
+        // Handle your logic to add to cart here
+        
+        res.json({ success: true, message: "Item added to cart successfully" });
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        res.status(500).json({ success: false, message: "Error adding item to cart" });
+    }
+});
 
-})
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
