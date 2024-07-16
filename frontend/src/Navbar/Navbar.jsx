@@ -6,7 +6,7 @@ import './Navbar.css';
 import { ShopContext } from '../components/Context/ShopContext';
 import navProfile from '../components/Assets/pic/nav-profile.png';
 import Loader from '../Loader'; // Assuming you have a Loader component
-import '../Loader'; // Ensure Loader component styles are imported
+
 
 const Navbar = () => {
     const initialMenu = localStorage.getItem('selectedMenu') || "shop";
