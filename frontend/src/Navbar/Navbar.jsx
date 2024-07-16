@@ -1,10 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import logo from "../components/Assets/svg-viewer.svg";
 import cart_icon from "../components/Assets/cart_icon.png";
 import './Navbar.css';
 import { ShopContext } from '../components/Context/ShopContext';
 import navProfile from '../components/Assets/pic/nav-profile.png';
+import Loader from '../Loader'; // Assuming you have a Loader component
+
 
 const Navbar = () => {
     const initialMenu = localStorage.getItem('selectedMenu') || "shop";
@@ -12,19 +14,30 @@ const Navbar = () => {
     const { getTotalCartItem, setAll_Product } = useContext(ShopContext);
     const [searchTerm, setSearchTerm] = useState("");
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [isLoading, setLoading] = useState(false); // State for loading indicator
     const navigate = useNavigate();
+    const params = useParams();
 
     const fetchProducts = async (category) => {
-        let url = 'https://backend-beryl-nu-15.vercel.app/products';
-        if (category && category !== 'shop') {
-            url += `/${category}`;
+        setLoading(true); // Start loading indicator
+        try {
+            let url = 'https://backend-beryl-nu-15.vercel.app/allproducts';
+            if (category && category !== 'shop') {
+                url += `/${category}`;
+            }
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+            const data = await response.json();
+            setAll_Product(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false); 
         }
-        const response = await fetch(url);
-        const data = await response.json();
-        setAll_Product(data);
     };
     
-
     useEffect(() => {
         fetchProducts(menu);
     }, [menu]);
@@ -45,14 +58,9 @@ const Navbar = () => {
     const handleMenuClick = (menuItem) => {
         setMenu(menuItem);
         localStorage.setItem('selectedMenu', menuItem);
-        if (menuItem === 'shop') {
-            window.location.href = '/';
-        } else {
-            window.location.href = `/${menuItem}`;
-        }
-        setDropdownOpen(false); 
+        navigate(menuItem === 'shop' ? '/' : `/${menuItem}`);
+        setDropdownOpen(false);
     };
-    
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
@@ -65,22 +73,36 @@ const Navbar = () => {
 
     return (
         <div className='navbar'>
+            {isLoading && <Loader />} 
+            
             <Link to="/" className='nav-logo' onClick={() => handleMenuClick("shop")}>
-            <img src={logo} alt="logo" />          
-        </Link>
+                <img src={logo} alt="logo" />          
+            </Link>
 
-            <input type="text" placeholder="Search item..." onChange={(e) => setSearchTerm(e.target.value)} />
+            <input type="text" placeholder="Search item..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
             <button className='search' onClick={handleSearchClick}>Search</button>
-            <ul className="nav-menu">
-                <li onClick={() => handleMenuClick("shop")}><Link key="home" style={{ textDecoration: 'none' }} to='/'>Home</Link>{menu === "shop" ? <hr /> : <></>}</li>
-                <li onClick={() => handleMenuClick("mens")}><Link key="mens" style={{ textDecoration: 'none' }} to='/mens'>Men</Link>{menu === "mens" ? <hr /> : <></>}</li>
-                <li onClick={() => handleMenuClick("womens")}><Link key="womens" style={{ textDecoration: 'none' }} to='/womens'>Women</Link>{menu === "womens" ? <hr /> : <></>}</li>
-                <li onClick={() => handleMenuClick("kids")}><Link key="kids" style={{ textDecoration: 'none' }} to='/kids'>Kids</Link>{menu === "kids" ? <hr /> : <></>}</li>
-            </ul>
+
+            <div className="nav-menu">
+                <li onClick={() => handleMenuClick("shop")}>
+                    <Link style={{ textDecoration: 'none' }} to='/'>Home</Link>
+                    {menu === "shop" ? <hr /> : <></>}
+                </li>
+                <li onClick={() => handleMenuClick("mens")}>
+                    <Link style={{ textDecoration: 'none' }} to='/mens'>Men</Link>
+                    {menu === "mens" ? <hr /> : <></>}
+                </li>
+                <li onClick={() => handleMenuClick("womens")}>
+                    <Link style={{ textDecoration: 'none' }} to='/womens'>Women</Link>
+                    {menu === "womens" ? <hr /> : <></>}
+                </li>
+                <li onClick={() => handleMenuClick("kids")}>
+                    <Link style={{ textDecoration: 'none' }} to='/kids'>Kids</Link>
+                    {menu === "kids" ? <hr /> : <></>}
+                </li>
+            </div>
 
             <div className="nav-login-cart">
-                {localStorage.getItem('auth-token')
-                ? (
+                {localStorage.getItem('auth-token') ? (
                     <div className="profile-dropdown">
                         <img src={navProfile} alt="Profile" className="profile-icon" onClick={toggleDropdown} />
                         {dropdownOpen && (
@@ -90,10 +112,16 @@ const Navbar = () => {
                             </div>
                         )}
                     </div>
-                )
-                : <Link to='/login'><button className='login'>login</button></Link>} 
-                <button className='new-button' onClick={handleAdminClick}>Admin panel</button>        
-                <Link to='/cart' onClick={() => setDropdownOpen(false)}><img className='cart-img' src={cart_icon} alt="" /></Link>
+                ) : (
+                    <Link to='/login'><button className='login'>Login</button></Link>
+                )}
+
+                <button className='new-button' onClick={handleAdminClick}>Admin panel</button>
+                
+                <Link to='/cart' onClick={() => setDropdownOpen(false)}>
+                    <img className='cart-img' src={cart_icon} alt="" />
+                </Link>
+                
                 <div className="nav-cart-count">{getTotalCartItem()}</div>
             </div>
         </div>
