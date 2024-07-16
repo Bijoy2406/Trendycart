@@ -115,7 +115,7 @@ app.post('/signup', async (req, res) => {
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
         let cart = {};
-        for (let i = 0; i < 300; i++) {
+        for (let i = 1; i < 300; i++) {
             cart[i] = 0;
         }
         const user = new Users({
@@ -166,17 +166,7 @@ app.post('/login', async (req, res) => {
 
 
 app.post('/addtocart', async (req, res) => {
-    try {
-        const { itemId } = req.body; // Ensure correct parsing of itemId from JSON body
-        console.log(itemId); // Log to check the received itemId
-        
-        // Handle your logic to add to cart here
-        
-        res.json({ success: true, message: "Item added to cart successfully" });
-    } catch (error) {
-        console.error('Error adding to cart:', error);
-        res.status(500).json({ success: false, message: "Error adding item to cart" });
-    }
+   console.log(req.body);
 });
 
 

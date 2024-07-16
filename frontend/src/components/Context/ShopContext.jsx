@@ -46,27 +46,28 @@ const ShopContextProvider = (props) => {
         setAll_Product((prevProducts) => prevProducts.filter(product => product.id !== id));
     };
 
-    const addToCart = (itemId) => {
-        setCartItems((prev) => ({
-            ...prev,
-            [itemId]: prev[itemId] + 1,
-        }));
-
-        if (localStorage.getItem('auth-token')) {
-            fetch('https://backend-beryl-nu-15.vercel.app/addtocart', {
-                method: 'POST',
-                headers: {
-                    'auth-token': localStorage.getItem('auth-token'),
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ itemId }),
-            })
-            .then(response => response.json())
-            .then(data => console.log(data))
-            .catch(error => console.error('Error adding to cart:', error));
-        }
-    };
-
+    const addToCart = (Id) => {
+      setCartItems((prev) => ({
+          ...prev,
+          [Id]: prev[Id] + 1,  // Initialize to 0 if it doesn't exist
+      }));
+  
+      if (localStorage.getItem('auth-token')) {
+          fetch('https://backend-beryl-nu-15.vercel.app/addtocart', {
+              method: 'POST',
+              headers: {
+                  Accept: 'application/form-data',
+                  'auth-token': `${localStorage.getItem('auth-token')}`,  // Correct template literal usage
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ "Id":Id }),
+          })
+          .then((response) => response.json())
+          .then((data) => console.log(data));
+          
+      }
+  };
+  
     const removeFromCart = (itemId) => {
         setCartItems((prev) => ({
             ...prev,
