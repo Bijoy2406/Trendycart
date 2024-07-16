@@ -9,24 +9,24 @@ import Loader_login from '../loader_login';
 function Login() {
     const [showLogin, setShowLogin] = useState(true);
     const [loading, setLoading] = useState(false);
-    const [loginForm, setLoginForm] = useState({ Email: '', password: '' });
-    const [registerForm, setRegisterForm] = useState({ username: '', Email: '', password: '', dob: new Date() });
+    const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+    const [registerForm, setRegisterForm] = useState({ username: '', email: '', password: '', dob: new Date() });
     const datePickerRef = useRef(null);
 
-    const [state, setState] = useState("login");
-    const [formData, setFormData] = useState({
-        username: "",
-        password: "",
-        email: "",
-    })
+    const validateEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
 
-    const changeHandler = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value })
-    }
+    const login = async () => {
+        if (!validateEmail(loginForm.email)) {
+            alert("Invalid email format.");
+            return;
+        }
 
-    const signin = async () => {
+        console.log("Log in function executed with data:", loginForm); // Debug statement
         setLoading(true);
-        console.log("sign in executed", formData);
+        
         let responseData;
 
         await fetch('https://backend-beryl-nu-15.vercel.app/login', {
@@ -35,29 +35,32 @@ function Login() {
                 Accept: 'application/form-data',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(formData)
-        }).then((response) => response.json()).then((data) => responseData = data)
+            body: JSON.stringify(loginForm)
+        }).then((response) => response.json()).then((data) => responseData = data);
 
         if (responseData.success) {
             localStorage.setItem('auth-token', responseData.token);
             window.location.replace("/");
-        }
-        else {
-            alert(responseData.errors)
+        } else {
+            alert(responseData.errors);
         }
         setLoading(false);
     };
 
     const signup = async () => {
-        console.log("sign up executed", formData);
+        if (!validateEmail(registerForm.email)) {
+            alert("Invalid email format.");
+            return;
+        }
+
+        console.log("Sign up function executed with data:", registerForm); // Debug statement
         let responseData;
 
-        const passwordValidationResult = validatePassword(formData.password);
+        const passwordValidationResult = validatePassword(registerForm.password);
         if (passwordValidationResult !== true) {
             alert(passwordValidationResult);
             return;
         }
-
 
         await fetch('https://backend-beryl-nu-15.vercel.app/signup', {
             method: 'POST',
@@ -65,15 +68,14 @@ function Login() {
                 Accept: 'application/form-data',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(formData)
-        }).then((response) => response.json()).then((data) => responseData = data)
+            body: JSON.stringify(registerForm)
+        }).then((response) => response.json()).then((data) => responseData = data);
 
         if (responseData.success) {
             localStorage.setItem('auth-token', responseData.token);
             window.location.replace("/");
-        }
-        else {
-            alert(responseData.errors)
+        } else {
+            alert(responseData.errors);
         }
     };
 
@@ -105,13 +107,14 @@ function Login() {
 
     const handleLoginSubmit = (e) => {
         e.preventDefault();
-        signin();
+        login();
     };
 
     const handleRegisterSubmit = (e) => {
         e.preventDefault();
         signup();
     };
+
     const validatePassword = (password) => {
         // Check password length
         if (password.length < 8 || password.length > 32) {
@@ -137,13 +140,10 @@ function Login() {
         return true;
     };
 
-
     return (
         <div className="login-background">
-             {loading && <Loader_login />}
+            {loading && <Loader_login />}
             <div className="form-container">
-           
-           
                 <div className="col col-1" style={{ borderRadius: showLogin ? '0 30% 20% 0' : '0 20% 30% 0' }}>
                     <div className="image-layer">
                         <img src="/assets/img/white-outline.png" className="form-image-main" alt="main" />
@@ -165,7 +165,7 @@ function Login() {
                             className="btn btn-1"
                             onClick={handleLoginClick}
                             style={{ backgroundColor: showLogin ? '#21264D' : 'rgba(255, 255, 255, 0.2)' }}>
-                            Sign In
+                            Log In
                         </button>
                         <button
                             className="btn btn-2"
@@ -187,8 +187,9 @@ function Login() {
                                             className="input-field"
                                             placeholder="Email"
                                             name="email"
-                                            value={formData.Email}
-                                            onChange={changeHandler}
+                                            value={loginForm.email}
+                                            onChange={handleLoginInputChange}
+                                            required
                                         />
                                         <i className="bx bx-user icon"></i>
                                     </div>
@@ -198,8 +199,9 @@ function Login() {
                                             className="input-field"
                                             placeholder="Password"
                                             name="password"
-                                            value={formData.password}
-                                            onChange={changeHandler}
+                                            value={loginForm.password}
+                                            onChange={handleLoginInputChange}
+                                            required
                                         />
                                         <i className="bx bx-lock-alt icon"></i>
                                     </div>
@@ -217,8 +219,9 @@ function Login() {
                                             className="input-field"
                                             placeholder="Username"
                                             name="username"
-                                            value={formData.username}
-                                            onChange={changeHandler}
+                                            value={registerForm.username}
+                                            onChange={handleRegisterInputChange}
+                                            required
                                         />
                                         <i className="bx bx-user icon"></i>
                                     </div>
@@ -228,8 +231,9 @@ function Login() {
                                             className="input-field"
                                             placeholder="Email"
                                             name="email"
-                                            value={formData.email}
-                                            onChange={changeHandler}
+                                            value={registerForm.email}
+                                            onChange={handleRegisterInputChange}
+                                            required
                                         />
                                         <i className="bx bx-mobile icon"></i>
                                     </div>
@@ -239,9 +243,10 @@ function Login() {
                                             className="input-field"
                                             placeholder="Password"
                                             name="password"
-                                            value={formData.password}
-                                            onChange={changeHandler}
-                                            required />
+                                            value={registerForm.password}
+                                            onChange={handleRegisterInputChange}
+                                            required
+                                        />
                                         <i className="bx bx-lock-alt icon"></i>
                                     </div>
                                     <div className="input-box">
@@ -259,6 +264,7 @@ function Login() {
                                                 showMonthDropdown
                                                 showYearDropdown
                                                 dropdownMode="select"
+                                                required
                                             />
                                             <FaRegCalendarAlt className="calendar-icon" onClick={handleCalendarIconClick} />
                                         </div>
@@ -268,7 +274,7 @@ function Login() {
                         )}
                         <div className="input-box">
                             <button className="input-submit" type="submit" disabled={loading}>
-                                { <span onClick={() => { state === "login" ? signin() : signup() }}>Continue</span>}
+                                <span>{showLogin ? "Continue" : "Sign Up"}</span>
                                 <i className="bx bx-right-arrow-alt"></i>
                             </button>
                         </div>
@@ -285,4 +291,4 @@ function Login() {
     );
 }
 
-export default Login
+export default Login;

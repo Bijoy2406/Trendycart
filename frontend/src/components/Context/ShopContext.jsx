@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 
+
 export const ShopContext = createContext(null);
 
 const getDefaultCart = () => {
@@ -80,6 +81,7 @@ const ShopContextProvider = (props) => {
     cartItems,
     addToCart,
     removeFromCart,
+    setAll_Product,
   };
 
   return (
