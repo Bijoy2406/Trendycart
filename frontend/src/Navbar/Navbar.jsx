@@ -59,7 +59,6 @@ const Navbar = () => {
                 <button className='search' onClick={handleSearchClick}>Search</button>
             </div>
 
-
             <ul className="nav-menu">
                 <li onClick={() => handleMenuClick("shop")}>
                     <Link to='/'>Home</Link>
@@ -70,6 +69,7 @@ const Navbar = () => {
                     {menu === "mens" && <hr />}
                 </li>
                 <li onClick={() => handleMenuClick("womens")}>
+               
                     <Link to='/womens'>Women</Link>
                     {menu === "womens" && <hr />}
                 </li>
