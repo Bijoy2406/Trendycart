@@ -2,8 +2,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
     height: 70vh;
+    margin-left: 200px;
 }
 .popular h1{
     color: #171717;
