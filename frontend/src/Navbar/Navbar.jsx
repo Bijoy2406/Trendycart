@@ -49,14 +49,17 @@ const Navbar = () => {
                 <img src={logo} alt="logo" />
             </Link>
 
-            <div className='search-container'>
-                <input
-                    type="text"
-                    placeholder="Search item..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <button className='search' onClick={handleSearchClick}>Search</button>
+            <div className="wrap-input-17">
+                <div className="search-box">
+                    <button className="btn-search" onClick={handleSearchClick}>🔍</button>
+                    <input
+                        type="text"
+                        className="input-search"
+                        placeholder="Type to Search..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
             </div>
 
             <ul className="nav-menu">
@@ -69,7 +72,6 @@ const Navbar = () => {
                     {menu === "mens" && <hr />}
                 </li>
                 <li onClick={() => handleMenuClick("womens")}>
-               
                     <Link to='/womens'>Women</Link>
                     {menu === "womens" && <hr />}
                 </li>
@@ -102,8 +104,23 @@ const Navbar = () => {
                         <button className='login'>Login</button>
                     </Link>
                 )}
-
-                <button className='new-button' onClick={handleAdminClick}>Admin panel</button>
+                <button class="btn-101" onClick={handleAdminClick}>
+                    Admin panel
+                    <svg>
+                        <defs>
+                            <filter id="glow">
+                                <fegaussianblur result="coloredBlur" stddeviation="5"></fegaussianblur>
+                                <femerge>
+                                    <femergenode in="coloredBlur"></femergenode>
+                                    <femergenode in="coloredBlur"></femergenode>
+                                    <femergenode in="coloredBlur"></femergenode>
+                                    <femergenode in="SourceGraphic"></femergenode>
+                                </femerge>
+                            </filter>
+                        </defs>
+                        <rect />
+                    </svg>
+                </button>
 
                 <Link to='/cart' onClick={() => setDropdownOpen(false)}>
                     <img className='cart-img' src={cart_icon} alt="Cart" />

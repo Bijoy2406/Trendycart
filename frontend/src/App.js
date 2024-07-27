@@ -16,7 +16,7 @@ import kids_banner from './components/Assets/banner_kids.png';
 import ShopContextProvider from './components/Context/ShopContext';
 import SearchResults from './pages/search';
 import Profile from './components/Profile/profile'; // Import the Profile component
-import Loader from './Loader'; // Import the Loader component
+ import Loader from './Loader'; // Import the Loader component
 
 function App() {
   return (
@@ -46,7 +46,7 @@ function WithNavbar() {
     <div>
       <Navbar />
       {loading ? (
-        <Loader /> // Use the Loader component
+        <Loader/> // Use the Loader component
       ) : (
         <Routes>
           <Route index element={<Shop />} />
