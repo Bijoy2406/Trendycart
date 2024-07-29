@@ -10,11 +10,11 @@ const bcrypt = require("bcrypt");
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 require('dotenv').config();
-const cookieParser = require('cookie-parser'); // Add this line
+
 
 app.use(express.json());
 app.use(cors());
-app.use(cookieParser()); // Add this line
+
 
 mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART");
 
