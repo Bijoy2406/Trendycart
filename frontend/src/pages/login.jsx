@@ -11,55 +11,62 @@ function Login() {
     const [registerForm, setRegisterForm] = useState({ username: '', email: '', password: '', dob: new Date() });
     const datePickerRef = useRef(null);
 
-    const [formData, setFormData] = useState({
-        username: "",
-        password: "",
-        email: "",
-    });
-
     const changeHandler = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (showLogin) {
+            setLoginForm({ ...loginForm, [name]: value });
+        } else {
+            setRegisterForm({ ...registerForm, [name]: value });
+        }
     };
 
     const signin = async () => {
-        console.log("sign in executed", formData);
-        let responseData;
-
-        await fetch('https://backend-beryl-nu-15.vercel.app/login', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        }).then((response) => response.json()).then((data) => responseData = data);
-
-        if (responseData.success) {
-            localStorage.setItem('auth-token', responseData.token);
-            window.location.replace("/");
-        } else {
-            alert(responseData.errors);
+        console.log("sign in executed", loginForm);
+        try {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/login', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(loginForm)
+            });
+            const data = await response.json();
+            if (data.success) {
+                localStorage.setItem('auth-token', data.token);
+                window.location.replace("/");
+            } else {
+                alert(data.errors);
+            }
+        } catch (error) {
+            console.error("Failed to fetch during signin:", error);
         }
     };
 
     const signup = async () => {
-        console.log("sign up executed", formData);
-        let responseData;
-
-        await fetch('https://backend-beryl-nu-15.vercel.app/signup', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        }).then((response) => response.json()).then((data) => responseData = data);
-
-        if (responseData.success) {
-            localStorage.setItem('auth-token', responseData.token);
-            window.location.replace("/");
-        } else {
-            alert(responseData.errors);
+        console.log("sign up executed", registerForm);
+        try {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/signup', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: registerForm.username,
+                    email: registerForm.email,
+                    password: registerForm.password,
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                localStorage.setItem('auth-token', data.token);
+                window.location.replace("/");
+            } else {
+                alert(data.errors);
+            }
+        } catch (error) {
+            console.error("Failed to fetch during signup:", error);
         }
     };
 
@@ -69,16 +76,6 @@ function Login() {
 
     const handleRegisterClick = () => {
         setShowLogin(false);
-    };
-
-    const handleLoginInputChange = (e) => {
-        const { name, value } = e.target;
-        setLoginForm({ ...loginForm, [name]: value });
-    };
-
-    const handleRegisterInputChange = (e) => {
-        const { name, value } = e.target;
-        setRegisterForm({ ...registerForm, [name]: value });
     };
 
     const handleDateChange = (date) => {
@@ -97,6 +94,7 @@ function Login() {
             signup();
         }
     };
+
     return (
         <div className="login-background">
             <div className="form-container">
@@ -109,7 +107,7 @@ function Login() {
                         <img src="/assets/img/rocket.png" className="form-image rocket" alt="rocket" />
                         <img src="/assets/img/cloud.png" className="form-image cloud" alt="cloud" />
                         <img src="/assets/img/stars.png" className="form-image stars" alt="stars" />
-                        </div>
+                    </div>
                     <Link to='/' className='home-icon'>
                         <i className="bx bx-home"></i>
                     </Link>
@@ -144,7 +142,7 @@ function Login() {
                                             className="input-field"
                                             placeholder="Email"
                                             name="email"
-                                            value={formData.email}
+                                            value={loginForm.email}
                                             onChange={changeHandler}
                                         />
                                         <i className="bx bx-user icon"></i>
@@ -155,7 +153,7 @@ function Login() {
                                             className="input-field"
                                             placeholder="Password"
                                             name="password"
-                                            value={formData.password}
+                                            value={loginForm.password}
                                             onChange={changeHandler}
                                         />
                                         <i className="bx bx-lock-alt icon"></i>
@@ -174,7 +172,7 @@ function Login() {
                                             className="input-field"
                                             placeholder="Username"
                                             name="username"
-                                            value={formData.username}
+                                            value={registerForm.username}
                                             onChange={changeHandler}
                                         />
                                         <i className="bx bx-user icon"></i>
@@ -185,7 +183,7 @@ function Login() {
                                             className="input-field"
                                             placeholder="Email"
                                             name="email"
-                                            value={formData.email}
+                                            value={registerForm.email}
                                             onChange={changeHandler}
                                         />
                                         <i className="bx bx-mobile icon"></i>
@@ -196,7 +194,7 @@ function Login() {
                                             className="input-field"
                                             placeholder="Password"
                                             name="password"
-                                            value={formData.password}
+                                            value={registerForm.password}
                                             onChange={changeHandler}
                                             required />
                                         <i className="bx bx-lock-alt icon"></i>

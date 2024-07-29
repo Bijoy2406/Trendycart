@@ -158,35 +158,48 @@ const Users = mongoose.model('Users', {
 });
 
 app.post('/signup', async (req, res) => {
-    let check = await Users.findOne({ email: req.body.email });
-    if (check) {
-        return res.status(400).json({ success: false, errors: "Existing user found with same email" });
-    }
+    try {
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-    let cart = {};
-    for (let i = 0; i < 300; i++) {
-        cart[i] = 0;
-    }
-
-    const user = new Users({
-        name: req.body.username,
-        email: req.body.email,
-        password: hashedPassword,
-        cartData: cart,
-    });
-
-    await user.save();
-
-    const data = {
-        user: {
-            id: user.id
+        let checkUsername = await Users.findOne({ name: req.body.username });
+        if (checkUsername) {
+            return res.status(400).json({ success: false, errors: "Username already in use" });
         }
-    };
 
-    const token = jwt.sign(data, 'secret_ecom');
-    res.json({ success: true, token });
+        let checkEmail = await Users.findOne({ email: req.body.email });
+        if (checkEmail) {
+            return res.status(400).json({ success: false, errors: "Email already in use" });
+        }
+        let cart = {};
+        for (let i = 0; i < 300; i++) {
+            cart[i] = 0;
+        }
+
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+        const user = new Users({
+            name: req.body.username,
+            email: req.body.email,
+            password: hashedPassword,
+            cartData: cart,
+        });
+
+        await user.save();
+
+        const data = {
+            user: {
+                id: user.id
+            }
+        };
+        const token = jwt.sign(data, 'secret_ecom');
+        res.json({ success: true, token });
+    } catch (error) {
+        if (error.code === 11000) {
+          
+            return res.status(400).json({ success: false, errors: "Email already in use" });
+        }
+       
+        return res.status(500).json({ success: false, errors: "Internal server error" });
+    }
 });
 
 app.post('/login', async (req, res) => {
@@ -292,22 +305,17 @@ app.get('/userrating', fetchUser, async (req, res) => {
     }
 });
 
-app.post('/getcart', fetchUser, async (req, res) => {
-    console.log("GetCart");
-    let userData = await Users.findOne({ _id: req.user.id });
-    res.json(userData.cartData);
-});
-
-app.get('/profile', fetchUser, async (req, res) => {
-    console.log("Get Profile");
-    let userData = await Users.findOne({ _id: req.user.id });
-    res.json(userData);
-});
-
-app.listen(port, (error) => {
-    if (!error) {
-        console.log("Server Running on Port " + port);
-    } else {
-        console.log("Error: " + error);
+app.post('/getcartitems', fetchUser, async (req, res) => {
+    const user = await Users.findOne({ _id: req.user.id });
+    let cartItems = {};
+    for (const [key, value] of Object.entries(user.cartData)) {
+        if (value > 0) {
+            cartItems[key] = value;
+        }
     }
+    res.json(cartItems);
+});
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
