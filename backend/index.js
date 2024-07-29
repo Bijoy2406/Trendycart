@@ -318,20 +318,13 @@ app.get('/newcollections', async (req, res) => {
     }
 });
 
-app.get('/popularinwomen', async (req, res) => {
-    try {
-        let products = await Product.find({ category: "women" });
-        let popularInWomen = products.slice(0, 4);
-        console.log("Popular in women fetched");
-        res.send(popularInWomen);
-    } catch (error) {
-        console.error("Error fetching popular in women:", error);
-        res.status(500).json({
-            success: false,
-            message: "Error fetching popular in women",
-        });
-    }
+app.get('/polpularinwoman', async (req, res) => {
+    let products = await Product.find({ category: "women" });
+    let polpular_in_woman = products.slice(0, 4);
+    console.log("Popular in woman fetched");
+    res.send(polpular_in_woman);
 });
+
 
 const fetchUser = async (req, res, next) => {
     const token = req.header('auth-token');
