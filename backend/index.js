@@ -12,8 +12,6 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const { Schema } = mongoose;
 require('dotenv').config();
 
-import { signUpBodyValidation,logInBodyValidation,refreshTokenBodyValidation } from "./validation";
-
 app.use(express.json());
 app.use(cors());
 
@@ -215,9 +213,6 @@ const UserToken = mongoose.model('UserToken', userTokenSchema);
 
 app.post('/signup', async (req, res) => {
     try {
-        const { error } = signUpBodyValidation(req.body);
-        if (error) return res.status(400).json({ error: true, message: error.details[0].message });
-
         let check = await Users.findOne({ email: req.body.email });
         if (check) {
             return res.status(400).json({ success: false, errors: "Existing user found with same email" });
@@ -231,7 +226,7 @@ app.post('/signup', async (req, res) => {
         }
 
         const user = new Users({
-            name: req.body.userName,
+            name: req.body.username,
             email: req.body.email,
             password: hashedPassword,
             cartData: cart,
@@ -245,7 +240,7 @@ app.post('/signup', async (req, res) => {
             }
         };
 
-        const token = jwt.sign(data, process.env.ACCESS_TOKEN_PRIVATE_KEY);
+        const token = jwt.sign(data, 'secret_ecom');
         res.json({ success: true, token });
     } catch (error) {
         console.error("Error during signup:", error);
@@ -258,34 +253,28 @@ app.post('/signup', async (req, res) => {
 
 app.post('/login', async (req, res) => {
     try {
-        const { error } = logInBodyValidation(req.body);
-        if (error) {
-            return res.status(400).json({ error: true, message: error.details[0].message });
-        }
-
         let user = await Users.findOne({ email: req.body.email });
-        if (!user) {
-            return res.status(401).json({ error: true, message: "Invalid email or password" });
+        if (user) {
+            const passCompare = await bcrypt.compare(req.body.password, user.password);
+            if (passCompare) {
+                const data = {
+                    user: {
+                        id: user.id
+                    }
+                };
+                const token = jwt.sign(data, 'secret_ecom');
+                res.json({ success: true, token });
+            } else {
+                res.status(400).json({ success: false, errors: "Wrong Password" });
+            }
+        } else {
+            res.status(400).json({ success: false, errors: "Wrong email" });
         }
-
-        const passCompare = await bcrypt.compare(req.body.password, user.password);
-        if (!passCompare) {
-            return res.status(401).json({ error: true, message: "Invalid email or password" });
-        }
-
-        const { accessToken, refreshToken } = await generateTokens(user);
-
-        res.status(200).json({
-            error: false,
-            accessToken,
-            refreshToken,
-            message: "Logged in successfully",
-        });
     } catch (error) {
         console.error("Error during login:", error);
         res.status(500).json({
-            error: true,
-            message: "Internal Server Error",
+            success: false,
+            message: "Error during login",
         });
     }
 });
@@ -350,7 +339,7 @@ const fetchUser = async (req, res, next) => {
         return res.status(401).send({ error: "No Token Provided" });
     }
     try {
-        const data = jwt.verify(token, process.env.ACCESS_TOKEN_PRIVATE_KEY);
+        const data = jwt.verify(token, 'secret_ecom');
         req.user = data.user;
         next();
     } catch (error) {
