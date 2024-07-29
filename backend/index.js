@@ -160,57 +160,55 @@ const Users = mongoose.model('Users', {
 });
 
 app.post('/signup', async (req, res) => {
-    let check = await Users.findOne({ email: req.body.email });
-    if (check) {
-        return res.status(400).json({ success: false, errors: "Existing user found with same email" });
+    try {
+        const existingUser = await Users.findOne({ email: req.body.email });
+        if (existingUser) return res.status(400).json({ success: false, errors: "Existing user found with same email" });
+
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const cart = Array(300).fill(0);
+
+        const user = new Users({
+            name: req.body.username,
+            email: req.body.email,
+            password: hashedPassword,
+            cartData: cart,
+        });
+        await user.save();
+
+        const accessToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '20m' });
+        const refreshToken = jwt.sign({ id: user.id }, JWT_REFRESH_SECRET, { expiresIn: '1d' });
+
+        res.cookie('auth-token', accessToken, { httpOnly: true });
+        res.json({ success: true, accessToken, refreshToken });
+    } catch (error) {
+        console.error("Error signing up:", error);
+        res.status(500).json({ success: false, message: "Error signing up" });
     }
-
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-    let cart = {};
-    for (let i = 0; i < 300; i++) {
-        cart[i] = 0;
-    }
-
-    const user = new Users({
-        name: req.body.username,
-        email: req.body.email,
-        password: hashedPassword,
-        cartData: cart,
-    });
-
-    await user.save();
-
-    const data = {
-        user: {
-            id: user.id
-        }
-    };
-
-    const token = jwt.sign(data, 'secret_ecom');
-    res.cookie('auth-token', token, { httpOnly: true }); 
-    res.json({ success: true, token });
 });
 
+
 app.post('/login', async (req, res) => {
-    let user = await Users.findOne({ email: req.body.email });
-    if (user) {
+    try {
+        const user = await Users.findOne({ email: req.body.email });
+        if (!user) return res.status(401).json({ success: false, errors: "Wrong email" });
+
         const passCompare = await bcrypt.compare(req.body.password, user.password);
-        if (passCompare) {
-            const data = {
-                user: {
-                    id: user.id
-                }
-            };
-            const token = jwt.sign(data, 'secret_ecom');
-            res.cookie('auth-token', token, { httpOnly: true }); // Set the cookie
-            res.json({ success: true, token });
-        } else {
-            res.json({ success: false, errors: "Wrong Password" });
-        }
-    } else {
-        res.json({ success: false, errors: "Wrong email" });
+        if (!passCompare) return res.status(401).json({ success: false, errors: "Wrong Password" });
+
+        const accessToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '20m' });
+        const refreshToken = jwt.sign({ id: user.id }, JWT_REFRESH_SECRET, { expiresIn: '1d' });
+
+        res.cookie('auth-token', accessToken, { httpOnly: true });
+        res.json({ success: true, accessToken, refreshToken });
+    } catch (error) {
+        console.error("Error logging in:", error);
+        res.status(500).json({ success: false, message: "Error logging in" });
     }
+});
+
+app.post('/token', authenticateRefreshToken, (req, res) => {
+    const accessToken = jwt.sign({ id: req.user.id }, JWT_SECRET, { expiresIn: '20m' });
+    res.json({ accessToken });
 });
 
 app.get('/newcollections', async (req, res) => {
