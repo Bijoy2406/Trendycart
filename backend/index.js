@@ -16,10 +16,15 @@ app.use(express.json());
 app.use(cors());
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART", {
+mongoose.connect("mongodb+srv://your_connection_string", {
     useNewUrlParser: true,
     useUnifiedTopology: true
+}).then(() => {
+    console.log("Connected to MongoDB");
+}).catch(err => {
+    console.error("Error connecting to MongoDB:", err);
 });
+
 
 // Configure Cloudinary
 cloudinary.config({
