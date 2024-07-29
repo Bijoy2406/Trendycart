@@ -12,9 +12,10 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 require('dotenv').config();
 
 
-app.use(express.json());
-app.use(cors());
-
+const cors = require('cors');
+app.use(cors({
+  origin: 'https://trendycart.vercel.app' // Adjust as needed
+}));
 
 mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART");
 
