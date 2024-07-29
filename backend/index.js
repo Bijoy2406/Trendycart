@@ -188,7 +188,7 @@ app.post('/signup', async (req, res) => {
     };
 
     const token = jwt.sign(data, 'secret_ecom');
-    res.cookie('auth-token', token, { httpOnly: true }); // Set the cookie
+    res.cookie('auth-token', token, { httpOnly: true }); 
     res.json({ success: true, token });
 });
 
@@ -228,7 +228,7 @@ app.get('/polpularinwoman', async (req, res) => {
 });
 
 const fetchUser = async (req, res, next) => {
-    const token = req.cookies['auth-token']; // Get token from cookies
+    const token = req.header('auth-token');
     if (!token) {
         res.status(401).send({ error: "No Token Provided" });
     } else {
@@ -241,6 +241,8 @@ const fetchUser = async (req, res, next) => {
         }
     }
 };
+
+
 
 app.post('/addtocart', fetchUser, async (req, res) => {
     console.log("Addtocart", req.body.itemId);
