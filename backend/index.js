@@ -1,3 +1,4 @@
+const port = 4001;
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -11,11 +12,7 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 require('dotenv').config();
 
 app.use(express.json());
-app.use(cors({
-    origin: 'https://trendycart.vercel.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 
 mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART");
 
@@ -34,7 +31,7 @@ const storage = new CloudinaryStorage({
     params: {
         folder: 'some-folder-name',
         format: async (req, file) => path.extname(file.originalname).substring(1),
-        public_id: (req, file) => `${file.fieldname}_${Date.now()}`
+        public_id: (req, file) => ${file.fieldname}_${Date.now()}
     },
 });
 
