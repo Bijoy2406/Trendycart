@@ -158,50 +158,82 @@ const Users = mongoose.model('Users', {
     },
 });
 
-app.post('/signup', async (req, res) => {
-    try {
+import express from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import Users from '../models/User.js';
+import { signUpBodyValidation } from '../utils/validationSchema.js';
 
-        let checkUsername = await Users.findOne({ name: req.body.username });
+const router = express.Router();
+
+router.post('/signup', async (req, res) => {
+    try {
+        // Validate request body
+        const { error } = signUpBodyValidation(req.body);
+        if (error) {
+            return res.status(400).json({ success: false, errors: error.details[0].message });
+        }
+
+        // Normalize email and username (convert to lowercase and trim)
+        const normalizedEmail = req.body.email.trim().toLowerCase();
+        const normalizedUsername = req.body.username.trim().toLowerCase();
+
+        // Check if username is already in use
+        const checkUsername = await Users.findOne({ name: normalizedUsername });
         if (checkUsername) {
             return res.status(400).json({ success: false, errors: "Username already in use" });
         }
 
-        let checkEmail = await Users.findOne({ email: req.body.email });
+        // Check if email is already in use
+        const checkEmail = await Users.findOne({ email: normalizedEmail });
         if (checkEmail) {
             return res.status(400).json({ success: false, errors: "Email already in use" });
         }
+
+        // Create cart data with default values
         let cart = {};
         for (let i = 0; i < 300; i++) {
             cart[i] = 0;
         }
 
+        // Hash password
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
+        // Create new user
         const user = new Users({
-            name: req.body.username,
-            email: req.body.email,
+            name: normalizedUsername,
+            email: normalizedEmail,
             password: hashedPassword,
             cartData: cart,
         });
 
+        // Save user to database
         await user.save();
 
+        // Generate JWT token
         const data = {
             user: {
-                id: user.id
+                id: user._id,
             }
         };
-        const token = jwt.sign(data, 'secret_ecom');
+        const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
+
         res.json({ success: true, token });
+
     } catch (error) {
-        if (error.code === 11000) {
-          
+        // Handle specific errors if necessary
+        if (error.code === 11000) {  // Duplicate key error
             return res.status(400).json({ success: false, errors: "Email already in use" });
         }
-       
-        return res.status(500).json({ success: false, errors: "Internal server error" });
+
+        // General error
+        console.error("Sign-up error:", error);
+        res.status(500).json({ success: false, errors: "Internal server error" });
     }
 });
+
+export default router;
+
 
 app.post('/login', async (req, res) => {
     let user = await Users.findOne({ email: req.body.email });
