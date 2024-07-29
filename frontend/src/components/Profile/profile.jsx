@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './profile.css';
-import'../../loader_login.js'
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
@@ -36,7 +35,7 @@ const Profile = () => {
   }, []);
 
   if (loading) {
-    return <div>loading<loader_login /></div>;
+    return <div>Loading...</div>;
   }
 
   if (error) {
