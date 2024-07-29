@@ -14,7 +14,14 @@ require('dotenv').config();
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART");
+mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => {
+    console.log('Connected to MongoDB');
+}).catch(err => {
+    console.error('Error connecting to MongoDB', err);
+});
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
@@ -90,8 +97,7 @@ app.post('/addproduct', async (req, res) => {
         let id;
 
         if (products.length > 0) {
-            let last_product_array = products.slice(-1);
-            let last_product = last_product_array[0];
+            let last_product = products[products.length - 1];
             id = last_product.id + 1;
         } else {
             id = 1;
@@ -123,18 +129,34 @@ app.post('/addproduct', async (req, res) => {
 });
 
 app.post('/remove', async (req, res) => {
-    await Product.findOneAndDelete({ id: req.body.id });
-    console.log("Removed");
-    res.json({
-        success: true,
-        name: req.body.name
-    });
+    try {
+        await Product.findOneAndDelete({ id: req.body.id });
+        console.log("Removed");
+        res.json({
+            success: true,
+            name: req.body.name
+        });
+    } catch (error) {
+        console.error("Error removing product:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error removing product",
+        });
+    }
 });
 
 app.get('/allproducts', async (req, res) => {
-    let products = await Product.find({});
-    console.log("All product fetched.");
-    res.send(products);
+    try {
+        let products = await Product.find({});
+        console.log("All products fetched.");
+        res.send(products);
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching products",
+        });
+    }
 });
 
 const Users = mongoose.model('Users', {
@@ -151,76 +173,129 @@ const Users = mongoose.model('Users', {
     cartData: {
         type: Object,
     },
-    data: {
+    date: {
         type: Date,
         default: Date.now,
     },
 });
 
 app.post('/signup', async (req, res) => {
-    let check = await Users.findOne({ email: req.body.email });
-    if (check) {
-        return res.status(400).json({ success: false, errors: "Existing user found with same email" });
-    }
-
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-    let cart = {};
-    for (let i = 0; i < 300; i++) {
-        cart[i] = 0;
-    }
-
-    const user = new Users({
-        name: req.body.username,
-        email: req.body.email,
-        password: hashedPassword,
-        cartData: cart,
-    });
-
-    await user.save();
-
-    const data = {
-        user: {
-            id: user.id
+    try {
+        let check = await Users.findOne({ email: req.body.email });
+        if (check) {
+            return res.status(400).json({ success: false, errors: "Existing user found with same email" });
         }
-    };
 
-    const token = jwt.sign(data, 'secret_ecom');
-    res.json({ success: true, token });
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+        let cart = {};
+        for (let i = 0; i < 300; i++) {
+            cart[i] = 0;
+        }
+
+        const user = new Users({
+            name: req.body.username,
+            email: req.body.email,
+            password: hashedPassword,
+            cartData: cart,
+        });
+
+        await user.save();
+
+        const token = jwt.sign(
+            {
+                id: user.id,
+                username: user.username,
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_LIFETIME || '1h' }
+        );
+
+        res.cookie("token", token, {
+            maxAge: (process.env.JWT_LIFETIME || 3600) * 1000, // Lifetime in milliseconds
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            path: "/",
+        });
+
+        res.json({ success: true, token });
+    } catch (error) {
+        console.error("Error signing up:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error signing up",
+        });
+    }
 });
 
 app.post('/login', async (req, res) => {
-    let user = await Users.findOne({ email: req.body.email });
-    if (user) {
-        const passCompare = await bcrypt.compare(req.body.password, user.password);
-        if (passCompare) {
-            const data = {
-                user: {
-                    id: user.id
-                }
-            };
-            const token = jwt.sign(data, 'secret_ecom');
-            res.json({ success: true, token });
+    try {
+        let user = await Users.findOne({ email: req.body.email });
+        if (user) {
+            const passCompare = await bcrypt.compare(req.body.password, user.password);
+            if (passCompare) {
+                const token = jwt.sign(
+                    {
+                        id: user.id,
+                        username: user.username,
+                    },
+                    process.env.JWT_SECRET,
+                    { expiresIn: process.env.JWT_LIFETIME || '1h' }
+                );
+
+                res.cookie("token", token, {
+                    maxAge: (process.env.JWT_LIFETIME || 3600) * 1000, // Lifetime in milliseconds
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "none",
+                    path: "/",
+                });
+
+                res.json({ success: true, token });
+            } else {
+                res.json({ success: false, errors: "Wrong Password" });
+            }
         } else {
-            res.json({ success: false, errors: "Wrong Password" });
+            res.json({ success: false, errors: "Wrong email" });
         }
-    } else {
-        res.json({ success: false, errors: "Wrong email" });
+    } catch (error) {
+        console.error("Error logging in:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error logging in",
+        });
     }
 });
 
 app.get('/newcollections', async (req, res) => {
-    let products = await Product.find({});
-    let newcollection = products.slice(1).slice(-8);
-    console.log("New collection fetched");
-    res.send(newcollection);
+    try {
+        let products = await Product.find({});
+        let newcollection = products.slice(1).slice(-8);
+        console.log("New collection fetched");
+        res.send(newcollection);
+    } catch (error) {
+        console.error("Error fetching new collections:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching new collections",
+        });
+    }
 });
 
-app.get('/polpularinwoman', async (req, res) => {
-    let products = await Product.find({ category: "women" });
-    let polpular_in_woman = products.slice(0, 4);
-    console.log("Popular in woman fetched");
-    res.send(polpular_in_woman);
+app.get('/popularinwoman', async (req, res) => {
+    try {
+        let products = await Product.find({ category: "women" });
+        let popular_in_woman = products.slice(0, 4);
+        console.log("Popular in woman fetched");
+        res.send(popular_in_woman);
+    } catch (error) {
+        console.error("Error fetching popular products in woman category:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching popular products in woman category",
+        });
+    }
 });
 
 const fetchUser = async (req, res, next) => {
@@ -229,8 +304,8 @@ const fetchUser = async (req, res, next) => {
         res.status(401).send({ error: "No Token Provided" });
     } else {
         try {
-            const data = jwt.verify(token, 'secret_ecom');
-            req.user = data.user;
+            const data = jwt.verify(token, process.env.JWT_SECRET);
+            req.user = data;
             next();
         } catch (error) {
             res.status(401).send({ errors: "Invalid Token" });
@@ -238,76 +313,62 @@ const fetchUser = async (req, res, next) => {
     }
 };
 
-
-
 app.post('/addtocart', fetchUser, async (req, res) => {
-    console.log("Addtocart", req.body.itemId);
-    let userData = await Users.findOne({ _id: req.user.id });
-    userData.cartData[req.body.itemId] += 1;
-    await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
-    res.send("Added");
-});
-
-app.post('/removefromcart', fetchUser, async (req, res) => {
-    console.log("removed", req.body.itemId);
-    let userData = await Users.findOne({ _id: req.user.id });
-    if (userData.cartData[req.body.itemId] > 0) {
-        userData.cartData[req.body.itemId] -= 1;
-    }
-    await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
-    res.send("Removed");
-});
-// Rate product endpoint
-app.post('/rateproduct', fetchUser, async (req, res) => {
-    const { productId, rating } = req.body;
     try {
-        const product = await Product.findById(productId);
-        const userRatingIndex = product.ratings.findIndex(r => r.user.equals(req.user.id));
-        if (userRatingIndex !== -1) {
-            product.ratings[userRatingIndex].rating = rating;
-        } else {
-            product.ratings.push({ user: req.user.id, rating });
-        }
-        const totalRatings = product.ratings.length;
-        const sumOfRatings = product.ratings.reduce((acc, curr) => acc + curr.rating, 0);
-        product.averageRating = totalRatings > 0 ? sumOfRatings / totalRatings : 0;
-        await product.save();
-        res.json({ success: true, averageRating: product.averageRating });
+        console.log("Addtocart", req.body.itemId);
+        let userData = await Users.findById(req.user.id);
+        let userCart = userData.cartData;
+        console.log(userCart, "userCart");
+        let updatedCart = {
+            ...userCart,
+            [req.body.itemId]: req.body.noOfProducts
+        };
+        console.log("UpdatedCart", updatedCart);
+        await Users.findByIdAndUpdate(req.user.id, { cartData: updatedCart });
+        res.send({ updatedCart });
     } catch (error) {
-        console.error('Error saving rating:', error);
-        res.status(500).json({ success: false, message: 'Error saving rating' });
+        console.error("Error adding to cart:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error adding to cart",
+        });
     }
 });
 
-// Get user rating endpoint
-app.get('/userrating', fetchUser, async (req, res) => {
-    const { productId } = req.query;
+app.post('/removecart', fetchUser, async (req, res) => {
     try {
-        const product = await Product.findById(productId);
-        const userRating = product.ratings.find(r => r.user.equals(req.user.id));
-        res.json({ success: true, rating: userRating ? userRating.rating : 0 });
+        console.log("Removecart", req.body.itemId);
+        let userData = await Users.findById(req.user.id);
+        let userCart = userData.cartData;
+        let updatedCart = {
+            ...userCart,
+            [req.body.itemId]: req.body.noOfProducts
+        };
+        console.log("UpdatedCart", updatedCart);
+        await Users.findByIdAndUpdate(req.user.id, { cartData: updatedCart });
+        res.send({ updatedCart });
     } catch (error) {
-        console.error('Error fetching user rating:', error);
-        res.status(500).json({ success: false, message: 'Error fetching user rating' });
+        console.error("Error removing from cart:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error removing from cart",
+        });
     }
 });
 
-app.post('/getcart', fetchUser, async (req, res) => {
-    console.log("GetCart");
-    let userData = await Users.findOne({ _id: req.user.id });
-    res.json(userData.cartData);
-});
-
-app.get('/profile', fetchUser, async (req, res) => {
-    console.log("Get Profile");
-    let userData = await Users.findOne({ _id: req.user.id });
-    res.json(userData);
-});
-
-app.listen(port, (error) => {
-    if (!error) {
-        console.log("Server Running on Port " + port);
-    } else {
-        console.log("Error: " + error);
+app.get('/fetchuser', fetchUser, async (req, res) => {
+    try {
+        let userdata = await Users.findById(req.user.id);
+        res.send(userdata);
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching user data",
+        });
     }
+});
+
+app.listen(port, () => {
+    console.log(`App is listening on port ${port}`);
 });
