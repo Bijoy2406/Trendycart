@@ -32,6 +32,7 @@ const storage = new CloudinaryStorage({
         folder: 'some-folder-name',
         format: async (req, file) => path.extname(file.originalname).substring(1),
         public_id: (req, file) => `${file.fieldname}_${Date.now()}`
+
     },
 });
 
@@ -318,4 +319,77 @@ app.post('/getcartitems', fetchUser, async (req, res) => {
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
+});
+
+
+app.post('/addtocart', fetchUser, async (req, res) => {
+    console.log("Addtocart", req.body.itemId);
+    let userData = await Users.findOne({ _id: req.user.id });
+    userData.cartData[req.body.itemId] += 1;
+    await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
+    res.send("Added");
+});
+
+app.post('/removefromcart', fetchUser, async (req, res) => {
+    console.log("removed", req.body.itemId);
+    let userData = await Users.findOne({ _id: req.user.id });
+    if (userData.cartData[req.body.itemId] > 0) {
+        userData.cartData[req.body.itemId] -= 1;
+    }
+    await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
+    res.send("Removed");
+});
+// Rate product endpoint
+app.post('/rateproduct', fetchUser, async (req, res) => {
+    const { productId, rating } = req.body;
+    try {
+        const product = await Product.findById(productId);
+        const userRatingIndex = product.ratings.findIndex(r => r.user.equals(req.user.id));
+        if (userRatingIndex !== -1) {
+            product.ratings[userRatingIndex].rating = rating;
+        } else {
+            product.ratings.push({ user: req.user.id, rating });
+        }
+        const totalRatings = product.ratings.length;
+        const sumOfRatings = product.ratings.reduce((acc, curr) => acc + curr.rating, 0);
+        product.averageRating = totalRatings > 0 ? sumOfRatings / totalRatings : 0;
+        await product.save();
+        res.json({ success: true, averageRating: product.averageRating });
+    } catch (error) {
+        console.error('Error saving rating:', error);
+        res.status(500).json({ success: false, message: 'Error saving rating' });
+    }
+});
+
+// Get user rating endpoint
+app.get('/userrating', fetchUser, async (req, res) => {
+    const { productId } = req.query;
+    try {
+        const product = await Product.findById(productId);
+        const userRating = product.ratings.find(r => r.user.equals(req.user.id));
+        res.json({ success: true, rating: userRating ? userRating.rating : 0 });
+    } catch (error) {
+        console.error('Error fetching user rating:', error);
+        res.status(500).json({ success: false, message: 'Error fetching user rating' });
+    }
+});
+
+app.post('/getcart', fetchUser, async (req, res) => {
+    console.log("GetCart");
+    let userData = await Users.findOne({ _id: req.user.id });
+    res.json(userData.cartData);
+});
+
+app.get('/profile', fetchUser, async (req, res) => {
+    console.log("Get Profile");
+    let userData = await Users.findOne({ _id: req.user.id });
+    res.json(userData);
+});
+
+app.listen(port, (error) => {
+    if (!error) {
+        console.log("Server Running on Port " + port);
+    } else {
+        console.log("Error: " + error);
+    }
 });
