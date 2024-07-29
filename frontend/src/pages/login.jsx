@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+port React, { useState, useRef } from 'react';
 import { FaRegCalendarAlt } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -31,7 +31,6 @@ function Login() {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
-            credentials: 'include',
             body: JSON.stringify(formData)
         }).then((response) => response.json()).then((data) => responseData = data);
 
@@ -53,7 +52,6 @@ function Login() {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
-            credentials: 'include',
             body: JSON.stringify(formData)
         }).then((response) => response.json()).then((data) => responseData = data);
 
@@ -99,7 +97,6 @@ function Login() {
             signup();
         }
     };
-
     return (
         <div className="login-background">
             <div className="form-container">
@@ -112,7 +109,7 @@ function Login() {
                         <img src="/assets/img/rocket.png" className="form-image rocket" alt="rocket" />
                         <img src="/assets/img/cloud.png" className="form-image cloud" alt="cloud" />
                         <img src="/assets/img/stars.png" className="form-image stars" alt="stars" />
-                    </div>
+                        </div>
                     <Link to='/' className='home-icon'>
                         <i className="bx bx-home"></i>
                     </Link>
