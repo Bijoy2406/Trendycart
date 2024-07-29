@@ -15,7 +15,7 @@ require('dotenv').config();
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART", {
+mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
@@ -211,74 +211,6 @@ const userTokenSchema = new Schema({
 
 const UserToken = mongoose.model('UserToken', userTokenSchema);
 
-app.post('/signup', async (req, res) => {
-    try {
-        let check = await Users.findOne({ email: req.body.email });
-        if (check) {
-            return res.status(400).json({ success: false, errors: "Existing user found with same email" });
-        }
-
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-        let cart = {};
-        for (let i = 0; i < 300; i++) {
-            cart[i] = 0;
-        }
-
-        const user = new Users({
-            name: req.body.username,
-            email: req.body.email,
-            password: hashedPassword,
-            cartData: cart,
-        });
-
-        await user.save();
-
-        const data = {
-            user: {
-                id: user.id
-            }
-        };
-
-        const token = jwt.sign(data, 'secret_ecom');
-        res.json({ success: true, token });
-    } catch (error) {
-        console.error("Error during signup:", error);
-        res.status(500).json({
-            success: false,
-            message: "Error during signup",
-        });
-    }
-});
-
-app.post('/login', async (req, res) => {
-    try {
-        let user = await Users.findOne({ email: req.body.email });
-        if (user) {
-            const passCompare = await bcrypt.compare(req.body.password, user.password);
-            if (passCompare) {
-                const data = {
-                    user: {
-                        id: user.id
-                    }
-                };
-                const token = jwt.sign(data, 'secret_ecom');
-                res.json({ success: true, token ,refreshToken});
-            } else {
-                res.status(400).json({ success: false, errors: "Wrong Password" });
-            }
-        } else {
-            res.status(400).json({ success: false, errors: "Wrong email" });
-        }
-    } catch (error) {
-        console.error("Error during login:", error);
-        res.status(500).json({
-            success: false,
-            message: "Error during login",
-        });
-    }
-});
-
 const generateTokens = async (user) => {
     try {
         const payload = { _id: user._id, roles: user.roles };
@@ -303,6 +235,63 @@ const generateTokens = async (user) => {
     }
 };
 
+app.post('/signup', async (req, res) => {
+    try {
+        let check = await Users.findOne({ email: req.body.email });
+        if (check) {
+            return res.status(400).json({ success: false, errors: "Existing user found with same email" });
+        }
+
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+        let cart = {};
+        for (let i = 0; i < 300; i++) {
+            cart[i] = 0;
+        }
+
+        const user = new Users({
+            name: req.body.username,
+            email: req.body.email,
+            password: hashedPassword,
+            cartData: cart,
+        });
+
+        await user.save();
+
+        const { accessToken, refreshToken } = await generateTokens(user);
+        res.json({ success: true, accessToken, refreshToken });
+    } catch (error) {
+        console.error("Error during signup:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error during signup",
+        });
+    }
+});
+
+app.post('/login', async (req, res) => {
+    try {
+        let user = await Users.findOne({ email: req.body.email });
+        if (user) {
+            const passCompare = await bcrypt.compare(req.body.password, user.password);
+            if (passCompare) {
+                const { accessToken, refreshToken } = await generateTokens(user);
+                res.json({ success: true, accessToken, refreshToken });
+            } else {
+                res.status(400).json({ success: false, errors: "Wrong Password" });
+            }
+        } else {
+            res.status(400).json({ success: false, errors: "Wrong email" });
+        }
+    } catch (error) {
+        console.error("Error during login:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error during login",
+        });
+    }
+});
+
 app.get('/newcollections', async (req, res) => {
     try {
         let products = await Product.find({});
@@ -325,14 +314,13 @@ app.get('/polpularinwoman', async (req, res) => {
     res.send(polpular_in_woman);
 });
 
-
 const fetchUser = async (req, res, next) => {
     const token = req.header('auth-token');
     if (!token) {
         return res.status(401).send({ error: "No Token Provided" });
     }
     try {
-        const data = jwt.verify(token, 'secret_ecom');
+        const data = jwt.verify(token, process.env.ACCESS_TOKEN_PRIVATE_KEY);
         req.user = data.user;
         next();
     } catch (error) {
