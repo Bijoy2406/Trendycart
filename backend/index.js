@@ -9,14 +9,10 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 app.use(express.json());
-app.use(cors({
-    
-}));
-app.use(cookieParser());
+app.use(cors());
 
 mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART");
 
@@ -190,7 +186,6 @@ app.post('/signup', async (req, res) => {
     };
 
     const token = jwt.sign(data, 'secret_ecom');
-    res.cookie('auth-token', token, { httpOnly: true, sameSite: 'Strict' });
     res.json({ success: true, token });
 });
 
@@ -205,7 +200,6 @@ app.post('/login', async (req, res) => {
                 }
             };
             const token = jwt.sign(data, 'secret_ecom');
-            res.cookie('auth-token', token, { httpOnly: true, sameSite: 'Strict' });
             res.json({ success: true, token });
         } else {
             res.json({ success: false, errors: "Wrong Password" });
@@ -230,7 +224,7 @@ app.get('/polpularinwoman', async (req, res) => {
 });
 
 const fetchUser = async (req, res, next) => {
-    const token = req.cookies['auth-token'];
+    const token = req.header('auth-token');
     if (!token) {
         res.status(401).send({ error: "No Token Provided" });
     } else {
@@ -243,6 +237,8 @@ const fetchUser = async (req, res, next) => {
         }
     }
 };
+
+
 
 app.post('/addtocart', fetchUser, async (req, res) => {
     console.log("Addtocart", req.body.itemId);
@@ -261,7 +257,6 @@ app.post('/removefromcart', fetchUser, async (req, res) => {
     await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
     res.send("Removed");
 });
-
 // Rate product endpoint
 app.post('/rateproduct', fetchUser, async (req, res) => {
     const { productId, rating } = req.body;
@@ -288,19 +283,14 @@ app.post('/rateproduct', fetchUser, async (req, res) => {
 app.get('/userrating', fetchUser, async (req, res) => {
     const { productId } = req.query;
     try {
-        const product = await Product.findById(productId).select('ratings');
+        const product = await Product.findById(productId);
         const userRating = product.ratings.find(r => r.user.equals(req.user.id));
-        res.json({ success: true, rating: userRating ? userRating.rating : null });
+        res.json({ success: true, rating: userRating ? userRating.rating : 0 });
     } catch (error) {
         console.error('Error fetching user rating:', error);
         res.status(500).json({ success: false, message: 'Error fetching user rating' });
     }
 });
-
-app.listen(port, () => {
-    console.log("Server is running");
-});
-
 
 app.post('/getcart', fetchUser, async (req, res) => {
     console.log("GetCart");
