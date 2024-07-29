@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './CSS/login.css';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 function Login() {
     const [showLogin, setShowLogin] = useState(true);
@@ -23,43 +24,47 @@ function Login() {
 
     const signin = async () => {
         console.log("sign in executed", formData);
-        let responseData;
+        try {
+            const response = await axios.post('https://backend-beryl-nu-15.vercel.app/login', formData, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            });
 
-        await fetch('https://backend-beryl-nu-15.vercel.app/login', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        }).then((response) => response.json()).then((data) => responseData = data);
+            const responseData = response.data;
 
-        if (responseData.success) {
-            localStorage.setItem('auth-token', responseData.token);
-            window.location.replace("/");
-        } else {
-            alert(responseData.errors);
+            if (responseData.success) {
+                localStorage.setItem('auth-token', responseData.token);
+                window.location.replace("/");
+            } else {
+                alert(responseData.errors);
+            }
+        } catch (error) {
+            console.error("There was an error!", error);
         }
     };
 
     const signup = async () => {
         console.log("sign up executed", formData);
-        let responseData;
+        try {
+            const response = await axios.post('https://backend-beryl-nu-15.vercel.app/signup', formData, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            });
 
-        await fetch('https://backend-beryl-nu-15.vercel.app/signup', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        }).then((response) => response.json()).then((data) => responseData = data);
+            const responseData = response.data;
 
-        if (responseData.success) {
-            localStorage.setItem('auth-token', responseData.token);
-            window.location.replace("/");
-        } else {
-            alert(responseData.errors);
+            if (responseData.success) {
+                localStorage.setItem('auth-token', responseData.token);
+                window.location.replace("/");
+            } else {
+                alert(responseData.errors);
+            }
+        } catch (error) {
+            console.error("There was an error!", error);
         }
     };
 
@@ -97,6 +102,7 @@ function Login() {
             signup();
         }
     };
+
     return (
         <div className="login-background">
             <div className="form-container">
@@ -109,7 +115,7 @@ function Login() {
                         <img src="/assets/img/rocket.png" className="form-image rocket" alt="rocket" />
                         <img src="/assets/img/cloud.png" className="form-image cloud" alt="cloud" />
                         <img src="/assets/img/stars.png" className="form-image stars" alt="stars" />
-                        </div>
+                    </div>
                     <Link to='/' className='home-icon'>
                         <i className="bx bx-home"></i>
                     </Link>
