@@ -263,7 +263,7 @@ app.post('/login', async (req, res) => {
                     }
                 };
                 const token = jwt.sign(data, 'secret_ecom');
-                res.json({ success: true, token });
+                res.json({ success: true, token ,refreshToken});
             } else {
                 res.status(400).json({ success: false, errors: "Wrong Password" });
             }
