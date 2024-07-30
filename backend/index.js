@@ -32,7 +32,6 @@ const storage = new CloudinaryStorage({
         folder: 'some-folder-name',
         format: async (req, file) => path.extname(file.originalname).substring(1),
         public_id: (req, file) => `${file.fieldname}_${Date.now()}`
-
     },
 });
 
@@ -158,81 +157,42 @@ const Users = mongoose.model('Users', {
     },
 });
 
-import express from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import Users from '../models/User.js';
-import { signUpBodyValidation } from '../utils/validationSchema.js';
-
-const router = express.Router();
-
-router.post('/signup', async (req, res) => {
-    try {
-        // Validate request body
-        const { error } = signUpBodyValidation(req.body);
-        if (error) {
-            return res.status(400).json({ success: false, errors: error.details[0].message });
-        }
-
-        // Normalize email and username (convert to lowercase and trim)
-        const normalizedEmail = req.body.email.trim().toLowerCase();
-        const normalizedUsername = req.body.username.trim().toLowerCase();
-
-        // Check if username is already in use
-        const checkUsername = await Users.findOne({ name: normalizedUsername });
-        if (checkUsername) {
-            return res.status(400).json({ success: false, errors: "Username already in use" });
-        }
-
-        // Check if email is already in use
-        const checkEmail = await Users.findOne({ email: normalizedEmail });
-        if (checkEmail) {
-            return res.status(400).json({ success: false, errors: "Email already in use" });
-        }
-
-        // Create cart data with default values
-        let cart = {};
-        for (let i = 0; i < 300; i++) {
-            cart[i] = 0;
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-        // Create new user
-        const user = new Users({
-            name: normalizedUsername,
-            email: normalizedEmail,
-            password: hashedPassword,
-            cartData: cart,
-        });
-
-        // Save user to database
-        await user.save();
-
-        // Generate JWT token
-        const data = {
-            user: {
-                id: user._id,
-            }
-        };
-        const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        res.json({ success: true, token });
-
-    } catch (error) {
-        // Handle specific errors if necessary
-        if (error.code === 11000) {  // Duplicate key error
-            return res.status(400).json({ success: false, errors: "Email already in use" });
-        }
-
-        // General error
-        console.error("Sign-up error:", error);
-        res.status(500).json({ success: false, errors: "Internal server error" });
+app.post('/signup', async (req, res) => {
+    let checkEmail = await Users.findOne({ email: req.body.email });
+    if (checkEmail) {
+        return res.status(400).json({ success: false, errors: "Existing user found with same email" });
     }
-});
 
-export default router;
+    let checkUsername = await Users.findOne({ name: req.body.username });
+    if (checkUsername) {
+        return res.status(400).json({ success: false, errors: "Existing user found with same username" });
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    let cart = {};
+    for (let i = 0; i < 300; i++) {
+        cart[i] = 0;
+    }
+
+    const user = new Users({
+        name: req.body.username,
+        email: req.body.email,
+        password: hashedPassword,
+        cartData: cart,
+    });
+
+    await user.save();
+
+    const data = {
+        user: {
+            id: user.id
+        }
+    };
+
+    const token = jwt.sign(data, 'secret_ecom');
+    res.json({ success: true, token });
+});
 
 
 app.post('/login', async (req, res) => {
@@ -284,74 +244,6 @@ const fetchUser = async (req, res, next) => {
     }
 };
 
-
-
-app.post('/addtocart', fetchUser, async (req, res) => {
-    console.log("Addtocart", req.body.itemId);
-    let userData = await Users.findOne({ _id: req.user.id });
-    userData.cartData[req.body.itemId] += 1;
-    await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
-    res.send("Added");
-});
-
-app.post('/removefromcart', fetchUser, async (req, res) => {
-    console.log("removed", req.body.itemId);
-    let userData = await Users.findOne({ _id: req.user.id });
-    if (userData.cartData[req.body.itemId] > 0) {
-        userData.cartData[req.body.itemId] -= 1;
-    }
-    await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
-    res.send("Removed");
-});
-// Rate product endpoint
-app.post('/rateproduct', fetchUser, async (req, res) => {
-    const { productId, rating } = req.body;
-    try {
-        const product = await Product.findById(productId);
-        const userRatingIndex = product.ratings.findIndex(r => r.user.equals(req.user.id));
-        if (userRatingIndex !== -1) {
-            product.ratings[userRatingIndex].rating = rating;
-        } else {
-            product.ratings.push({ user: req.user.id, rating });
-        }
-        const totalRatings = product.ratings.length;
-        const sumOfRatings = product.ratings.reduce((acc, curr) => acc + curr.rating, 0);
-        product.averageRating = totalRatings > 0 ? sumOfRatings / totalRatings : 0;
-        await product.save();
-        res.json({ success: true, averageRating: product.averageRating });
-    } catch (error) {
-        console.error('Error saving rating:', error);
-        res.status(500).json({ success: false, message: 'Error saving rating' });
-    }
-});
-
-// Get user rating endpoint
-app.get('/userrating', fetchUser, async (req, res) => {
-    const { productId } = req.query;
-    try {
-        const product = await Product.findById(productId);
-        const userRating = product.ratings.find(r => r.user.equals(req.user.id));
-        res.json({ success: true, rating: userRating ? userRating.rating : 0 });
-    } catch (error) {
-        console.error('Error fetching user rating:', error);
-        res.status(500).json({ success: false, message: 'Error fetching user rating' });
-    }
-});
-
-app.post('/getcartitems', fetchUser, async (req, res) => {
-    const user = await Users.findOne({ _id: req.user.id });
-    let cartItems = {};
-    for (const [key, value] of Object.entries(user.cartData)) {
-        if (value > 0) {
-            cartItems[key] = value;
-        }
-    }
-    res.json(cartItems);
-});
-
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
 
 
 app.post('/addtocart', fetchUser, async (req, res) => {
