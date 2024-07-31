@@ -1,6 +1,7 @@
-
 /* Add these styles for the rating system */
-
+body{
+    overflow: scroll;
+}
 .rating-container {
     margin-top: 20px;
 }
@@ -9,27 +10,25 @@
     margin-bottom: 1rem;
 }
 
+
+
 .emoji {
     font-size: 2rem;
-    height: 20px;
-    margin-bottom: 1rem;
+    margin-right: 0.5rem;
 }
 
 .status {
     font-size: 2rem;
     color: black;
-    height: 40px; /* Adjusted height */
-    overflow: hidden; /* Ensures content doesn't overflow */
+    
 }
 
 .stars {
     display: flex;
-    position: relative;
-    justify-content: center;
-    align-items: center;
     flex-direction: row-reverse;
-    top: -100px;
+    margin-right: 30rem;
 }
+
 
 .star {
     height: 40px;
@@ -103,12 +102,15 @@
 }
 
 .productdisplay-right-prices {
+    position: relative; 
     display: flex;
     margin: 40px 0px;
     gap: 30px;
     font-size: 24px;
     font-weight: 700;
+    top: -100px;
 }
+
 
 .productdisplay-right-price-old {
     text-decoration: line-through;
@@ -150,13 +152,21 @@
 
 .productdisplay-right button {
     width: 200px;
-    margin-top: 20px;
+    /* margin-top: -19px; */
     padding: 10px 20px;
     border-radius: 8px;
     background-color: #007bff;
     color: white;
     border: none;
     cursor: pointer;
+    position: relative;
+    top: 71px;
+}
+.login-prompt{
+    position: relative;
+    top:40px;
+    margin-top: 100px;
+    font-size: 25px;
 }
 
 button:hover {
@@ -221,6 +231,7 @@ button:hover {
     gap: 30px;
     font-size: 24px;
     font-weight: 700;
+    margin-bottom: 10px;
 }
 
 .productdisplay-right-price-old {
@@ -259,18 +270,6 @@ button:hover {
 
 .productdisplay-right-description {
     margin-top: 20px;
-}
-
-.productdisplay-right button {
-    width: 200px;
-    margin-top: 20px;
-    padding: 10px 20px;
-    height: 44px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 21px;
 }
 
 
@@ -366,13 +365,13 @@ button:hover {
   
   .btnwallet .button__text {
     display: flex;
-    flex-direction: row; /* Adjust direction if needed */
-    align-items: center; /* Align items vertically */
-    justify-content: center; /* Center text horizontally */
-    position: relative; /* Allow positioning of spans */
-    top: -5px; /* Adjust vertical positioning if needed */
-    left: -25px; /* Adjust horizontal positioning if needed */
-    transition: transform 0.2s ease-in-out; /* Smooth transition on hover */
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: 0px;
+    left: -20px;
+    transition: transform 0.2s ease-in-out;
 }
 
   /* styling */
@@ -384,21 +383,21 @@ button:hover {
     background-color: purple;
     padding: 1rem 90px 1rem 2rem;
     position: relative;
-    bottom: -440px;
-    left: 220px;
+    top: 55px;
+    left: 15px;
     width: 200px;
     margin-top: 20px;
-    height: 44px;
+    height: 60px;
     padding: 10px 20px;
     border-radius: 8px;
     letter-spacing: 0.7px;
     background-color: #007bff;
     color: #fff;
-    font-size: 21px;
+    font-size: 18px;
     font-family: "Lato", sans-serif;
     cursor: pointer;
     box-shadow: rgba(0, 9, 61, 0.2) 0px 4px 8px 0px;
-  }
+}
   
   .btnwallet .button:active {
     transform: translateY(1px);
@@ -411,3 +410,216 @@ button:hover {
     right: 0.2rem;
     height: 140%;
   }
+
+  .cart-button {
+	position: relative;
+	padding: 10px;
+	width: 200px;
+	height: 60px;
+	border: 0;
+	border-radius: 10px;
+	background-color: #4834d4;
+	outline: none;
+	cursor: pointer;
+	color: #fff;
+	transition: .3s ease-in-out;
+	overflow: hidden;
+}
+.cart-button:hover {
+	background-color: #35269b;
+}
+.cart-button:active {
+	transform: scale(.9);
+}
+
+.cart-button .fa-shopping-cart {
+	position: absolute;
+	z-index: 2;
+	top: 50%;
+	left: -10%;
+	font-size: 2em;
+	transform: translate(-50%,-50%);
+}
+.cart-button .fa-box {
+	position: absolute;
+	z-index: 3;
+	top: -20%;
+	left: 52%;
+	font-size: 1.2em;
+	transform: translate(-50%,-50%);
+}
+.cart-button span {
+	position: absolute;
+	z-index: 3;
+	left: 50%;
+	top: 50%;
+	font-size: 1.2em;
+	color: #fff;
+	transform: translate(-50%,-50%);
+}
+.cart-button span.add-to-cart {
+	opacity: 1;
+}
+.cart-button span.added {
+	opacity: 0;
+}
+
+.cart-button.clicked .fa-shopping-cart {
+	animation: cart 1.5s ease-in-out forwards;
+}
+.cart-button.clicked .fa-box {
+	animation: box 1.5s ease-in-out forwards;
+}
+.cart-button.clicked span.add-to-cart {
+	animation: txt1 1.5s ease-in-out forwards;
+}
+.cart-button.clicked span.added {
+	animation: txt2 1.5s ease-in-out forwards;
+}
+@keyframes cart {
+	0% {
+		left: -10%;
+	}
+	40%, 60% {
+		left: 50%;
+	}
+	100% {
+		left: 110%;
+	}
+}
+@keyframes box {
+	0%, 40% {
+		top: -20%;
+	}
+	60% {
+		top: 40%;
+		left: 52%;
+	}
+	100% {
+		top: 40%;
+		left: 112%;
+	}
+}
+@keyframes txt1 {
+	0% {
+		opacity: 1;
+	}
+	20%, 100% {
+		opacity: 0;
+	}
+}
+@keyframes txt2 {
+	0%, 80% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+/* Media query for small displays */
+@media (max-width: 768px) {
+    .productdisplay,
+    .productdisplay-left,
+    .productdisplay-right,
+    .productdisplay-right-star,
+    .productdisplay-right-prices,
+    .productdisplay-right-size,
+    .productdisplay-right-description,
+    .productdisplay-right-category {
+       overflow: hidden;
+    }
+
+    .productdisplay {
+        margin: 0 10px;
+        flex-direction: column;
+    }
+
+    .productdisplay-left,
+    .productdisplay-right {
+        margin: 0;
+    }
+
+    .productdisplay-main-img {
+        width: 100%;
+        height: auto;
+    }
+
+    .productdisplay-right h1 {
+        font-size: 30px;
+    }
+
+    .productdisplay-right-star,
+    .productdisplay-right-prices {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .productdisplay-right-prices {
+        margin: 20px 0;
+    }
+
+    .productdisplay-right-size h1 {
+        font-size: 18px;
+    }
+
+    .productdisplay-right-size-options div {
+        padding: 10px 15px;
+    }
+
+    .btnwallet .button {
+        width: 37%;
+        left: -199px;
+        top: 128px;
+        padding: 10px 20px;
+    }
+
+
+    .cart-button {
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    @keyframes cart {
+        0% {
+            left: -10%;
+        }
+        40%, 60% {
+            left: 50%;
+        }
+        100% {
+            left: 110%;
+        }
+    }
+    @keyframes box {
+        0%, 40% {
+            top: -20%;
+        }
+        60% {
+            top: 40%;
+            left: 52%;
+        }
+        100% {
+            top: 40%;
+            left: 112%;
+        }
+    }
+    @keyframes txt1 {
+        0% {
+            opacity: 1;
+        }
+        20%, 100% {
+            opacity: 0;
+        }
+    }
+    @keyframes txt2 {
+        0%, 80% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+}
+
+

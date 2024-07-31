@@ -158,9 +158,14 @@ const Users = mongoose.model('Users', {
 });
 
 app.post('/signup', async (req, res) => {
-    let check = await Users.findOne({ email: req.body.email });
-    if (check) {
+    let checkEmail = await Users.findOne({ email: req.body.email });
+    if (checkEmail) {
         return res.status(400).json({ success: false, errors: "Existing user found with same email" });
+    }
+
+    let checkUsername = await Users.findOne({ name: req.body.username });
+    if (checkUsername) {
+        return res.status(400).json({ success: false, errors: "Existing user found with same username" });
     }
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -188,6 +193,7 @@ app.post('/signup', async (req, res) => {
     const token = jwt.sign(data, 'secret_ecom');
     res.json({ success: true, token });
 });
+
 
 app.post('/login', async (req, res) => {
     let user = await Users.findOne({ email: req.body.email });
@@ -290,7 +296,28 @@ app.get('/userrating', fetchUser, async (req, res) => {
         console.error('Error fetching user rating:', error);
         res.status(500).json({ success: false, message: 'Error fetching user rating' });
     }
+    app.get('/allusers', async (req, res) => {
+        try {
+            const users = await Users.find({}, 'name email'); // Fetch only name and email fields
+            res.json({ success: true, users });
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            res.status(500).json({ success: false, message: "Error fetching users" });
+        }
+    });
+
 });
+
+app.get('/allusers', async (req, res) => {
+    try {
+        const users = await Users.find({}, 'name email'); // Fetch only name and email fields
+        res.json({ success: true, users });
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ success: false, message: "Error fetching users" });
+    }
+});
+
 
 app.post('/getcart', fetchUser, async (req, res) => {
     console.log("GetCart");

@@ -17,7 +17,7 @@ const Profile = () => {
           return;
         }
 
-        const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
+        const response = await axios.get('http://localhost:4001/profile', {
           headers: {
             'auth-token': token
           }
