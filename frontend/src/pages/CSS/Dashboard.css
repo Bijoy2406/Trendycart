@@ -1,0 +1,82 @@
+/* Dashboard.css */
+
+.dashboard-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.dashboard-header {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.user-list {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 50px; /* Add margin to avoid overlap with sticky header */
+}
+
+.user-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px #0000001a;
+    margin: 10px 0;
+    padding: 20px;
+    transition: box-shadow 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: auto; /* Use auto height for flexibility */
+}
+
+.user-card:hover {
+    box-shadow: 0 4px 8px #0000001a;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name,
+.user-email {
+    margin: 5px 0; /* Ensure consistent spacing between elements */
+}
+
+.user-name {
+    font-weight: bold;
+    color: #555;
+}
+
+.user-email {
+    color: #888;
+}
+
+.user-email.admin {
+    color: red; /* Optional: Different color for admin emails */
+    font-weight: bold;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 10px;
+    }
+
+    .dashboard-header {
+        font-size: 20px;
+        padding: 10px 0;
+    }
+
+    .user-card {
+        padding: 15px;
+    }
+
+    .user-name,
+    .user-email {
+        margin: 3px 0;
+    }
+}

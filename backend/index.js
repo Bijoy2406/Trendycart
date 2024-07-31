@@ -296,7 +296,28 @@ app.get('/userrating', fetchUser, async (req, res) => {
         console.error('Error fetching user rating:', error);
         res.status(500).json({ success: false, message: 'Error fetching user rating' });
     }
+    app.get('/allusers', async (req, res) => {
+        try {
+            const users = await Users.find({}, 'name email'); // Fetch only name and email fields
+            res.json({ success: true, users });
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            res.status(500).json({ success: false, message: "Error fetching users" });
+        }
+    });
+
 });
+
+app.get('/allusers', async (req, res) => {
+    try {
+        const users = await Users.find({}, 'name email'); // Fetch only name and email fields
+        res.json({ success: true, users });
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ success: false, message: "Error fetching users" });
+    }
+});
+
 
 app.post('/getcart', fetchUser, async (req, res) => {
     console.log("GetCart");

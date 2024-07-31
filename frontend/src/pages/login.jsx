@@ -4,11 +4,13 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './CSS/login.css';
 import { Link } from 'react-router-dom';
+import Loader from '../loader_login'; // Import the Loader component
 
 function Login() {
     const [showLogin, setShowLogin] = useState(true);
     const [loginForm, setLoginForm] = useState({ email: '', password: '' });
     const [registerForm, setRegisterForm] = useState({ username: '', email: '', password: '', dob: new Date() });
+    const [loading, setLoading] = useState(false); // Loading state
     const datePickerRef = useRef(null);
 
     const changeHandler = (e) => {
@@ -22,6 +24,7 @@ function Login() {
 
     const signin = async () => {
         console.log("sign in executed", loginForm);
+        setLoading(true); // Show loader
         try {
             const response = await fetch('https://backend-beryl-nu-15.vercel.app/login', {
                 method: 'POST',
@@ -40,11 +43,14 @@ function Login() {
             }
         } catch (error) {
             console.error("Failed to fetch during signin:", error);
+        } finally {
+            setLoading(false); // Hide loader
         }
     };
 
     const signup = async () => {
         console.log("sign up executed", registerForm);
+        setLoading(true); // Show loader
         try {
             const response = await fetch('https://backend-beryl-nu-15.vercel.app/signup', {
                 method: 'POST',
@@ -67,6 +73,8 @@ function Login() {
             }
         } catch (error) {
             console.error("Failed to fetch during signup:", error);
+        } finally {
+            setLoading(false); // Hide loader
         }
     };
 
@@ -97,7 +105,8 @@ function Login() {
 
     return (
         <div className="login-background">
-            <div className="form-container">
+            {loading && <Loader />} {/* Render the loader when loading is true */}
+            <div className={`form-container ${loading ? 'blurred' : ''}`}> {/* Optionally blur the form when loading */}
                 <div className="col col-1" style={{ borderRadius: showLogin ? '0 30% 20% 0' : '0 20% 30% 0' }}>
                     <div className="image-layer">
                         <img src="/assets/img/white-outline.png" className="form-image-main" alt="main" />
@@ -222,7 +231,7 @@ function Login() {
                             </>
                         )}
                         <div className="input-box">
-                            <button className="input-submit" type="submit">
+                            <button className="input-submit" type="submit" disabled={loading}>
                                 <span>Continue</span>
                                 <i className="bx bx-right-arrow-alt"></i>
                             </button>
