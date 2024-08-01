@@ -41,7 +41,7 @@ window.initializeRatings = (productId) => {
     };
 
     const ratings = [
-        { emoji: "", name: "Give us rating" },
+        { emoji: "🥺", name: "Give us rating" },
         { emoji: "😔", name: "Very Poor" },
         { emoji: "🙁", name: "Poor" },
         { emoji: "🙂", name: "Good" },
@@ -80,7 +80,7 @@ window.initializeRatings = (productId) => {
             setStoredRatings(updatedRatings);
 
             // Send rating to the server
-            fetch('http://localhost:4001/rateproduct', {
+            fetch('https://backend-beryl-nu-15.vercel.app/rateproduct', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ window.initializeRatings = (productId) => {
     });
 
     // Fetch and display average rating on initialization
-    fetch(`http://localhost:4001/getaveragerating?productId=${productId}`)
+    fetch(`https://backend-beryl-nu-15.vercel.app/getaveragerating?productId=${productId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
