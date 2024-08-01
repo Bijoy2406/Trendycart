@@ -8,7 +8,6 @@
     margin: 30px;
     border-radius: 6px;
     background: white;
-
 }
 
 .listproduct-format-main {
@@ -35,12 +34,7 @@
     position: relative;
 }
 
-.listproduct-remove-icon {
-    cursor: pointer;
-    position: absolute;
-    left: 215px;
-    /* Position it to the left */
-}
+
 
 .listproduct-edit-icon {
     height: 30px;
@@ -76,7 +70,7 @@
     }
 }
 
-.wrap-delete * {
+.delete * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -93,7 +87,7 @@
         transparent;
 }
 
-.wrap-delete button {
+.delete button {
     width: 150px;
     height: 50px;
     cursor: pointer;
@@ -106,21 +100,22 @@
     background:#e62222;
     position: relative;
     left: 180px;
-}
+  }
 
-.wrap-delete button,
-.wrap-delete button span {
+
+.delete button,
+.delete button span {
     transition: 200ms;
 }
 
-.wrap-delete button .text {
+.delete button .text {
     transform: translateX(35px);
     color:
         white;
     font-weight: bold;
 }
 
-.wrap-delete button .icon {
+.delete button .icon {
     position: absolute;
     border-left: 1px solid #c41b1b;
     transform: translateX(110px);
@@ -131,28 +126,28 @@
     justify-content: center;
 }
 
-.wrap-delete button svg {
+.delete button svg {
     width: 15px;
     fill:
         #eee;
 }
 
-.wrap-delete button:hover {
+.delete button:hover {
     background:
         #ff3636;
 }
 
-.wrap-delete button:hover .text {
+.delete button:hover .text {
     color:
         transparent;
 }
 
-.wrap-delete button:hover .icon {
+.delete button:hover .icon {
     width: 150px;
     border-left: none;
     transform: translateX(0);
 }
 
-.wrap-delete button:focus {
+.delete button:focus {
     outline: none;
 }

@@ -20,6 +20,8 @@ import Loader from './Loader';
 import Dashboard from './pages/Dashboard'; // Import the Dashboard component
 import Productdisplay from './components/Productdisplay/Productdisplay'; 
 import Payment from './components/Payment/Payment'; 
+import listproduct from './components/Listproduct/Listproduct';
+import EditProduct from './components/Listproduct/Edit'; 
 function App() {
   return (
     <ShopContextProvider>
@@ -62,7 +64,9 @@ function WithNavbar() {
           <Route path='/profile' element={<Profile />} />
           <Route path='/dashboard' element={<Dashboard />} /> {/* Add the Dashboard route */}
           <Route path="/product/:id" element={<Productdisplay />} />
-                <Route path="/payment" element={<Payment />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/listproducts" element={<Listproduct />} />
+        <Route path="/editproduct/:id" element={<EditProduct />} />
         </Routes>
       )}
       <Footer />

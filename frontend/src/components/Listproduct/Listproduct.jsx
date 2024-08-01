@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../Context/ShopContext';
 import { useNavigate } from 'react-router-dom';
 import './Listproduct.css';
-import cross_icon from '../../components/Assets/cross_icon.png';
 import edit_icon from '../../components/Assets/edit_icon.png';
 import back_icon from '../../components/Assets/back.png';
 
@@ -42,8 +41,8 @@ const Listproduct = () => {
     }
   };
 
-  const edit_product = (product) => {
-    navigate('/addproduct', { state: { product } });
+  const edit_product = (id) => {
+    navigate(`/editproduct/${id}`);
   };
 
   const goBack = () => {
@@ -76,7 +75,7 @@ const Listproduct = () => {
               <p>৳{product.new_price}</p>
               <p>{product.category}</p>
               <div className="icon-container">
-                <div className="wrap-delete">
+                <div className="delete">
                   <button className="button-delete" onClick={() => remove_product(product.id)}>
                     <span className="text">Delete</span>
                     <span className="icon">
@@ -87,7 +86,9 @@ const Listproduct = () => {
                   </button>
                 </div>
 
-                <img onClick={() => edit_product(product)} className='listproduct-edit-icon' src={edit_icon} alt="Edit" />
+                <button onClick={() => edit_product(product.id)} className='button-edit'>
+                  <img className='listproduct-edit-icon' src={edit_icon} alt="Edit" />
+                </button>
               </div>
             </div>
             <hr />
