@@ -3,7 +3,7 @@ body{
     overflow: scroll;
 }
 .rating-container {
-    margin-top: 20px;
+    top: 20px;
 }
 
 .info {
@@ -15,12 +15,16 @@ body{
 .emoji {
     font-size: 2rem;
     margin-right: 0.5rem;
+    position: relative;
+    top: 3rem;
 }
 
 .status {
     font-size: 2rem;
     color: black;
-    
+    top: 0rem;
+    left: 3rem;
+    position: relative;
 }
 
 .stars {

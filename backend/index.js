@@ -31,7 +31,7 @@ const storage = new CloudinaryStorage({
     params: {
         folder: 'some-folder-name',
         format: async (req, file) => path.extname(file.originalname).substring(1),
-        public_id: (req, file) => `${file.fieldname}_${Date.now()}`
+        public_id: (req, file) => '${file.fieldname}_${Date.now()}'
     },
 });
 
@@ -246,23 +246,25 @@ const fetchUser = async (req, res, next) => {
 
 
 
-app.post('/addtocart', fetchUser, async (req, res) => {
-    console.log("Addtocart", req.body.itemId);
-    let userData = await Users.findOne({ _id: req.user.id });
-    userData.cartData[req.body.itemId] += 1;
-    await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
-    res.send("Added");
-});
+app.post('/addtocart',fetchUser,async(req,res)=>{
+    console.log("Addtocart",req.body.itemId);
+    let userData =await Users.findOne({_id:req.user.id});
+    userData.cartData[req.body.itemId] +=1;
+    await Users.findOneAndUpdate({_id:req.user.id},{cartData:userData.cartData});
+    res.send("Added")
 
-app.post('/removefromcart', fetchUser, async (req, res) => {
-    console.log("removed", req.body.itemId);
-    let userData = await Users.findOne({ _id: req.user.id });
-    if (userData.cartData[req.body.itemId] > 0) {
-        userData.cartData[req.body.itemId] -= 1;
-    }
-    await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
-    res.send("Removed");
-});
+})
+app.post('/removefromcart',fetchUser,async (req,res)=>{
+  
+    console.log("removed",req.body.itemId);
+   let userData =await Users.findOne({_id:req.user.id});
+   if(userData.cartData[req.body.itemId]>0)
+   userData.cartData[req.body.itemId] -=1;
+   await Users.findOneAndUpdate({_id:req.user.id},{cartData:userData.cartData});
+   res.send("Removed")
+  
+
+})
 // Rate product endpoint
 app.post('/rateproduct', fetchUser, async (req, res) => {
     const { productId, rating } = req.body;
@@ -319,16 +321,39 @@ app.get('/allusers', async (req, res) => {
 });
 
 
-app.post('/getcart', fetchUser, async (req, res) => {
+app.post('/getcart',fetchUser,async(req,res)=>{
+   
     console.log("GetCart");
-    let userData = await Users.findOne({ _id: req.user.id });
+    let userData = await Users.findOne({_id:req.user.id});
     res.json(userData.cartData);
-});
+})
 
 app.get('/profile', fetchUser, async (req, res) => {
     console.log("Get Profile");
     let userData = await Users.findOne({ _id: req.user.id });
     res.json(userData);
+});
+app.post('/updateprofile', fetchUser, async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        
+        const updatedData = {};
+        
+        if (username) {
+            updatedData.name = username;
+        }
+        
+        if (password) {
+            updatedData.password = await bcrypt.hash(password, 10);
+        }
+
+        const updatedUser = await Users.findByIdAndUpdate(req.user.id, updatedData, { new: true });
+
+        res.json({ success: true, user: updatedUser });
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        res.status(500).json({ success: false, message: "Error updating profile" });
+    }
 });
 
 app.listen(port, (error) => {
