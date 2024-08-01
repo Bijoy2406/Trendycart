@@ -8,7 +8,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('https://backend-beryl-nu-15.vercel.app//allusers'); // Adjust the URL if needed
+                const response = await axios.get('https://backend-beryl-nu-15.vercel.app/allusers'); // Adjust the URL if needed
                 if (response.data.success) {
                     setUsers(response.data.users);
                 }
