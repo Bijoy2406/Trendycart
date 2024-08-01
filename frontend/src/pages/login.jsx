@@ -26,7 +26,7 @@ function Login() {
         console.log("sign in executed", loginForm);
         setLoading(true); // Show loader
         try {
-            const response = await fetch('https://backend-beryl-nu-15.vercel.app/login', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.applogin', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -52,7 +52,7 @@ function Login() {
         console.log("sign up executed", registerForm);
         setLoading(true); // Show loader
         try {
-            const response = await fetch('https://backend-beryl-nu-15.vercel.app/signup', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.appsignup', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
