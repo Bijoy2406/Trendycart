@@ -80,7 +80,7 @@ window.initializeRatings = (productId) => {
             setStoredRatings(updatedRatings);
 
             // Send rating to the server
-            fetch('https://backend-beryl-nu-15.vercel.apprateproduct', {
+            fetch('https://backend-beryl-nu-15.vercel.app/rateproduct', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ window.initializeRatings = (productId) => {
     });
 
     // Fetch and display average rating on initialization
-    fetch(`https://backend-beryl-nu-15.vercel.appgetaveragerating?productId=${productId}`)
+    fetch(`https://backend-beryl-nu-15.vercel.app/getaveragerating?productId=${productId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {

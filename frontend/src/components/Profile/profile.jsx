@@ -20,7 +20,7 @@ const Profile = () => {
           return;
         }
 
-        const response = await axios.get('https://backend-beryl-nu-15.vercel.appprofile', {
+        const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
           headers: {
             'auth-token': token
           }
@@ -41,7 +41,7 @@ const Profile = () => {
   const handleEdit = async () => {
     try {
       const token = localStorage.getItem('auth-token');
-      const response = await axios.post('https://backend-beryl-nu-15.vercel.appupdateprofile', {
+      const response = await axios.post('https://backend-beryl-nu-15.vercel.app/updateprofile', {
         username: newUsername,
         password: newPassword,
       }, {

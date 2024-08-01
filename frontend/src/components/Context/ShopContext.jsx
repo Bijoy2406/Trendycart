@@ -15,13 +15,13 @@ const ShopContextProvider = (props) => {
   const [all_product,setAll_Product] =useState([]);
   const [cartItems, setCartItems] = useState(getDefaultCart());
   useEffect(()=>{
-      fetch('https://backend-beryl-nu-15.vercel.appallproducts')
+      fetch('https://backend-beryl-nu-15.vercel.app/allproducts')
       .then((response)=>response.json())
       .then((data)=>setAll_Product(data))
 
       if(localStorage.getItem('auth-token')){
          
-        fetch('https://backend-beryl-nu-15.vercel.appgetcart',{
+        fetch('https://backend-beryl-nu-15.vercel.app/getcart',{
           method:'POST',
           headers:{
             Accept:'application/form-data',
@@ -42,7 +42,7 @@ const ShopContextProvider = (props) => {
       [ItemId]: prev[ItemId] + 1,
     }));
     if(localStorage.getItem('auth-token')){
-      fetch('https://backend-beryl-nu-15.vercel.appaddtocart',{
+      fetch('https://backend-beryl-nu-15.vercel.app/addtocart',{
         method:'POST',
         headers:{
           Accept:'application/json',
@@ -66,7 +66,7 @@ const ShopContextProvider = (props) => {
       [ItemId]: prev[ItemId] - 1,
     }));
    if(localStorage.getItem('auth-token')){
-      fetch('https://backend-beryl-nu-15.vercel.appremovefromcart',{
+      fetch('https://backend-beryl-nu-15.vercel.app/removefromcart',{
         method:'POST',
         headers:{
           
