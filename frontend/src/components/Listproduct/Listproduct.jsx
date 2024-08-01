@@ -41,8 +41,8 @@ const Listproduct = () => {
     }
   };
 
-  const edit_product = (product) => {
-    navigate('/addproduct', { state: { product } });
+  const edit_product = (id) => {
+    navigate(`/editproduct/${id}`);
   };
 
   const goBack = () => {
@@ -86,7 +86,9 @@ const Listproduct = () => {
                   </button>
                 </div>
 
-                <img onClick={() => edit_product(product)} className='listproduct-edit-icon' src={edit_icon} alt="Edit" />
+                <button onClick={() => edit_product(product.id)} className='button-edit'>
+                  <img className='listproduct-edit-icon' src={edit_icon} alt="Edit" />
+                </button>
               </div>
             </div>
             <hr />

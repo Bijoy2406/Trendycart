@@ -356,6 +356,31 @@ app.post('/updateprofile', fetchUser, async (req, res) => {
     }
 });
 
+
+app.put('/updateproduct/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, image, category, new_price, old_price } = req.body;
+
+        // Find the product by ID and update it
+        const updatedProduct = await Product.findOneAndUpdate(
+            { id: parseInt(id) },  // Use parseInt to ensure it's a number
+            { name, image, category, new_price, old_price },
+            { new: true }  // Return the updated document
+        );
+
+        if (updatedProduct) {
+            res.json({ success: true, product: updatedProduct });
+        } else {
+            res.status(404).json({ success: false, message: 'Product not found' });
+        }
+    } catch (error) {
+        console.error('Error updating product:', error);
+        res.status(500).json({ success: false, message: 'Error updating product' });
+    }
+});
+
+
 app.listen(port, (error) => {
     if (!error) {
         console.log("Server Running on Port " + port);
