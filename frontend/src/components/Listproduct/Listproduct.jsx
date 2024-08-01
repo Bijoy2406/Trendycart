@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../Context/ShopContext';
 import { useNavigate } from 'react-router-dom';
 import './Listproduct.css';
-import cross_icon from '../../components/Assets/cross_icon.png';
 import edit_icon from '../../components/Assets/edit_icon.png';
 import back_icon from '../../components/Assets/back.png';
 
@@ -14,7 +13,7 @@ const Listproduct = () => {
   useEffect(() => {
     const fetchInfo = async () => {
       try {
-        const res = await fetch('https://backend-beryl-nu-15.vercel.app/allproducts');
+        const res = await fetch('http://localhost:4001/allproducts');
         const data = await res.json();
         setAllProducts(data);
       } catch (error) {
@@ -26,7 +25,7 @@ const Listproduct = () => {
   }, []);
 
   const remove_product = async (id) => {
-    const response = await fetch('https://backend-beryl-nu-15.vercel.app/remove', {
+    const response = await fetch('http://localhost:4001/remove', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -76,7 +75,7 @@ const Listproduct = () => {
               <p>৳{product.new_price}</p>
               <p>{product.category}</p>
               <div className="icon-container">
-                <div className="wrap-delete">
+                <div className="delete">
                   <button className="button-delete" onClick={() => remove_product(product.id)}>
                     <span className="text">Delete</span>
                     <span className="icon">
