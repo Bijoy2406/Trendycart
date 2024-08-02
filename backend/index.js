@@ -138,24 +138,14 @@ app.get('/allproducts', async (req, res) => {
 });
 
 const Users = mongoose.model('Users', {
-    name: {
-        type: String,
-    },
-    email: {
-        type: String,
-        unique: true,
-    },
-    password: {
-        type: String,
-    },
-    cartData: {
-        type: Object,
-    },
-    data: {
-        type: Date,
-        default: Date.now,
-    },
+    name: { type: String },
+    email: { type: String, unique: true },
+    password: { type: String },
+    cartData: { type: Object },
+    data: { type: Date, default: Date.now },
+    isAdmin: { type: Boolean, default: false }, // New field for admin role
 });
+
 
 app.post('/signup', async (req, res) => {
     let checkEmail = await Users.findOne({ email: req.body.email });
@@ -180,6 +170,7 @@ app.post('/signup', async (req, res) => {
         email: req.body.email,
         password: hashedPassword,
         cartData: cart,
+        isAdmin: req.body.isAdmin || false, // Save isAdmin status
     });
 
     await user.save();
@@ -194,7 +185,7 @@ app.post('/signup', async (req, res) => {
     res.json({ success: true, token });
 });
 
-
+// Login endpoint
 app.post('/login', async (req, res) => {
     let user = await Users.findOne({ email: req.body.email });
     if (user) {
@@ -215,6 +206,8 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Get User Role endpoint
+
 app.get('/newcollections', async (req, res) => {
     let products = await Product.find({});
     let newcollection = products.slice(1).slice(-8);
@@ -232,19 +225,24 @@ app.get('/polpularinwoman', async (req, res) => {
 const fetchUser = async (req, res, next) => {
     const token = req.header('auth-token');
     if (!token) {
-        res.status(401).send({ error: "No Token Provided" });
-    } else {
-        try {
-            const data = jwt.verify(token, 'secret_ecom');
-            req.user = data.user;
-            next();
-        } catch (error) {
-            res.status(401).send({ errors: "Invalid Token" });
-        }
+        return res.status(401).send({ error: "No Token Provided" });
+    }
+    try {
+        const data = jwt.verify(token, 'secret_ecom');
+        req.user = data.user;
+        next();
+    } catch (error) {
+        return res.status(401).send({ errors: "Invalid Token" });
     }
 };
-
-
+app.get('/getUserRole', fetchUser, async (req, res) => {
+    try {
+        const user = await Users.findById(req.user.id);
+        res.json({ isAdmin: user.isAdmin });
+    } catch (error) {
+        res.status(500).send({ error: "Error fetching user role" });
+    }
+});
 
 app.post('/addtocart',fetchUser,async(req,res)=>{
     console.log("Addtocart",req.body.itemId);
@@ -312,13 +310,14 @@ app.get('/userrating', fetchUser, async (req, res) => {
 
 app.get('/allusers', async (req, res) => {
     try {
-        const users = await Users.find({}, 'name email'); // Fetch only name and email fields
+        const users = await Users.find({}, 'name email isAdmin'); // Include isAdmin field
         res.json({ success: true, users });
     } catch (error) {
         console.error("Error fetching users:", error);
         res.status(500).json({ success: false, message: "Error fetching users" });
     }
 });
+
 
 
 app.post('/getcart',fetchUser,async(req,res)=>{

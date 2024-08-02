@@ -27,7 +27,7 @@ body{
     position: relative;
 }
 
-.stars {
+.rating_stars {
     display: flex;
     flex-direction: row-reverse;
     margin-right: 30rem;

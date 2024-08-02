@@ -19,7 +19,7 @@ const EditProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`https://backend-beryl-nu-15.vercel.app/product/${id}`);
+        const res = await fetch(`http://localhost:4001/product/${id}`);
         const data = await res.json();
         setProductDetails(data);
       } catch (error) {
@@ -47,7 +47,7 @@ const EditProduct = () => {
     
     if (image) {
       formData.append('product', image);
-      await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
+      await fetch('http://localhost:4001/upload', {
         method: 'POST',
         headers: {
           Accept: 'application/json'
@@ -63,7 +63,7 @@ const EditProduct = () => {
       }
     }
 
-    await fetch(`https://backend-beryl-nu-15.vercel.app/updateproduct/${id}`, {
+    await fetch(`http://localhost:4001/updateproduct/${id}`, {
       method: 'PUT',
       headers: {
         Accept: 'application/json',

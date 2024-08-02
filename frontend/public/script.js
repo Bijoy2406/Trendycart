@@ -17,15 +17,15 @@ window.initializeRatings = (productId) => {
 
     // Function to set the rating
     const setRating = (index) => {
-        const stars = document.querySelectorAll(".star");
+        const rating_stars = document.querySelectorAll(".star");
         const emojiEl = document.querySelector(".emoji");
         const statusEl = document.querySelector(".status");
 
-        if (!stars || !emojiEl || !statusEl) return;
+        if (!rating_stars || !emojiEl || !statusEl) return;
 
-        stars.forEach((star) => star.classList.remove("selected"));
+        rating_stars.forEach((star) => star.classList.remove("selected"));
 
-        if (index > 0 && index <= stars.length) {
+        if (index > 0 && index <= rating_stars.length) {
             document.querySelector(`[data-rate="${index}"]`).classList.add("selected");
         }
 
@@ -35,9 +35,9 @@ window.initializeRatings = (productId) => {
     };
 
     // Function to reset the rating
-    const resetRating = (stars, emojiEl, statusEl) => {
+    const resetRating = (rating_stars, emojiEl, statusEl) => {
         const defaultRatingIndex = 0;
-        setRating(defaultRatingIndex, stars, emojiEl, statusEl);
+        setRating(defaultRatingIndex, rating_stars, emojiEl, statusEl);
     };
 
     const ratings = [
@@ -49,7 +49,7 @@ window.initializeRatings = (productId) => {
         { emoji: "🥰", name: "Excellent" }
     ];
 
-    const stars = document.querySelectorAll(`.productdisplay[data-product-id="${productId}"] .star`);
+    const rating_stars = document.querySelectorAll(`.productdisplay[data-product-id="${productId}"] .star`);
     const emojiEl = document.querySelector(`.productdisplay[data-product-id="${productId}"] .emoji`);
     const statusEl = document.querySelector(`.productdisplay[data-product-id="${productId}"] .status`);
     const avgRatingEl = document.querySelector(`.productdisplay[data-product-id="${productId}"] .average-rating`);
@@ -59,28 +59,28 @@ window.initializeRatings = (productId) => {
     const storedRatings = getStoredRatings();
     if (storedRatings[productId]) {
         currentRatingIndex = storedRatings[productId];
-        setRating(currentRatingIndex, stars, emojiEl, statusEl);
+        setRating(currentRatingIndex, rating_stars, emojiEl, statusEl);
     } else {
-        setRating(currentRatingIndex, stars, emojiEl, statusEl);
+        setRating(currentRatingIndex, rating_stars, emojiEl, statusEl);
     }
 
-    // Add event listeners to stars
-    stars.forEach((star) => {
+    // Add event listeners to rating_stars
+    rating_stars.forEach((star) => {
         star.addEventListener("click", function () {
             if (checkSelectedStar(star, currentRatingIndex)) {
-                resetRating(stars, emojiEl, statusEl);
+                resetRating(rating_stars, emojiEl, statusEl);
                 return;
             }
             const index = parseInt(star.getAttribute("data-rate"));
             currentRatingIndex = index;
-            setRating(index, stars, emojiEl, statusEl);
+            setRating(index, rating_stars, emojiEl, statusEl);
             // Save rating to localStorage
             const updatedRatings = getStoredRatings();
             updatedRatings[productId] = index;
             setStoredRatings(updatedRatings);
 
             // Send rating to the server
-            fetch('https://backend-beryl-nu-15.vercel.app/rateproduct', {
+            fetch('http://localhost:4001/rateproduct', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -101,16 +101,16 @@ window.initializeRatings = (productId) => {
 
         star.addEventListener("mouseover", function () {
             const index = parseInt(star.getAttribute("data-rate"));
-            setRating(index, stars, emojiEl, statusEl);
+            setRating(index, rating_stars, emojiEl, statusEl);
         });
 
         star.addEventListener("mouseout", function () {
-            setRating(currentRatingIndex, stars, emojiEl, statusEl);
+            setRating(currentRatingIndex, rating_stars, emojiEl, statusEl);
         });
     });
 
     // Fetch and display average rating on initialization
-    fetch(`https://backend-beryl-nu-15.vercel.app/getaveragerating?productId=${productId}`)
+    fetch(`http://localhost:4001/getaveragerating?productId=${productId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
