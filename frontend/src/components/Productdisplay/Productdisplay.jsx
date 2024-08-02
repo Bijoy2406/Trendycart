@@ -132,7 +132,7 @@ const Productdisplay = (props) => {
                         <div className="emoji"></div>
                         <div className="status"></div>
                     </div>
-                    <div className="stars">
+                    <div className="rating_stars">
                         {[5, 4, 3, 2, 1].map(starRating => (
                             <div
                                 key={starRating}

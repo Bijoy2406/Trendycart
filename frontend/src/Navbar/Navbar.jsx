@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from "../components/Assets/svg-viewer.svg";
 import cart_icon from "../components/Assets/cart_icon.png";
@@ -13,11 +13,26 @@ const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isLoading, setLoading] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
 
     const handleMenuClick = (menuName) => {
         setMenu(menuName);
     };
+
+    useEffect(() => {
+        const token = localStorage.getItem('auth-token');
+        if (token) {
+            fetch('http://localhost:4001/getUserRole', {
+                headers: {
+                    'auth-token': token,
+                },
+            })
+            .then(response => response.json())
+            .then(data => setIsAdmin(data.isAdmin))
+            .catch(error => console.error('Error fetching user role:', error));
+        }
+    }, []);
 
     const handleAdminClick = () => {
         navigate('/Admin');
@@ -104,6 +119,7 @@ const Navbar = () => {
                         <button className='login'>Login</button>
                     </Link>
                 )}
+                {isAdmin && (
                 <button class="btn-101" onClick={handleAdminClick}>
                     Admin panel
                     <svg>
@@ -121,7 +137,7 @@ const Navbar = () => {
                         <rect />
                     </svg>
                 </button>
-
+                )} 
                 <Link to='/cart' onClick={() => setDropdownOpen(false)}>
                     <img className='cart-img' src={cart_icon} alt="Cart" />
                 </Link>

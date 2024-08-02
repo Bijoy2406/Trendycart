@@ -14,11 +14,11 @@ function Login() {
     const datePickerRef = useRef(null);
 
     const changeHandler = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
         if (showLogin) {
             setLoginForm({ ...loginForm, [name]: value });
         } else {
-            setRegisterForm({ ...registerForm, [name]: value });
+            setRegisterForm({ ...registerForm, [name]: type === 'checkbox' ? checked : value });
         }
     };
 
@@ -26,7 +26,7 @@ function Login() {
         console.log("sign in executed", loginForm);
         setLoading(true); // Show loader
         try {
-            const response = await fetch('https://backend-beryl-nu-15.vercel.app/login', {
+            const response = await fetch('http://localhost:4001/login', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -49,20 +49,15 @@ function Login() {
     };
 
     const signup = async () => {
-        console.log("sign up executed", registerForm);
         setLoading(true); // Show loader
         try {
-            const response = await fetch('https://backend-beryl-nu-15.vercel.app/signup', {
+            const response = await fetch('http://localhost:4001/signup', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    username: registerForm.username,
-                    email: registerForm.email,
-                    password: registerForm.password,
-                })
+                body: JSON.stringify(registerForm)
             });
             const data = await response.json();
             if (data.success) {
@@ -115,7 +110,7 @@ function Login() {
                         <img src="/assets/img/spring.png" className="form-image spring" alt="spring" />
                         <img src="/assets/img/rocket.png" className="form-image rocket" alt="rocket" />
                         <img src="/assets/img/cloud.png" className="form-image cloud" alt="cloud" />
-                        <img src="/assets/img/stars.png" className="form-image stars" alt="stars" />
+                        <img src="/assets/img/stars.png" className="form-image stars" alt="star" />
                     </div>
                     <Link to='/' className='home-icon'>
                         <i className="bx bx-home"></i>
@@ -244,6 +239,19 @@ function Login() {
                         </div>
                     </form>
                 </div>
+                {!showLogin && (
+                    <div className="admin-box">
+                        <label className="admin-checkbox">
+                            <input
+                                type="checkbox"
+                                name="isAdmin"
+                                checked={registerForm.isAdmin}
+                                onChange={changeHandler}
+                            />
+                            Sign up as an admin
+                        </label>
+                    </div>
+                )}
             </div>
         </div>
     );

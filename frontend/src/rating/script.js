@@ -1,4 +1,4 @@
-const stars = document.querySelectorAll(".star");
+const star = document.querySelectorAll(".star");
 const emojiEl = document.querySelector(".emoji");
 const statusEl = document.querySelector(".status");
 const defaultRatingIndex = 0;
@@ -22,8 +22,8 @@ const checkSelectedStar = (star) => {
 };
 
 const setRating = (index) => {
-  stars.forEach((star) => star.classList.remove("selected"));
-  if (index > 0 && index <= stars.length) {
+  star.forEach((star) => star.classList.remove("selected"));
+  if (index > 0 && index <= star.length) {
     document
       .querySelector('[data-rate="' + index + '"]')
       .classList.add("selected");
@@ -37,7 +37,7 @@ const resetRating = () => {
   setRating(defaultRatingIndex);
 };
 
-stars.forEach((star) => {
+star.forEach((star) => {
   star.addEventListener("click", function () {
     if (checkSelectedStar(star)) {
       resetRating();
