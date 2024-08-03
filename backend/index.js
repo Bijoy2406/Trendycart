@@ -37,6 +37,22 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
+//auth-token
+const fetchUser = async (req, res, next) => {
+    const token = req.header('auth-token');
+    if (!token) {
+        return res.status(401).send({ error: "No Token Provided" });
+    }
+    try {
+        const data = jwt.verify(token, 'secret_ecom');
+        req.user = data.user;
+        next();
+    } catch (error) {
+        return res.status(401).send({ errors: "Invalid Token" });
+    }
+};
+
+
 app.post("/upload", upload.single('product'), (req, res) => {
     res.json({
         success: 1,
@@ -144,6 +160,7 @@ const Users = mongoose.model('Users', {
     cartData: { type: Object },
     data: { type: Date, default: Date.now },
     isAdmin: { type: Boolean, default: false }, // New field for admin role
+    isApprovedAdmin: { type: Boolean, default: false } 
 });
 
 
@@ -170,7 +187,7 @@ app.post('/signup', async (req, res) => {
         email: req.body.email,
         password: hashedPassword,
         cartData: cart,
-        isAdmin: req.body.isAdmin || false, // Save isAdmin status
+        isAdmin: req.body.isAdmin || false,
     });
 
     await user.save();
@@ -185,15 +202,20 @@ app.post('/signup', async (req, res) => {
     res.json({ success: true, token });
 });
 
-// Login endpoint
+// Login Endpoint
 app.post('/login', async (req, res) => {
     let user = await Users.findOne({ email: req.body.email });
     if (user) {
         const passCompare = await bcrypt.compare(req.body.password, user.password);
         if (passCompare) {
+            if (user.isAdmin && !user.isApprovedAdmin) {
+                return res.json({ success: false, errors: "You are not approved as an admin yet." });
+            }
             const data = {
                 user: {
-                    id: user.id
+                    id: user.id,
+                    isAdmin: user.isAdmin,
+                    isApprovedAdmin: user.isApprovedAdmin,
                 }
             };
             const token = jwt.sign(data, 'secret_ecom');
@@ -205,6 +227,47 @@ app.post('/login', async (req, res) => {
         res.json({ success: false, errors: "Wrong email" });
     }
 });
+
+const authenticate = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (!token) return res.status(401).send('Unauthorized');
+    // Verify the token here
+    next();
+  };
+// Admin Approval Endpoint
+app.put('/approveadmin/:email', fetchUser, async (req, res) => {
+    try {
+        const approvingAdmin = await Users.findById(req.user.id);
+        if (!approvingAdmin.isAdmin || !approvingAdmin.isApprovedAdmin) {
+            return res.status(403).json({ success: false, message: "Not authorized" });
+        }
+
+        const { isApprovedAdmin } = req.body;
+        if (typeof isApprovedAdmin !== 'boolean') {
+            return res.status(400).json({ success: false, message: "Invalid approval status" });
+        }
+
+        const user = await Users.findOneAndUpdate(
+            { email: req.params.email },
+            { isApprovedAdmin },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        res.json({ success: true, message: "Admin approval status updated successfully", user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Error updating admin approval status" });
+    }
+});
+
+
+
+
+
 
 // Get User Role endpoint
 
@@ -222,19 +285,7 @@ app.get('/polpularinwoman', async (req, res) => {
     res.send(polpular_in_woman);
 });
 
-const fetchUser = async (req, res, next) => {
-    const token = req.header('auth-token');
-    if (!token) {
-        return res.status(401).send({ error: "No Token Provided" });
-    }
-    try {
-        const data = jwt.verify(token, 'secret_ecom');
-        req.user = data.user;
-        next();
-    } catch (error) {
-        return res.status(401).send({ errors: "Invalid Token" });
-    }
-};
+
 app.get('/getUserRole', fetchUser, async (req, res) => {
     try {
         const user = await Users.findById(req.user.id);

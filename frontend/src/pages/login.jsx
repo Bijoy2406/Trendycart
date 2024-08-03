@@ -35,18 +35,26 @@ function Login() {
                 body: JSON.stringify(loginForm)
             });
             const data = await response.json();
+            
             if (data.success) {
-                localStorage.setItem('auth-token', data.token);
-                window.location.replace("/");
+                const user = data.user;
+                if (user && user.isAdmin && !user.isApprovedAdmin) {
+                    alert('You are not approved as an admin yet.');
+                } else {
+                    localStorage.setItem('auth-token', data.token);
+                    window.location.replace("/");
+                }
             } else {
-                alert(data.errors);
+                alert(data.errors || 'Login failed. Please try again.');
             }
         } catch (error) {
             console.error("Failed to fetch during signin:", error);
+            alert('An error occurred during login. Please try again.');
         } finally {
             setLoading(false); // Hide loader
         }
     };
+    
 
     const signup = async () => {
         setLoading(true); // Show loader
@@ -57,12 +65,12 @@ function Login() {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(registerForm)
+                body: JSON.stringify({ ...registerForm, isApprovedAdmin: false }) // Add isApprovedAdmin as false
             });
             const data = await response.json();
             if (data.success) {
-                localStorage.setItem('auth-token', data.token);
-                window.location.replace("/");
+                alert('Signup successful! Please sign in.');
+                setShowLogin(true); // Redirect to sign-in state
             } else {
                 alert(data.errors);
             }
@@ -72,6 +80,7 @@ function Login() {
             setLoading(false); // Hide loader
         }
     };
+    
 
     const handleLoginClick = () => {
         setShowLogin(true);

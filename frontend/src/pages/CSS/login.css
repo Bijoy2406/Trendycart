@@ -468,5 +468,8 @@ body {
 }
 
 .admin-box{
-    
+    display: flex;
+    position: relative;
+    top: 32rem;
+    right: 55px;
 }
