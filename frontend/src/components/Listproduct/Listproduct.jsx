@@ -7,7 +7,7 @@ import back_icon from '../../components/Assets/back.png';
 
 const Listproduct = () => {
   const [allproducts, setAllProducts] = useState([]);
-  const { removeProduct } = useContext(ShopContext);
+  const { setAll_Product } = useContext(ShopContext); // Get setAll_Product from context
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,13 +16,14 @@ const Listproduct = () => {
         const res = await fetch('https://backend-beryl-nu-15.vercel.app/allproducts');
         const data = await res.json();
         setAllProducts(data);
+        setAll_Product(data); // Keep the context in sync
       } catch (error) {
         console.error('Failed to fetch products:', error);
       }
     };
 
     fetchInfo();
-  }, []);
+  }, [setAll_Product]); // Include setAll_Product as a dependency
 
   const remove_product = async (id) => {
     const response = await fetch('https://backend-beryl-nu-15.vercel.app/remove', {
@@ -35,7 +36,9 @@ const Listproduct = () => {
     });
 
     if (response.ok) {
-      setAllProducts(currentProducts => currentProducts.filter(product => product.id !== id));
+      const updatedProducts = allproducts.filter(product => product.id !== id);
+      setAllProducts(updatedProducts);
+      setAll_Product(updatedProducts); // Update context to reflect the changes
     } else {
       alert('Failed to delete the product.');
     }

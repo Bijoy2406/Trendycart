@@ -471,7 +471,7 @@ body {
         cursor: pointer;
         transition: .3s;
         position: relative;
-        top: 60px;
+        top: -4px;
     }
     
     .input-submit:hover {
@@ -532,7 +532,7 @@ body {
     flex-direction: column; /* Aligns text below the checkbox */
     align-items: flex-start; /* Aligns text to the left */
     position: relative;
-    top: 448px;
+    top: 510px;
     right: 300px;
 }
 
