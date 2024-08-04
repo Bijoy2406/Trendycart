@@ -26,7 +26,7 @@ function Login() {
         console.log("sign in executed", loginForm);
         setLoading(true); // Show loader
         try {
-            const response = await fetch('http://localhost:4001/login', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/login', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -35,34 +35,42 @@ function Login() {
                 body: JSON.stringify(loginForm)
             });
             const data = await response.json();
+            
             if (data.success) {
-                localStorage.setItem('auth-token', data.token);
-                window.location.replace("/");
+                const user = data.user;
+                if (user && user.isAdmin && !user.isApprovedAdmin) {
+                    alert('You are not approved as an admin yet.');
+                } else {
+                    localStorage.setItem('auth-token', data.token);
+                    window.location.replace("/");
+                }
             } else {
-                alert(data.errors);
+                alert(data.errors || 'Login failed. Please try again.');
             }
         } catch (error) {
             console.error("Failed to fetch during signin:", error);
+            alert('An error occurred during login. Please try again.');
         } finally {
             setLoading(false); // Hide loader
         }
     };
+    
 
     const signup = async () => {
         setLoading(true); // Show loader
         try {
-            const response = await fetch('http://localhost:4001/signup', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/signup', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(registerForm)
+                body: JSON.stringify({ ...registerForm, isApprovedAdmin: false }) // Add isApprovedAdmin as false
             });
             const data = await response.json();
             if (data.success) {
-                localStorage.setItem('auth-token', data.token);
-                window.location.replace("/");
+                alert('Signup successful! Please sign in.');
+                setShowLogin(true); // Redirect to sign-in state
             } else {
                 alert(data.errors);
             }
@@ -72,6 +80,7 @@ function Login() {
             setLoading(false); // Hide loader
         }
     };
+    
 
     const handleLoginClick = () => {
         setShowLogin(true);
@@ -140,27 +149,25 @@ function Login() {
                         {showLogin ? (
                             <>
                                 <div className="form-inputs">
-                                    <div className="input-box">
+                                <div className="input-group">
                                         <input
                                             type="text"
-                                            className="input-field"
-                                            placeholder="Email"
                                             name="email"
                                             value={loginForm.email}
                                             onChange={changeHandler}
+                                            required
                                         />
-                                        <i className="bx bx-user icon"></i>
+                                        <label>Email</label>
                                     </div>
-                                    <div className="input-box">
+                                    <div className="input-group">
                                         <input
                                             type="password"
-                                            className="input-field"
-                                            placeholder="Password"
                                             name="password"
                                             value={loginForm.password}
                                             onChange={changeHandler}
+                                            required
                                         />
-                                        <i className="bx bx-lock-alt icon"></i>
+                                        <label>Password</label>
                                     </div>
                                     <div className="forgot-pass">
                                         <a href="#">Forgot Password?</a>
@@ -170,38 +177,35 @@ function Login() {
                         ) : (
                             <>
                                 <div className="form-inputs">
-                                    <div className="input-box">
+                                <div className="input-group">
                                         <input
                                             type="text"
-                                            className="input-field"
-                                            placeholder="Username"
                                             name="username"
                                             value={registerForm.username}
                                             onChange={changeHandler}
+                                            required
                                         />
-                                        <i className="bx bx-user icon"></i>
+                                        <label>Username</label>
                                     </div>
-                                    <div className="input-box">
+                                    <div className="input-group">
                                         <input
-                                            type="text"
-                                            className="input-field"
-                                            placeholder="Email"
+                                            type="email"
                                             name="email"
                                             value={registerForm.email}
                                             onChange={changeHandler}
+                                            required
                                         />
-                                        <i className="bx bx-mobile icon"></i>
+                                        <label>Email</label>
                                     </div>
-                                    <div className="input-box">
+                                    <div className="input-group">
                                         <input
                                             type="password"
-                                            className="input-field"
-                                            placeholder="Password"
                                             name="password"
                                             value={registerForm.password}
                                             onChange={changeHandler}
-                                            required />
-                                        <i className="bx bx-lock-alt icon"></i>
+                                            required
+                                        />
+                                        <label>Password</label>
                                     </div>
                                     <div className="input-box">
                                         <label htmlFor="dob" className="label">Date of Birth</label>
