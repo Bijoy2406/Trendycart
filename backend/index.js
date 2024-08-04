@@ -347,21 +347,24 @@ app.get('/userrating', fetchUser, async (req, res) => {
         console.error('Error fetching user rating:', error);
         res.status(500).json({ success: false, message: 'Error fetching user rating' });
     }
-    app.get('/allusers', async (req, res) => {
-        try {
-            const users = await Users.find({}, 'name email'); // Fetch only name and email fields
-            res.json({ success: true, users });
-        } catch (error) {
-            console.error("Error fetching users:", error);
-            res.status(500).json({ success: false, message: "Error fetching users" });
-        }
-    });
+    // Modify the existing '/allusers' endpoint
+app.get('/allusers', fetchUser, async (req, res) => {
+    try {
+        const currentUserEmail = req.query.email; // Get the email of the logged-in user from the query parameter
+        const users = await Users.find({ email: { $ne: currentUserEmail } }, 'name email isAdmin isApprovedAdmin'); // Exclude the logged-in user
+        res.json({ success: true, users });
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ success: false, message: "Error fetching users" });
+    }
+});
+
 
 });
 
 app.get('/allusers', async (req, res) => {
     try {
-        const users = await Users.find({}, 'name email isAdmin'); // Include isAdmin field
+        const users = await Users.find({}, 'name email isAdmin isApprovedAdmin'); // Include isAdmin field
         res.json({ success: true, users });
     } catch (error) {
         console.error("Error fetching users:", error);

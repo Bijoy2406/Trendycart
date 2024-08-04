@@ -49,7 +49,7 @@ const Addproduct = () => {
             product.image = responseData.image_url;
            
             console.log(product);
-            await fetch('http://localhost:4001/addproduct',{
+            await fetch('https://backend-beryl-nu-15.vercel.app/addproduct',{
                 method:'POST',
                 headers:{
                     Accept:'application/json',

@@ -1,31 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import './CSS/Dashboard.css';
-import ToggleSwitch from './ToggleSwitch'; // Import the custom ToggleSwitch component
 
 function Dashboard() {
     const [users, setUsers] = useState([]);
     const [currentUserEmail, setCurrentUserEmail] = useState('');
+    const [currentUserName, setCurrentUserName] = useState('');
 
     useEffect(() => {
-        // Retrieve the current user's email from localStorage or any other source
-        const fetchCurrentUserEmail = () => {
-            const email = localStorage.getItem('current-user-email');
-            setCurrentUserEmail(email);
-        };
+        const fetchCurrentUser = async () => {
+        try {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/currentuser', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setCurrentUserEmail(data.user.email);
+                setCurrentUserName(data.user.name);
+                fetchUsers(); // Fetch users after getting current user details
+            } else {
+                console.error("Failed to fetch current user:", await response.json());
+            }
+        } catch (error) {
+            console.error("Failed to fetch current user:", error);
+        }
+    };
 
-        fetchCurrentUserEmail();
+    fetchCurrentUser();
+
 
         const fetchUsers = async () => {
             try {
                 const response = await fetch('https://backend-beryl-nu-15.vercel.app/allusers', {
                     method: 'GET',
                     headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
                     },
                 });
-                const data = await response.json();
-                setUsers(data.users);
+                if (response.ok) {
+                    const data = await response.json();
+                    setUsers(data.users);
+                } else {
+                    console.error("Failed to fetch users:", await response.json());
+                }
             } catch (error) {
                 console.error("Failed to fetch users:", error);
             }
@@ -34,9 +57,13 @@ function Dashboard() {
         fetchUsers();
     }, []);
 
+
+
+
+
     const handleToggle = async (email, isChecked) => {
         try {
-            const token = localStorage.getItem('auth-token'); // Retrieve the token from storage
+            const token = localStorage.getItem('auth-token');
             if (!token) {
                 alert('Authentication token not found. Please log in again.');
                 return;
@@ -46,14 +73,13 @@ function Dashboard() {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'auth-token': token // Ensure you are using the correct header name
+                    'auth-token': token
                 },
-                body: JSON.stringify({ isApprovedAdmin: isChecked }) // Send the approval status
+                body: JSON.stringify({ isApprovedAdmin: isChecked })
             });
             const data = await response.json();
             if (response.ok) {
                 alert('Admin approval status updated successfully!');
-                // Update state or UI accordingly
                 setUsers(users.map(user => user.email === email ? { ...user, isApprovedAdmin: isChecked } : user));
             } else {
                 alert(data.message || 'Failed to update admin approval status');
@@ -64,6 +90,11 @@ function Dashboard() {
         }
     };
 
+    // Debugging logs
+    console.log('Current User Email:', currentUserEmail);
+    console.log('Current User Name:', currentUserName);
+    console.log('Users:', users);
+
     const sortedUsers = [...users]
         .filter(user => user.email !== currentUserEmail) // Exclude current user
         .sort((a, b) => {
@@ -72,6 +103,20 @@ function Dashboard() {
             }
             return b.isAdmin - a.isAdmin;
         });
+
+
+    const ToggleSwitch = ({ isChecked, onChange }) => {
+        return (
+            <label className="switch">
+                <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={(e) => onChange(e.target.checked)}
+                />
+                <span className="slider"></span>
+            </label>
+        );
+    };
 
     return (
         <div className="dashboard-container">
@@ -85,10 +130,12 @@ function Dashboard() {
                         </div>
                         {user.isAdmin && (
                             <div className="wrap-check-57">
-                                <label>Approve Admin: </label>
-                                <ToggleSwitch 
-                                    isChecked={user.isApprovedAdmin} 
-                                    onChange={() => handleToggle(user.email, !user.isApprovedAdmin)} 
+                                <label className="approve-admin-label">
+                                    Approve Admin:
+                                </label>
+                                <ToggleSwitch
+                                    isChecked={user.isApprovedAdmin}
+                                    onChange={(checked) => handleToggle(user.email, checked)}
                                 />
                             </div>
                         )}

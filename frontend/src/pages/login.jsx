@@ -149,27 +149,25 @@ function Login() {
                         {showLogin ? (
                             <>
                                 <div className="form-inputs">
-                                    <div className="input-box">
+                                <div className="input-group">
                                         <input
                                             type="text"
-                                            className="input-field"
-                                            placeholder="Email"
                                             name="email"
                                             value={loginForm.email}
                                             onChange={changeHandler}
+                                            required
                                         />
-                                        <i className="bx bx-user icon"></i>
+                                        <label>Email</label>
                                     </div>
-                                    <div className="input-box">
+                                    <div className="input-group">
                                         <input
                                             type="password"
-                                            className="input-field"
-                                            placeholder="Password"
                                             name="password"
                                             value={loginForm.password}
                                             onChange={changeHandler}
+                                            required
                                         />
-                                        <i className="bx bx-lock-alt icon"></i>
+                                        <label>Password</label>
                                     </div>
                                     <div className="forgot-pass">
                                         <a href="#">Forgot Password?</a>
@@ -179,38 +177,35 @@ function Login() {
                         ) : (
                             <>
                                 <div className="form-inputs">
-                                    <div className="input-box">
+                                <div className="input-group">
                                         <input
                                             type="text"
-                                            className="input-field"
-                                            placeholder="Username"
                                             name="username"
                                             value={registerForm.username}
                                             onChange={changeHandler}
+                                            required
                                         />
-                                        <i className="bx bx-user icon"></i>
+                                        <label>Username</label>
                                     </div>
-                                    <div className="input-box">
+                                    <div className="input-group">
                                         <input
-                                            type="text"
-                                            className="input-field"
-                                            placeholder="Email"
+                                            type="email"
                                             name="email"
                                             value={registerForm.email}
                                             onChange={changeHandler}
+                                            required
                                         />
-                                        <i className="bx bx-mobile icon"></i>
+                                        <label>Email</label>
                                     </div>
-                                    <div className="input-box">
+                                    <div className="input-group">
                                         <input
                                             type="password"
-                                            className="input-field"
-                                            placeholder="Password"
                                             name="password"
                                             value={registerForm.password}
                                             onChange={changeHandler}
-                                            required />
-                                        <i className="bx bx-lock-alt icon"></i>
+                                            required
+                                        />
+                                        <label>Password</label>
                                     </div>
                                     <div className="input-box">
                                         <label htmlFor="dob" className="label">Date of Birth</label>

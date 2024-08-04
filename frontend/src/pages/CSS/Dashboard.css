@@ -55,64 +55,25 @@
     color: #888;
 }
 
-.user-email.admin {
+.user-card.admin-user .user-email,
+.user-card.admin-user .user-name {
     color: red;
-    font-weight: bold;
+    font-weight: bold; /* Makes the text bold */
     height: 20px;
 }
 
 .admin-toggle {
     margin-top: 10px;
 }
-
-
-
-/* Dashboard.css */
-
-.wrap-check-57 {
+.wrap-check-57{
   position: relative;
-  display: flex;
-  align-items: center;
+  top: 10px;
 }
-
-.wrap-check-57 input[type="checkbox"] {
-  position: relative;
-  width: 38px;
-  height: 21px;
-  -webkit-appearance: none;
-  appearance: none;
-  background-color: #ccc;
-  border-radius: 11px;
-  cursor: pointer;
-  outline: none;
-  transition: background-color 0.3s;
+.approve-admin-label {
+  font-size: 16px;       
+  font-weight: bold;      
+  color: #333;        
 }
-
-.wrap-check-57 input[type="checkbox"]:checked {
-  background-color: #275EFE;
-}
-
-.wrap-check-57 input[type="checkbox"]::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 17px;
-  height: 17px;
-  background-color: white;
-  border-radius: 50%;
-  transition: transform 0.3s;
-}
-
-.wrap-check-57 input[type="checkbox"]:checked::before {
-  transform: translateX(17px);
-}
-
-.wrap-check-57 label {
-  margin-left: 10px;
-  font-size: 14px;
-}
-
 /* Responsive design */
 @media (max-width: 768px) {
     .dashboard-container {
@@ -134,3 +95,52 @@
     }
 }
 
+
+
+/* ToggleSwitch.css */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  left: 10px;
+  bottom: 5px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  border-radius: 50%;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px); /* Move slider knob to the right */
+}
