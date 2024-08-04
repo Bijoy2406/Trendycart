@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../Addproduct/Addproduct.css'; // Reuse the same CSS file
 import upload_area from '../../components/Assets/upload_area.svg';
 import back_icon from '../../components/Assets/back.png';
+import { ShopContext } from '../Context/ShopContext';
 
 const EditProduct = () => {
   const { id } = useParams(); // Get the product ID from the URL
@@ -15,6 +16,7 @@ const EditProduct = () => {
     old_price: ''
   });
   const navigate = useNavigate();
+  const { setAll_Product } = useContext(ShopContext); // Get setAll_Product from context
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -73,6 +75,13 @@ const EditProduct = () => {
     }).then((resp) => resp.json()).then((data) => {
       if (data.success) {
         alert('Product Updated');
+        // Update the product list in the context
+        fetch('https://backend-beryl-nu-15.vercel.app/allproducts')
+          .then((response) => response.json())
+          .then((data) => {
+            setAll_Product(data); // Update context
+          })
+          .catch((error) => console.error('Failed to update product list:', error));
         navigate('/admin');
       } else {
         alert('Failed to update product');

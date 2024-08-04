@@ -1,11 +1,12 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Addproduct.css';
 import upload_area from '../../components/Assets/upload_area.svg';
 import { ShopContext } from '../Context/ShopContext';
-import back_icon from '../../components/Assets/back.png'; 
+import back_icon from '../../components/Assets/back.png';
 
 const Addproduct = () => {
+    const { setAll_Product, all_product } = useContext(ShopContext);
     const [image, setImage] = useState(false);
     const [productDetails, setProductDetails] = useState({
         name: "",
@@ -14,7 +15,7 @@ const Addproduct = () => {
         new_price: "",
         old_price: ""
     });
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     const changeHandler = (e) => {
         setProductDetails({ ...productDetails, [e.target.name]: e.target.value });
@@ -27,8 +28,6 @@ const Addproduct = () => {
     };
 
     const Add_product = async () => {
-        console.log(productDetails);
-
         let responseData;
         let product = { ...productDetails };
         let formData = new FormData();
@@ -47,19 +46,19 @@ const Addproduct = () => {
 
         if (responseData.success) {
             product.image = responseData.image_url;
-           
-            console.log(product);
-            await fetch('https://backend-beryl-nu-15.vercel.app/addproduct',{
-                method:'POST',
-                headers:{
-                    Accept:'application/json',
-                    'Content-type':'application/json',
+
+            await fetch('https://backend-beryl-nu-15.vercel.app/addproduct', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-type': 'application/json',
                 },
-                body:JSON.stringify(product),
-            }).then((resp)=>resp.json()).then((data)=>{
+                body: JSON.stringify(product),
+            }).then((resp) => resp.json()).then((data) => {
                 if (data.success) {
                     alert("Product Added");
-                    navigate('/admin'); 
+                    setAll_Product([...all_product, product]); // Update context
+                    navigate('/admin');
                 } else {
                     alert("Failed to add product");
                 }
@@ -68,7 +67,7 @@ const Addproduct = () => {
     };
 
     const goBack = () => {
-        navigate(-1); 
+        navigate(-1);
     };
 
     return (
