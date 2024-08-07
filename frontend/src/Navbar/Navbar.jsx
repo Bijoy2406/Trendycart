@@ -23,7 +23,7 @@ const Navbar = () => {
     useEffect(() => {
         const token = localStorage.getItem('auth-token');
         if (token) {
-            fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
+            fetch('http://localhost:4001/getUserRole', {
                 headers: {
                     'auth-token': token,
                 },
