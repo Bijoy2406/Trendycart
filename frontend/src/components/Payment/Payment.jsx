@@ -10,10 +10,11 @@ const Payment = () => {
     const [cvc, setCvc] = useState('');
     const [country, setCountry] = useState('');
     const [pinNumber, setPinNumber] = useState('');
-    const [billingZip, setBillingZip] = useState(''); // Added state for Billing ZIP
+    const [billingZip, setBillingZip] = useState('');
     const [isFormValid, setIsFormValid] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [cardError, setCardError] = useState('');
+    const [phoneError, setPhoneError] = useState('');
 
     useEffect(() => {
         validateForm();
@@ -27,30 +28,55 @@ const Payment = () => {
         setCvc('');
         setCountry('');
         setPinNumber('');
-        setBillingZip(''); // Reset Billing ZIP
+        setBillingZip('');
+        setPhoneError('');
+        setCardError('');
         setIsPopupOpen(true);
     };
 
     const handlePhoneNumberChange = (e) => {
         const value = e.target.value;
-        setPhoneNumber(value);
+        if (/^\d*$/.test(value) && value.length <= 11) {
+            setPhoneNumber(value);
+            validatePhoneNumber(value);
+        }
+    };
+
+    const validatePhoneNumber = (phoneNumber) => {
+        const validPrefixes = ['019', '018', '017', '016', '015', '013'];
+        const isValid = validPrefixes.some(prefix => phoneNumber.startsWith(prefix)) && phoneNumber.length === 11;
+        if (phoneNumber.length < 11) {
+            setPhoneError('Phone number must be exactly 11 digits.');
+        } else if (!isValid) {
+            setPhoneError('Phone number must start with 019, 018, 017, 016, 015, or 013.');
+        } else {
+            setPhoneError('');
+        }
         validateForm();
     };
 
     const handleCardNumberChange = (e) => {
         const value = e.target.value;
-        setCardNumber(value);
+        if (/^\d*$/.test(value) && value.length <= 16) {
+            setCardNumber(value);
+            validateCardNumber(value);
+        }
+    };
+
+    const validateCardNumber = (cardNumber) => {
+        if (cardNumber.length !== 16) {
+            setCardError('Card number must be exactly 16 digits.');
+        } else {
+            setCardError('');
+        }
         validateForm();
     };
 
     const handleExpiryDateChange = (e) => {
         let value = e.target.value;
-
-        // Automatically add a slash after the first two digits (MM)
         if (value.length === 2 && !value.includes('/')) {
             value = value + '/';
         }
-
         setExpiryDate(value);
         validateForm();
     };
@@ -128,8 +154,14 @@ const Payment = () => {
             } else if (selectedMethod === 'NAGAD' && pinNumber.length !== 4) {
                 isValid = false;
             }
+            if (phoneError) {
+                isValid = false;
+            }
         } else if (selectedMethod === 'CARD') {
             if (!cardNumber || !expiryDate || !cvc || !country || !billingZip) {
+                isValid = false;
+            }
+            if (cardError) {
                 isValid = false;
             }
         }
@@ -195,14 +227,15 @@ const Payment = () => {
                                     value={phoneNumber}
                                     onChange={handlePhoneNumberChange}
                                     placeholder="e.g., 017XXXXXXXX"
+                                    maxLength="11"
                                 />
+                                {phoneError && <p className="error">{phoneError}</p>}
                                 <label>Enter PIN:</label>
                                 <input
                                     type="password"
                                     value={pinNumber}
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        // Only allow digits
                                         if (/^\d*$/.test(value)) {
                                             handlePinNumberChange(e);
                                         }
@@ -211,7 +244,6 @@ const Payment = () => {
                                     maxLength={selectedMethod === 'BKASH' ? 5 : 4}
                                     pattern="\d*"
                                 />
-
                             </div>
                         ) : null}
 

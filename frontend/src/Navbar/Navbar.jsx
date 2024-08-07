@@ -110,6 +110,9 @@ const Navbar = () => {
                                 <Link to="/profile" onClick={() => setDropdownOpen(false)}>
                                     <button>Profile</button>
                                 </Link>
+                                <Link to="/order" onClick={() => setDropdownOpen(false)}>
+                                    <button>My order</button>
+                                </Link>
                                 <button onClick={handleLogout}>Logout</button>
                             </div>
                         )}

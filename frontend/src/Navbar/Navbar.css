@@ -169,7 +169,7 @@
 .dropdown-menu {
   position: absolute;
   top: 50px;
-  right: 0;
+  right: -26px;
   background-color: white;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
@@ -177,6 +177,7 @@
   padding: 10px;
   display: flex;
   flex-direction: column;
+  width: 110px;
 }
 
 .dropdown-menu button {
