@@ -33,7 +33,7 @@ const Addproduct = () => {
         let formData = new FormData();
         formData.append('product', image);
 
-        await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
+        await fetch('http://localhost:4001/upload', {
             method: 'POST',
             headers: {
                 Accept: 'application/json'
@@ -47,7 +47,7 @@ const Addproduct = () => {
         if (responseData.success) {
             product.image = responseData.image_url;
 
-            await fetch('https://backend-beryl-nu-15.vercel.app/addproduct', {
+            await fetch('http://localhost:4001/addproduct', {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
