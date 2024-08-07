@@ -19,7 +19,7 @@ const SearchResults = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`http://localhost:4001/allproducts`);
+        const response = await fetch(`https://backend-beryl-nu-15.vercel.app/allproducts`);
         if (!response.ok) {
           throw new Error('Failed to fetch products');
         }
