@@ -23,7 +23,7 @@ const Navbar = () => {
     useEffect(() => {
         const token = localStorage.getItem('auth-token');
         if (token) {
-            fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
+            fetch('http://localhost:4001/getUserRole', {
                 headers: {
                     'auth-token': token,
                 },
@@ -109,6 +109,9 @@ const Navbar = () => {
                             <div className="dropdown-menu">
                                 <Link to="/profile" onClick={() => setDropdownOpen(false)}>
                                     <button>Profile</button>
+                                </Link>
+                                <Link to="/order" onClick={() => setDropdownOpen(false)}>
+                                    <button>My order</button>
                                 </Link>
                                 <button onClick={handleLogout}>Logout</button>
                             </div>

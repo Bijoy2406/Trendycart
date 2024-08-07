@@ -1,9 +1,41 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import './CartItem.css';
 import { ShopContext } from '../Context/ShopContext';
 
 const CartItem = () => {
     const { getTotalCartAmount, all_product, cartItems, removeFromCart } = useContext(ShopContext);
+    const [promoCode, setPromoCode] = useState('');
+    const [discount, setDiscount] = useState(0);
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState('');
+
+    const handlePromoCodeChange = (e) => {
+        setPromoCode(e.target.value);
+    };
+
+    const handleApplyPromoCode = () => {
+        const tenPercentCodes = ['SAVE10', 'DISCOUNT10', 'TENOFF'];
+        const twentyPercentCodes = ['SAVE20', 'DISCOUNT20', 'TWENTYOFF'];
+
+        if (tenPercentCodes.includes(promoCode.toUpperCase())) {
+            setDiscount(0.1); // 10% discount
+            setPopupMessage('Promo code applied successfully! You got 10% off.');
+        } else if (twentyPercentCodes.includes(promoCode.toUpperCase())) {
+            setDiscount(0.2); // 20% discount
+            setPopupMessage('Promo code applied successfully! You got 20% off.');
+        } else {
+            setDiscount(0); // Invalid code
+            setPopupMessage('Invalid promo code. Please try again.');
+        }
+        setShowPopup(true); // Show the popup
+    };
+
+    const handleClosePopup = () => {
+        setShowPopup(false);
+    };
+
+    const totalAmount = getTotalCartAmount();
+    const discountedTotal = totalAmount - (totalAmount * discount);
 
     return (
         <div className='cartitems'>
@@ -39,8 +71,6 @@ const CartItem = () => {
                             </div>
                             <hr />
                         </div>
-
-
                     );
                 }
                 return null;
@@ -51,39 +81,44 @@ const CartItem = () => {
                     <div>
                         <div className='cartitem-total-item'>
                             <p>Subtotal</p>
-                            <p>{getTotalCartAmount()}</p>
+                            <p>{totalAmount.toFixed(2)}</p>
                         </div>
-
+                        <div className='cartitem-total-item'>
+                            <p>Discount</p>
+                            <p>{(totalAmount * discount).toFixed(2)}</p>
+                        </div>
                         <div className="cartitem-total-item">
                             <p>Shipping Fee</p>
                             <p id='free'>Free</p>
                             <hr />
-
                         </div>
                         <hr />
                         <div className="cartitem-total-item">
                             <h3>Total</h3>
-                            <h3>{getTotalCartAmount()}</h3>
+                            <h3>{discountedTotal.toFixed(2)}</h3>
                         </div>
                         <button>Proceed to checkout</button>
-
                     </div>
-
                 </div>
                 <div className="vertical-line"></div>
                 <div className="cartitem-promocode">
-                    <p>If you have a promo code ,Enter it here</p>
+                    <p>If you have a promo code, enter it here:</p>
                     <div className="cartitem-promo-box">
-                        <input type="text" placeholder='Promo Code' />
-                        <button>Submit</button>
+                        <input type="text" placeholder='Promo Code' value={promoCode} onChange={handlePromoCodeChange} />
+                        <button onClick={handleApplyPromoCode}>Submit</button>
                     </div>
                 </div>
-
             </div>
+            {showPopup && (
+                <div className="popup-cart">
+                    <div className="popup-content-cart">
+                        <p>{popupMessage}</p>
+                        <button onClick={handleClosePopup}>Close</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
 export default CartItem;
-
-

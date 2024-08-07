@@ -2,10 +2,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Productdisplay.css';
 import { ShopContext } from '../Context/ShopContext';
+import RelatedProduct from '../RelatedProduct/RelatedProduct';
+
 
 const Productdisplay = (props) => {
     const { product } = props;
     const { addToCart } = useContext(ShopContext);
+    const {all_product} = useContext(ShopContext);
     const [userRating, setUserRating] = useState(0);
     const [averageRating, setAverageRating] = useState(product.averageRating);
     const navigate = useNavigate();
@@ -221,6 +224,10 @@ const Productdisplay = (props) => {
                     WOMEN, T-SHIRT, CROP, TOP
                 </p>
             </div>
+            {all_product && (
+                <RelatedProduct all_product={all_product} category={product.category} currentProductId={product.id} />
+            )}
+
         </div>
     );
 }
