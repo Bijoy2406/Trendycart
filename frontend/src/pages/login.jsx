@@ -42,7 +42,8 @@ function Login() {
                     alert('You are not approved as an admin yet.');
                 } else {
                     localStorage.setItem('auth-token', data.token);
-                    window.location.replace("/");
+                    localStorage.setItem('refresh-token', data.refreshtoken); // Store refresh token
+                      window.location.replace("/");
                 }
             } else {
                 alert(data.errors || 'Login failed. Please try again.');
@@ -52,6 +53,36 @@ function Login() {
             alert('An error occurred during login. Please try again.');
         } finally {
             setLoading(false); // Hide loader
+        }
+    };
+    const refreshAccessToken = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refresh-token');
+            if (!refreshToken) throw new Error('No refresh token available');
+    
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token: refreshToken })
+            });
+    
+            const data = await response.json();
+    
+            if (data.accessToken) {
+                localStorage.setItem('auth-token', data.accessToken); // Update access token
+                return data.accessToken;
+            } else {
+                throw new Error('Failed to refresh token');
+            }
+        } catch (error) {
+            console.error('Error refreshing access token:', error);
+            alert('Session expired, please log in again.');
+            localStorage.removeItem('auth-token');
+            localStorage.removeItem('refresh-token');
+            window.location.replace("/login");
         }
     };
     
