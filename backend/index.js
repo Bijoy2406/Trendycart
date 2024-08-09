@@ -199,7 +199,8 @@ app.post('/signup', async (req, res) => {
     };
 
     const token = jwt.sign(data, 'secret_ecom',{expiresIn:"10m"});
-    res.json({ success: true, token });
+  
+    res.json({ success: true, token});
 });
 
 // Login Endpoint
@@ -219,7 +220,8 @@ app.post('/login', async (req, res) => {
                 }
             };
             const token = jwt.sign(data, 'secret_ecom',{expiresIn:"10m"});
-            res.json({ success: true, token });
+            const refreshtoken = jwt.sign(data, 'secret_recom',{expiresIn:"1d"});
+            res.json({ success: true, token,refreshtoken });
         } else {
             res.json({ success: false, errors: "Wrong Password" });
         }
@@ -231,9 +233,33 @@ app.post('/login', async (req, res) => {
 const authenticate = (req, res, next) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(401).send('Unauthorized');
-    // Verify the token here
-    next();
-  };
+
+    jwt.verify(token, 'secret_ecom', (err, user) => {
+        if (err) return res.status(403).send('Forbidden');
+        req.user = user;
+        next();
+    });
+};
+
+app.post("/token", (req, res) => {
+    const { token: refreshToken } = req.body;
+    if (!refreshToken) return res.status(401).json({ success: false, errors: "No token provided" });
+
+    jwt.verify(refreshToken, 'secret_recom', (err, user) => {
+      if (err) return res.status(403).json({ success: false, errors: "Invalid token" });
+
+      const newAccessToken = jwt.sign({
+        user: {
+          id: user.user.id,
+          isAdmin: user.user.isAdmin,
+          isApprovedAdmin: user.user.isApprovedAdmin
+        }
+      }, 'secret_ecom', { expiresIn: "10m" });
+
+      res.json({ success: true, accessToken: newAccessToken });
+    });
+});
+
 // Admin Approval Endpoint
 app.put('/approveadmin/:email', fetchUser, async (req, res) => {
     try {
