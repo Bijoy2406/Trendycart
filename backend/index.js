@@ -37,20 +37,7 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
-//auth-token
-const fetchUser = async (req, res, next) => {
-    const token = req.header('auth-token');
-    if (!token) {
-        return res.status(401).send({ error: "No Token Provided" });
-    }
-    try {
-        const data = jwt.verify(token, 'secret_ecom');
-        req.user = data.user;
-        next();
-    } catch (error) {
-        return res.status(401).send({ errors: "Invalid Token" });
-    }
-};
+
 
 
 app.post("/upload", upload.single('product'), (req, res) => {
@@ -202,6 +189,21 @@ app.post('/signup', async (req, res) => {
   
     res.json({ success: true, token});
 });
+
+//auth-token
+const fetchUser = async (req, res, next) => {
+    const token = req.header('auth-token');
+    if (!token) {
+        return res.status(401).send({ error: "No Token Provided" });
+    }
+    try {
+        const data = jwt.verify(token, 'secret_ecom');
+        req.user = data.user;
+        next();
+    } catch (error) {
+        return res.status(401).send({ errors: "Invalid Token" });
+    }
+};
 
 // Login Endpoint
 app.post('/login', async (req, res) => {
