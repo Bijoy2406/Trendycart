@@ -198,7 +198,7 @@ app.post('/signup', async (req, res) => {
         }
     };
 
-    const token = jwt.sign(data, 'secret_ecom');
+    const token = jwt.sign(data, 'secret_ecom',{expiresIn:"10m"});
     res.json({ success: true, token });
 });
 
@@ -218,7 +218,7 @@ app.post('/login', async (req, res) => {
                     isApprovedAdmin: user.isApprovedAdmin,
                 }
             };
-            const token = jwt.sign(data, 'secret_ecom');
+            const token = jwt.sign(data, 'secret_ecom',{expiresIn:"10m"});
             res.json({ success: true, token });
         } else {
             res.json({ success: false, errors: "Wrong Password" });
