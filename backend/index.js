@@ -152,15 +152,17 @@ app.get('/allproducts', async (req, res) => {
     res.send(products);
 });
 
+// Modify the Users schema to store refresh token expiration
 const Users = mongoose.model('Users', {
     name: { type: String },
     email: { type: String, unique: true },
     password: { type: String },
     cartData: { type: Object },
     data: { type: Date, default: Date.now },
-    isAdmin: { type: Boolean, default: false }, // New field for admin role
-    isApprovedAdmin: { type: Boolean, default: false }, 
-    refreshToken: { type: String } // New field for storing refresh token
+    isAdmin: { type: Boolean, default: false },
+    isApprovedAdmin: { type: Boolean, default: false },
+    refreshToken: { type: String },
+    refreshTokenExpiry: { type: Date } // New field for refresh token expiration
 });
 
 
@@ -203,7 +205,7 @@ app.post('/signup', async (req, res) => {
     res.json({ success: true, token});
 });
 
-// Login Endpoint
+// Update the login endpoint to check for token expiration
 app.post('/login', async (req, res) => {
     let user = await Users.findOne({ email: req.body.email });
     if (user) {
@@ -212,6 +214,7 @@ app.post('/login', async (req, res) => {
             if (user.isAdmin && !user.isApprovedAdmin) {
                 return res.json({ success: false, errors: "You are not approved as an admin yet." });
             }
+
             const data = {
                 user: {
                     id: user.id,
@@ -219,15 +222,21 @@ app.post('/login', async (req, res) => {
                     isApprovedAdmin: user.isApprovedAdmin,
                 }
             };
-            const token = jwt.sign(data, 'secret_ecom',{expiresIn:"10m"});
+            const token = jwt.sign(data, 'secret_ecom', { expiresIn: "5m" });
+            
             let refreshtoken = user.refreshToken;
+            let refreshTokenExpiry = user.refreshTokenExpiry;
+            const now = new Date();
 
-            if (!refreshtoken) {
-                refreshtoken = jwt.sign(data, 'secret_recom',{expiresIn:"1d"});
+            if (!refreshtoken || refreshTokenExpiry <= now) {
+                refreshtoken = jwt.sign(data, 'secret_recom', { expiresIn: "1d" }); 
+                refreshTokenExpiry = new Date(now + 1 * 24 * 60 * 60 * 1000); // Set expiry date to 1 day later
+            
                 user.refreshToken = refreshtoken;
+                user.refreshTokenExpiry = refreshTokenExpiry;
                 await user.save();
             }
-
+            
             res.json({ success: true, token, refreshtoken });
         } else {
             res.json({ success: false, errors: "Wrong Password" });
@@ -237,7 +246,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// New endpoint to handle refresh token and generate new access token
+// Refresh Token endpoint remains the same
 app.post('/token', async (req, res) => {
     const { token } = req.body;
     if (!token) return res.sendStatus(401);
