@@ -9,7 +9,7 @@ const OrderPage = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const response = await fetch('http://localhost:4001/getorder', {
+        const response = await fetch('https://backend-beryl-nu-15.vercel.app/getorder', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,

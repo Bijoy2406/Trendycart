@@ -5,6 +5,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './CSS/login.css';
 import { Link } from 'react-router-dom';
 import Loader from '../loader_login'; // Import the Loader component
+import PasswordChecklist from "react-password-checklist";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Login() {
     const [showLogin, setShowLogin] = useState(true);
@@ -12,6 +15,8 @@ function Login() {
     const [registerForm, setRegisterForm] = useState({ username: '', email: '', password: '', dob: new Date() });
     const [loading, setLoading] = useState(false); // Loading state
     const datePickerRef = useRef(null);
+    const [isPasswordValid, setIsPasswordValid] = useState(false); // Password validity state
+
 
     const changeHandler = (e) => {
         const { name, value, type, checked } = e.target;
@@ -23,10 +28,9 @@ function Login() {
     };
 
     const signin = async () => {
-        console.log("sign in executed", loginForm);
-        setLoading(true); // Show loader
+        setLoading(true);
         try {
-            const response = await fetch('http://localhost:4001/login', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/login', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -35,16 +39,15 @@ function Login() {
                 body: JSON.stringify(loginForm)
             });
             const data = await response.json();
-    
+
             if (data.success) {
                 const user = data.user;
                 if (user && user.isAdmin && !user.isApprovedAdmin) {
                     alert('You are not approved as an admin yet.');
                 } else {
                     localStorage.setItem('auth-token', data.token);
-                    if (!localStorage.getItem('refresh-token')) {
-                        localStorage.setItem('refresh-token', data.refreshtoken); // Store refresh token only if not already stored
-                    }
+                    localStorage.setItem('refresh-token', data.refreshtoken);
+                    localStorage.setItem('refresh-token-expiry', new Date(data.refreshTokenExpiry).getTime());
                     window.location.replace("/");
                 }
             } else {
@@ -54,16 +57,26 @@ function Login() {
             console.error("Failed to fetch during signin:", error);
             alert('An error occurred during login. Please try again.');
         } finally {
-            setLoading(false); // Hide loader
+            setLoading(false);
         }
     };
-    
+
+
     const refreshAccessToken = async () => {
+        const refreshTokenExpiry = localStorage.getItem('refresh-token-expiry');
+        const now = new Date().getTime();
+
+        if (refreshTokenExpiry && now > refreshTokenExpiry) {
+            alert('Session expired, please log in again.');
+            logout();
+            return;
+        }
+
         try {
             const refreshToken = localStorage.getItem('refresh-token');
             if (!refreshToken) throw new Error('No refresh token available');
-    
-            const response = await fetch('http://localhost:4001/token', {
+
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -71,9 +84,9 @@ function Login() {
                 },
                 body: JSON.stringify({ token: refreshToken })
             });
-    
+
             const data = await response.json();
-    
+
             if (data.accessToken) {
                 localStorage.setItem('auth-token', data.accessToken); // Update access token
                 return data.accessToken;
@@ -83,17 +96,40 @@ function Login() {
         } catch (error) {
             console.error('Error refreshing access token:', error);
             alert('Session expired, please log in again.');
+            logout();
+        }
+    };
+
+    // Function to check if the refresh token is expired
+    const checkRefreshTokenExpiry = () => {
+        const refreshTokenExpiry = localStorage.getItem('refresh-token-expiry');
+        const now = new Date().getTime();
+
+        if (refreshTokenExpiry && now > refreshTokenExpiry) {
             localStorage.removeItem('auth-token');
             localStorage.removeItem('refresh-token');
+            localStorage.removeItem('refresh-token-expiry');
             window.location.replace("/login");
         }
     };
-    
+
+    // Call this function on page load to check token expiration
+    window.onload = checkRefreshTokenExpiry;
+
+    // Or set an interval to regularly check for expiration (optional)
+    setInterval(checkRefreshTokenExpiry, 60 * 1000); // Check every 1 minute
+
+
+
 
     const signup = async () => {
+        if (!isPasswordValid) {
+            toast.error("Password does not meet the criteria.");
+            return; // Exit the function if password criteria are not met
+        }
         setLoading(true); // Show loader
         try {
-            const response = await fetch('http://localhost:4001/signup', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/signup', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -114,7 +150,7 @@ function Login() {
             setLoading(false); // Hide loader
         }
     };
-    
+
 
     const handleLoginClick = () => {
         setShowLogin(true);
@@ -140,6 +176,37 @@ function Login() {
             signup();
         }
     };
+
+    const logout = () => {
+        localStorage.removeItem('auth-token');
+        localStorage.removeItem('refresh-token');
+        localStorage.removeItem('refresh-token-expiry');
+        window.location.replace("/login");
+    };
+    const checkTokenExpiry = () => {
+        const refreshTokenExpiry = localStorage.getItem('refresh-token-expiry');
+        const now = new Date().getTime();
+
+        if (refreshTokenExpiry && now > refreshTokenExpiry) {
+            alert('Session expired, please log in again.');
+            logout();
+        }
+    };
+
+    // Check token expiry every minute
+    setInterval(checkTokenExpiry, 60 * 1000);
+
+    const handlePasswordChange = (password) => {
+        console.log("Password:", password); // Debugging password change
+        setRegisterForm({ ...registerForm, password });
+    };
+
+    const handlePasswordValidityChange = (isValid) => {
+        console.log("Is password valid:", isValid); // Debugging password validity
+        setIsPasswordValid(isValid);
+    };
+
+
 
     return (
         <div className="login-background">
@@ -183,7 +250,7 @@ function Login() {
                         {showLogin ? (
                             <>
                                 <div className="form-inputs">
-                                <div className="input-group">
+                                    <div className="input-group">
                                         <input
                                             type="text"
                                             name="email"
@@ -197,8 +264,8 @@ function Login() {
                                         <input
                                             type="password"
                                             name="password"
-                                            value={loginForm.password}
-                                            onChange={changeHandler}
+                                            value={registerForm.password}
+                                            onChange={e => handlePasswordChange(e.target.value)}
                                             required
                                         />
                                         <label>Password</label>
@@ -211,7 +278,7 @@ function Login() {
                         ) : (
                             <>
                                 <div className="form-inputs">
-                                <div className="input-group">
+                                    <div className="input-group">
                                         <input
                                             type="text"
                                             name="username"
@@ -236,7 +303,7 @@ function Login() {
                                             type="password"
                                             name="password"
                                             value={registerForm.password}
-                                            onChange={changeHandler}
+                                            onChange={e => handlePasswordChange(e.target.value)}
                                             required
                                         />
                                         <label>Password</label>
@@ -260,14 +327,22 @@ function Login() {
                                             <FaRegCalendarAlt className="calendar-icon" onClick={handleCalendarIconClick} />
                                         </div>
                                     </div>
+                                    <PasswordChecklist
+                                        rules={["minLength", "specialChar", "number", "capital", "lowercase"]}
+                                        minLength={8}
+                                        value={registerForm.password}
+                                        onChange={handlePasswordValidityChange} // Update password validity and show error toast
+                                    />
                                 </div>
                             </>
                         )}
                         <div className="input-box">
-                            <button className="input-submit" type="submit" disabled={loading}>
-                                <span>Continue</span>
-                                <i className="bx bx-right-arrow-alt"></i>
-                            </button>
+                        <button type="submit" className="input-submit">
+                            {showLogin ? "Continue" : "Continue"}
+                            <i className="bx bx-right-arrow-alt"></i>
+                        </button>
+
+
                         </div>
                         <div className="social-login">
                             <i className="bx bxl-google"></i>
@@ -291,6 +366,7 @@ function Login() {
                     </div>
                 )}
             </div>
+            <ToastContainer />
         </div>
     );
 }

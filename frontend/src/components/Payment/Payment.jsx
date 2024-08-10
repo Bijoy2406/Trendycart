@@ -192,7 +192,7 @@ const Payment = () => {
     
         try {
             // Clear the cart on the server
-            const response = await fetch('http://localhost:4001/clearcart', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/clearcart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
