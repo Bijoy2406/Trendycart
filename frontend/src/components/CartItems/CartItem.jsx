@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import './CartItem.css';
 import { ShopContext } from '../Context/ShopContext';
 
@@ -9,8 +9,6 @@ const CartItem = () => {
     const [discount, setDiscount] = useState(0);
     const [showPopup, setShowPopup] = useState(false);
     const [popupMessage, setPopupMessage] = useState('');
-
-    const navigate = useNavigate(); // Initialize useNavigate
 
     const handlePromoCodeChange = (e) => {
         setPromoCode(e.target.value);
@@ -36,19 +34,15 @@ const CartItem = () => {
     const handleClosePopup = () => {
         setShowPopup(false);
     };
+    const navigate = useNavigate();
+
+    const handleProceedToCheckout = () => {
+        navigate('/payment'); // Replace with your payment page route
+    };
 
     const totalAmount = getTotalCartAmount();
     const discountedTotal = totalAmount - (totalAmount * discount);
-
-    const handleCheckout = () => {
-        const token = localStorage.getItem('auth-token');
-        if (!token) {
-            navigate('/login');
-        } else {
-            // Navigate to the checkout page
-            navigate('/payment');
-        }
-    };
+    
 
     return (
         <div className='cartitems'>
@@ -110,7 +104,7 @@ const CartItem = () => {
                             <h3>Total</h3>
                             <h3>{discountedTotal.toFixed(2)}</h3>
                         </div>
-                        <button onClick={handleCheckout}>Proceed to checkout</button> {/* Updated button */}
+                        <button onClick={handleProceedToCheckout}>Proceed to checkout</button>
                     </div>
                 </div>
                 <div className="vertical-line"></div>

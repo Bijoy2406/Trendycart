@@ -234,3 +234,46 @@
 .popup-content-cart button:hover {
   background-color: #0056b3;
 }
+
+@media (max-width: 1200px){
+  
+  .cartitems{
+    margin: 100px 170px;
+    width: 80%;
+  }
+  .cartitem-total{
+    position: relative;
+    right: 6rem;
+  }
+  .cartitem-total button{
+    position: relative;
+    top: 6rem;
+  }
+  .cartitem-format{
+    position: relative;
+    right: 6rem;
+  }
+  .cartitem-format-main{
+    position: relative;
+    right: 6rem;
+  }
+  .cartitem-promocode p{
+    position: relative;
+    right: 61rem;
+    font-size: 16px;
+    top:24rem;
+  }
+  .cartitem-promo-box input{
+    position: relative;
+    right: 40rem;
+    width: 300px;
+    top: 22rem;
+  }
+  .cartitem-promo-box button{
+    position: relative;
+    right: 38rem;
+    width: 100px;
+    top: 22rem;
+
+  }
+}

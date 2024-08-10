@@ -472,6 +472,7 @@ body {
         transition: .3s;
         position: relative;
         top: -4px;
+        left: -6rem;
     }
     
     .input-submit:hover {
@@ -532,8 +533,8 @@ body {
     flex-direction: column; /* Aligns text below the checkbox */
     align-items: flex-start; /* Aligns text to the left */
     position: relative;
-    top: 510px;
-    right: 300px;
+    top: 580px;
+    right: 150px;
 }
 
 .admin-checkbox {

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import React, { useState, useEffect,useContext } from 'react';
 import './Payment.css';
 import countries from './countries';
+import { ShopContext } from '../Context/ShopContext'; 
+import { useNavigate } from 'react-router-dom';
+
 
 const Payment = () => {
     const [selectedMethod, setSelectedMethod] = useState(null);
@@ -16,7 +18,7 @@ const Payment = () => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [cardError, setCardError] = useState('');
     const [phoneError, setPhoneError] = useState('');
-    const navigate = useNavigate(); 
+    const navigate = useNavigate(); // Initialize navigate
 
     useEffect(() => {
         validateForm();
@@ -173,7 +175,9 @@ const Payment = () => {
         setIsFormValid(isValid);
     };
 
-    const handlePayment = () => {
+    const { clearCart } = useContext(ShopContext);
+
+    const handlePayment = async () => {
         if (!selectedMethod) {
             alert('Please select a payment method.');
             return;
@@ -182,10 +186,32 @@ const Payment = () => {
             alert('Please fill out the form correctly.');
             return;
         }
+    
+        // Simulate payment success for now
         alert(`Payment complete with ${selectedMethod}`);
-        navigate('/order'); 
-        setIsPopupOpen(false);
+    
+        try {
+            // Clear the cart on the server
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/clearcart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth-token': localStorage.getItem('auth-token'), // Include the auth token
+                }
+            });
+            const result = await response.json();
+    
+            if (result.success) {
+                clearCart(); // Clear the cart locally
+                navigate('/'); // Redirect to another page after payment, e.g., home
+            } else {
+                console.error('Error clearing cart:', result.message);
+            }
+        } catch (error) {
+            console.error('Error clearing cart on the server:', error);
+        }
     };
+    
 
     const closePopup = () => {
         setIsPopupOpen(false);

@@ -37,7 +37,20 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
-
+//auth-token
+const fetchUser = async (req, res, next) => {
+    const token = req.header('auth-token');
+    if (!token) {
+        return res.status(401).send({ error: "No Token Provided" });
+    }
+    try {
+        const data = jwt.verify(token, 'secret_ecom');
+        req.user = data.user;
+        next();
+    } catch (error) {
+        return res.status(401).send({ errors: "Invalid Token" });
+    }
+};
 
 
 app.post("/upload", upload.single('product'), (req, res) => {
@@ -86,7 +99,6 @@ const Product = mongoose.model("Product", {
     }],
     averageRating: { type: Number, default: 0 }
 });
-
 app.post('/addproduct', async (req, res) => {
     try {
         let products = await Product.find({});
@@ -140,14 +152,17 @@ app.get('/allproducts', async (req, res) => {
     res.send(products);
 });
 
+// Modify the Users schema to store refresh token expiration
 const Users = mongoose.model('Users', {
     name: { type: String },
     email: { type: String, unique: true },
     password: { type: String },
     cartData: { type: Object },
     data: { type: Date, default: Date.now },
-    isAdmin: { type: Boolean, default: false }, // New field for admin role
-    isApprovedAdmin: { type: Boolean, default: false } 
+    isAdmin: { type: Boolean, default: false },
+    isApprovedAdmin: { type: Boolean, default: false },
+    refreshToken: { type: String },
+    refreshTokenExpiry: { type: Date } // New field for refresh token expiration
 });
 
 
@@ -190,22 +205,7 @@ app.post('/signup', async (req, res) => {
     res.json({ success: true, token});
 });
 
-//auth-token
-const fetchUser = async (req, res, next) => {
-    const token = req.header('auth-token');
-    if (!token) {
-        return res.status(401).send({ error: "No Token Provided" });
-    }
-    try {
-        const data = jwt.verify(token, 'secret_ecom');
-        req.user = data.user;
-        next();
-    } catch (error) {
-        return res.status(401).send({ errors: "Invalid Token" });
-    }
-};
-
-// Login Endpoint
+// Update the login endpoint to check for token expiration
 app.post('/login', async (req, res) => {
     let user = await Users.findOne({ email: req.body.email });
     if (user) {
@@ -214,6 +214,7 @@ app.post('/login', async (req, res) => {
             if (user.isAdmin && !user.isApprovedAdmin) {
                 return res.json({ success: false, errors: "You are not approved as an admin yet." });
             }
+
             const data = {
                 user: {
                     id: user.id,
@@ -221,9 +222,22 @@ app.post('/login', async (req, res) => {
                     isApprovedAdmin: user.isApprovedAdmin,
                 }
             };
-            const token = jwt.sign(data, 'secret_ecom',{expiresIn:"10m"});
-            const refreshtoken = jwt.sign(data, 'secret_recom',{expiresIn:"1d"});
-            res.json({ success: true, token,refreshtoken });
+            const token = jwt.sign(data, 'secret_ecom', { expiresIn: "5m" });
+            
+            let refreshtoken = user.refreshToken;
+            let refreshTokenExpiry = user.refreshTokenExpiry;
+            const now = new Date();
+
+            if (!refreshtoken || refreshTokenExpiry <= now) {
+                refreshtoken = jwt.sign(data, 'secret_recom', { expiresIn: "1d" }); 
+                refreshTokenExpiry = new Date(now + 1 * 24 * 60 * 60 * 1000); // Set expiry date to 1 day later
+            
+                user.refreshToken = refreshtoken;
+                user.refreshTokenExpiry = refreshTokenExpiry;
+                await user.save();
+            }
+            
+            res.json({ success: true, token, refreshtoken });
         } else {
             res.json({ success: false, errors: "Wrong Password" });
         }
@@ -232,36 +246,36 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Refresh Token endpoint remains the same
+app.post('/token', async (req, res) => {
+    const { token } = req.body;
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const user = await Users.findOne({ refreshToken: token });
+        if (!user) return res.sendStatus(403);
+
+        const data = {
+            user: {
+                id: user.id,
+                isAdmin: user.isAdmin,
+                isApprovedAdmin: user.isApprovedAdmin,
+            }
+        };
+
+        const accessToken = jwt.sign(data, 'secret_ecom', { expiresIn: "10m" });
+        res.json({ accessToken });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error refreshing token' });
+    }
+});
+
 const authenticate = (req, res, next) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(401).send('Unauthorized');
-
-    jwt.verify(token, 'secret_ecom', (err, user) => {
-        if (err) return res.status(403).send('Forbidden');
-        req.user = user;
-        next();
-    });
-};
-
-app.post("/token", (req, res) => {
-    const { token: refreshToken } = req.body;
-    if (!refreshToken) return res.status(401).json({ success: false, errors: "No token provided" });
-
-    jwt.verify(refreshToken, 'secret_recom', (err, user) => {
-      if (err) return res.status(403).json({ success: false, errors: "Invalid token" });
-
-      const newAccessToken = jwt.sign({
-        user: {
-          id: user.user.id,
-          isAdmin: user.user.isAdmin,
-          isApprovedAdmin: user.user.isApprovedAdmin
-        }
-      }, 'secret_ecom', { expiresIn: "10m" });
-
-      res.json({ success: true, accessToken: newAccessToken });
-    });
-});
-
+    // Verify the token here
+    next();
+  };
 // Admin Approval Endpoint
 app.put('/approveadmin/:email', fetchUser, async (req, res) => {
     try {
@@ -460,6 +474,25 @@ app.put('/updateproduct/:id', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error updating product' });
     }
 });
+app.post('/clearcart', fetchUser, async (req, res) => {
+    try {
+        // Find the user by ID and clear the cart
+        await Users.findByIdAndUpdate(req.user.id, { cartData: getDefaultCart() });
+        res.json({ success: true, message: "Cart cleared successfully" });
+    } catch (error) {
+        console.error('Error clearing cart:', error);
+        res.status(500).json({ success: false, message: 'Error clearing cart' });
+    }
+});
+
+// Function to get an empty cart structure
+const getDefaultCart = () => {
+    let cart = {};
+    for (let index = 0; index < 300 + 1; index++) {
+        cart[index] = 0;
+    }
+    return cart;
+};
 
 
 app.listen(port, (error) => {

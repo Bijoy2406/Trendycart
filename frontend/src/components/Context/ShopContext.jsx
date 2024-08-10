@@ -76,6 +76,27 @@ const ShopContextProvider = (props) => {
     }
   };
 
+  // New function to clear the cart
+  const clearCart = () => {
+    setCartItems(getDefaultCart());
+    if (localStorage.getItem('auth-token')) {
+      fetch('https://backend-beryl-nu-15.vercel.app/clearcart', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/form-data',
+          'auth-token': `${localStorage.getItem('auth-token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: "",
+      })
+        .then((response) => response.json())
+        .then((data) => console.log('Cart cleared:', data))
+        .catch((error) => {
+          console.error('Error clearing cart:', error);
+        });
+    }
+  };
+
   const getTotalCartAmount = () => {
     let totalAmount = 0;
     for (const item in cartItems) {
@@ -105,6 +126,7 @@ const ShopContextProvider = (props) => {
     cartItems,
     removeFromCart,
     addToCart,
+    clearCart, // Include clearCart in the context value
   };
 
   return (
