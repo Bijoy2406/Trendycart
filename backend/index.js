@@ -159,7 +159,8 @@ const Users = mongoose.model('Users', {
     cartData: { type: Object },
     data: { type: Date, default: Date.now },
     isAdmin: { type: Boolean, default: false }, // New field for admin role
-    isApprovedAdmin: { type: Boolean, default: false } 
+    isApprovedAdmin: { type: Boolean, default: false }, 
+    refreshToken: { type: String } // New field for storing refresh token
 });
 
 
@@ -197,8 +198,9 @@ app.post('/signup', async (req, res) => {
         }
     };
 
-    const token = jwt.sign(data, 'secret_ecom');
-    res.json({ success: true, token });
+    const token = jwt.sign(data, 'secret_ecom',{expiresIn:"10m"});
+  
+    res.json({ success: true, token});
 });
 
 // Login Endpoint
@@ -217,13 +219,45 @@ app.post('/login', async (req, res) => {
                     isApprovedAdmin: user.isApprovedAdmin,
                 }
             };
-            const token = jwt.sign(data, 'secret_ecom');
-            res.json({ success: true, token });
+            const token = jwt.sign(data, 'secret_ecom',{expiresIn:"10m"});
+            let refreshtoken = user.refreshToken;
+
+            if (!refreshtoken) {
+                refreshtoken = jwt.sign(data, 'secret_recom',{expiresIn:"1d"});
+                user.refreshToken = refreshtoken;
+                await user.save();
+            }
+
+            res.json({ success: true, token, refreshtoken });
         } else {
             res.json({ success: false, errors: "Wrong Password" });
         }
     } else {
         res.json({ success: false, errors: "Wrong email" });
+    }
+});
+
+// New endpoint to handle refresh token and generate new access token
+app.post('/token', async (req, res) => {
+    const { token } = req.body;
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const user = await Users.findOne({ refreshToken: token });
+        if (!user) return res.sendStatus(403);
+
+        const data = {
+            user: {
+                id: user.id,
+                isAdmin: user.isAdmin,
+                isApprovedAdmin: user.isApprovedAdmin,
+            }
+        };
+
+        const accessToken = jwt.sign(data, 'secret_ecom', { expiresIn: "10m" });
+        res.json({ accessToken });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error refreshing token' });
     }
 });
 

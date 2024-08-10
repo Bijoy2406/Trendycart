@@ -35,13 +35,16 @@ function Login() {
                 body: JSON.stringify(loginForm)
             });
             const data = await response.json();
-            
+    
             if (data.success) {
                 const user = data.user;
                 if (user && user.isAdmin && !user.isApprovedAdmin) {
                     alert('You are not approved as an admin yet.');
                 } else {
                     localStorage.setItem('auth-token', data.token);
+                    if (!localStorage.getItem('refresh-token')) {
+                        localStorage.setItem('refresh-token', data.refreshtoken); // Store refresh token only if not already stored
+                    }
                     window.location.replace("/");
                 }
             } else {
@@ -52,6 +55,37 @@ function Login() {
             alert('An error occurred during login. Please try again.');
         } finally {
             setLoading(false); // Hide loader
+        }
+    };
+    
+    const refreshAccessToken = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refresh-token');
+            if (!refreshToken) throw new Error('No refresh token available');
+    
+            const response = await fetch('http://localhost:4001/token', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token: refreshToken })
+            });
+    
+            const data = await response.json();
+    
+            if (data.accessToken) {
+                localStorage.setItem('auth-token', data.accessToken); // Update access token
+                return data.accessToken;
+            } else {
+                throw new Error('Failed to refresh token');
+            }
+        } catch (error) {
+            console.error('Error refreshing access token:', error);
+            alert('Session expired, please log in again.');
+            localStorage.removeItem('auth-token');
+            localStorage.removeItem('refresh-token');
+            window.location.replace("/login");
         }
     };
     
