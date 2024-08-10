@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './Payment.css';
 import countries from './countries';
 
@@ -15,6 +16,7 @@ const Payment = () => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [cardError, setCardError] = useState('');
     const [phoneError, setPhoneError] = useState('');
+    const navigate = useNavigate(); 
 
     useEffect(() => {
         validateForm();
@@ -181,6 +183,7 @@ const Payment = () => {
             return;
         }
         alert(`Payment complete with ${selectedMethod}`);
+        navigate('/order'); 
         setIsPopupOpen(false);
     };
 

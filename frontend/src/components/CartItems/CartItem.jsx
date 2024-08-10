@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './CartItem.css';
 import { ShopContext } from '../Context/ShopContext';
 
@@ -8,6 +9,8 @@ const CartItem = () => {
     const [discount, setDiscount] = useState(0);
     const [showPopup, setShowPopup] = useState(false);
     const [popupMessage, setPopupMessage] = useState('');
+
+    const navigate = useNavigate(); // Initialize useNavigate
 
     const handlePromoCodeChange = (e) => {
         setPromoCode(e.target.value);
@@ -36,6 +39,16 @@ const CartItem = () => {
 
     const totalAmount = getTotalCartAmount();
     const discountedTotal = totalAmount - (totalAmount * discount);
+
+    const handleCheckout = () => {
+        const token = localStorage.getItem('auth-token');
+        if (!token) {
+            navigate('/login');
+        } else {
+            // Navigate to the checkout page
+            navigate('/payment');
+        }
+    };
 
     return (
         <div className='cartitems'>
@@ -97,7 +110,7 @@ const CartItem = () => {
                             <h3>Total</h3>
                             <h3>{discountedTotal.toFixed(2)}</h3>
                         </div>
-                        <button>Proceed to checkout</button>
+                        <button onClick={handleCheckout}>Proceed to checkout</button> {/* Updated button */}
                     </div>
                 </div>
                 <div className="vertical-line"></div>
