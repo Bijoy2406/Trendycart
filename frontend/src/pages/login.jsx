@@ -28,7 +28,8 @@ function Login() {
     };
 
     const signin = async () => {
-        setLoading(true);
+        console.log("sign in executed", loginForm);
+        setLoading(true); // Show loader
         try {
             const response = await fetch('https://backend-beryl-nu-15.vercel.app/login', {
                 method: 'POST',
@@ -36,18 +37,17 @@ function Login() {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(loginForm)
+                body: JSON.stringify(loginForm) // Use loginForm here
             });
             const data = await response.json();
-
+            
             if (data.success) {
                 const user = data.user;
                 if (user && user.isAdmin && !user.isApprovedAdmin) {
                     alert('You are not approved as an admin yet.');
                 } else {
                     localStorage.setItem('auth-token', data.token);
-                    localStorage.setItem('refresh-token', data.refreshtoken);
-                    localStorage.setItem('refresh-token-expiry', new Date(data.refreshTokenExpiry).getTime());
+                    localStorage.setItem('refresh-token', data.refreshtoken); // Store refresh token
                     window.location.replace("/");
                 }
             } else {
@@ -57,9 +57,10 @@ function Login() {
             console.error("Failed to fetch during signin:", error);
             alert('An error occurred during login. Please try again.');
         } finally {
-            setLoading(false);
+            setLoading(false); // Hide loader
         }
     };
+    
 
 
     const refreshAccessToken = async () => {
@@ -264,12 +265,13 @@ function Login() {
                                         <input
                                             type="password"
                                             name="password"
-                                            value={registerForm.password}
-                                            onChange={e => handlePasswordChange(e.target.value)}
+                                            value={loginForm.password} // Use loginForm.password here
+                                            onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
                                             required
                                         />
                                         <label>Password</label>
                                     </div>
+
                                     <div className="forgot-pass">
                                         <a href="#">Forgot Password?</a>
                                     </div>
@@ -337,10 +339,10 @@ function Login() {
                             </>
                         )}
                         <div className="input-box">
-                        <button type="submit" className="input-submit">
-                            {showLogin ? "Continue" : "Continue"}
-                            <i className="bx bx-right-arrow-alt"></i>
-                        </button>
+                            <button type="submit" className="input-submit">
+                                {showLogin ? "Continue" : "Continue"}
+                                <i className="bx bx-right-arrow-alt"></i>
+                            </button>
 
 
                         </div>
