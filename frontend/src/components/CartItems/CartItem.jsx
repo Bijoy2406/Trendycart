@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './CartItem.css';
 import { ShopContext } from '../Context/ShopContext';
 
@@ -33,9 +34,15 @@ const CartItem = () => {
     const handleClosePopup = () => {
         setShowPopup(false);
     };
+    const navigate = useNavigate();
+
+    const handleProceedToCheckout = () => {
+        navigate('/payment'); // Replace with your payment page route
+    };
 
     const totalAmount = getTotalCartAmount();
     const discountedTotal = totalAmount - (totalAmount * discount);
+    
 
     return (
         <div className='cartitems'>
@@ -97,7 +104,7 @@ const CartItem = () => {
                             <h3>Total</h3>
                             <h3>{discountedTotal.toFixed(2)}</h3>
                         </div>
-                        <button>Proceed to checkout</button>
+                        <button onClick={handleProceedToCheckout}>Proceed to checkout</button>
                     </div>
                 </div>
                 <div className="vertical-line"></div>

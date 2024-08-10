@@ -15,12 +15,12 @@ const ShopContextProvider = (props) => {
   const [cartItems, setCartItems] = useState(getDefaultCart());
 
   useEffect(() => {
-    fetch('https://backend-beryl-nu-15.vercel.app/allproducts')
+    fetch('http://localhost:4001/allproducts')
       .then((response) => response.json())
       .then((data) => setAll_Product(data));
 
     if (localStorage.getItem('auth-token')) {
-      fetch('https://backend-beryl-nu-15.vercel.app/getcart', {
+      fetch('http://localhost:4001/getcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
@@ -39,7 +39,7 @@ const ShopContextProvider = (props) => {
       [ItemId]: prev[ItemId] + 1,
     }));
     if (localStorage.getItem('auth-token')) {
-      fetch('https://backend-beryl-nu-15.vercel.app/addtocart', {
+      fetch('http://localhost:4001/addtocart', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -62,7 +62,7 @@ const ShopContextProvider = (props) => {
       [ItemId]: prev[ItemId] - 1,
     }));
     if (localStorage.getItem('auth-token')) {
-      fetch('https://backend-beryl-nu-15.vercel.app/removefromcart', {
+      fetch('http://localhost:4001/removefromcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
@@ -73,6 +73,27 @@ const ShopContextProvider = (props) => {
       })
         .then((response) => response.json())
         .then((data) => console.log(data));
+    }
+  };
+
+  // New function to clear the cart
+  const clearCart = () => {
+    setCartItems(getDefaultCart());
+    if (localStorage.getItem('auth-token')) {
+      fetch('http://localhost:4001/clearcart', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/form-data',
+          'auth-token': `${localStorage.getItem('auth-token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: "",
+      })
+        .then((response) => response.json())
+        .then((data) => console.log('Cart cleared:', data))
+        .catch((error) => {
+          console.error('Error clearing cart:', error);
+        });
     }
   };
 
@@ -105,6 +126,7 @@ const ShopContextProvider = (props) => {
     cartItems,
     removeFromCart,
     addToCart,
+    clearCart, // Include clearCart in the context value
   };
 
   return (

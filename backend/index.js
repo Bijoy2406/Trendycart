@@ -99,7 +99,6 @@ const Product = mongoose.model("Product", {
     }],
     averageRating: { type: Number, default: 0 }
 });
-
 app.post('/addproduct', async (req, res) => {
     try {
         let products = await Product.find({});
@@ -432,6 +431,25 @@ app.put('/updateproduct/:id', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error updating product' });
     }
 });
+app.post('/clearcart', fetchUser, async (req, res) => {
+    try {
+        // Find the user by ID and clear the cart
+        await Users.findByIdAndUpdate(req.user.id, { cartData: getDefaultCart() });
+        res.json({ success: true, message: "Cart cleared successfully" });
+    } catch (error) {
+        console.error('Error clearing cart:', error);
+        res.status(500).json({ success: false, message: 'Error clearing cart' });
+    }
+});
+
+// Function to get an empty cart structure
+const getDefaultCart = () => {
+    let cart = {};
+    for (let index = 0; index < 300 + 1; index++) {
+        cart[index] = 0;
+    }
+    return cart;
+};
 
 
 app.listen(port, (error) => {

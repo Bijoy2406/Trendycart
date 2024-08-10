@@ -14,16 +14,18 @@ const Navbar = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isLoading, setLoading] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false); // State to handle menu toggle
     const navigate = useNavigate();
 
     const handleMenuClick = (menuName) => {
         setMenu(menuName);
+        setIsMenuOpen(false); // Close menu after selecting an item
     };
 
     useEffect(() => {
         const token = localStorage.getItem('auth-token');
         if (token) {
-            fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
+            fetch('http://localhost:4001/getUserRole', {
                 headers: {
                     'auth-token': token,
                 },
@@ -37,6 +39,7 @@ const Navbar = () => {
     const handleAdminClick = () => {
         navigate('/Admin');
         setDropdownOpen(false);
+        setIsMenuOpen(false); // Close menu after navigating
     };
 
     const handleSearchClick = (e) => {
@@ -45,10 +48,15 @@ const Navbar = () => {
             navigate(`/search/${searchTerm}`);
         }
         setDropdownOpen(false);
+        setIsMenuOpen(false); // Close menu after search
     };
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
+    };
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen); // Toggle menu visibility
     };
 
     const handleLogout = () => {
@@ -64,7 +72,12 @@ const Navbar = () => {
                 <img src={logo} alt="logo" />
             </Link>
 
-            <div className="wrap-input-17">
+            <button className="nav-toggle" onClick={toggleMenu}>
+                <span className="bar"></span>
+                <span className="bar"></span>
+                <span className="bar"></span>
+            </button>
+            <div className={`wrap-input-17 ${isMenuOpen ? 'active' : ''}`}>
                 <div className="search-box">
                     <button className="btn-search" onClick={handleSearchClick}>🔍</button>
                     <input
@@ -77,7 +90,7 @@ const Navbar = () => {
                 </div>
             </div>
 
-            <ul className="nav-menu">
+            <ul className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
                 <li onClick={() => handleMenuClick("shop")}>
                     <Link to='/'>Home</Link>
                     {menu === "shop" && <hr />}
@@ -96,7 +109,7 @@ const Navbar = () => {
                 </li>
             </ul>
 
-            <div className="nav-login-cart">
+            <div className={`nav-login-cart ${isMenuOpen ? 'active' : ''}`}>
                 {localStorage.getItem('auth-token') ? (
                     <div className="profile-dropdown">
                         <img
@@ -123,24 +136,24 @@ const Navbar = () => {
                     </Link>
                 )}
                 {isAdmin && (
-                <button class="btn-101" onClick={handleAdminClick}>
-                    Admin panel
-                    <svg>
-                        <defs>
-                            <filter id="glow">
-                                <fegaussianblur result="coloredBlur" stddeviation="5"></fegaussianblur>
-                                <femerge>
-                                    <femergenode in="coloredBlur"></femergenode>
-                                    <femergenode in="coloredBlur"></femergenode>
-                                    <femergenode in="coloredBlur"></femergenode>
-                                    <femergenode in="SourceGraphic"></femergenode>
-                                </femerge>
-                            </filter>
-                        </defs>
-                        <rect />
-                    </svg>
-                </button>
-                )} 
+                    <button className="btn-101" onClick={handleAdminClick}>
+                        Admin panel
+                        <svg>
+                            <defs>
+                                <filter id="glow">
+                                    <fegaussianblur result="coloredBlur" stddeviation="5"></fegaussianblur>
+                                    <femerge>
+                                        <femergenode in="coloredBlur"></femergenode>
+                                        <femergenode in="coloredBlur"></femergenode>
+                                        <femergenode in="coloredBlur"></femergenode>
+                                        <femergenode in="SourceGraphic"></femergenode>
+                                    </femerge>
+                                </filter>
+                            </defs>
+                            <rect />
+                        </svg>
+                    </button>
+                )}
                 <Link to='/cart' onClick={() => setDropdownOpen(false)}>
                     <img className='cart-img' src={cart_icon} alt="Cart" />
                 </Link>
