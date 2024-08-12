@@ -7,7 +7,8 @@ const SearchResults = () => {
   const [query, setQuery] = useState(searchTerm || '');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [sortOrder, setSortOrder] = useState(''); 
+  const [sortOrder, setSortOrder] = useState('default'); // Default sorting option
+  const [category, setCategory] = useState(''); // Added category state
   const inputRef = useRef();
   const navigate = useNavigate();
   const [searchResults, setSearchResults] = useState([]);
@@ -42,6 +43,12 @@ const SearchResults = () => {
       );
     }
 
+    if (category) {
+      filteredProducts = filteredProducts.filter(product =>
+        product.category === category
+      );
+    }
+
     if (minPrice !== '') {
       filteredProducts = filteredProducts.filter(product => product.new_price >= parseInt(minPrice));
     }
@@ -49,7 +56,7 @@ const SearchResults = () => {
       filteredProducts = filteredProducts.filter(product => product.new_price <= parseInt(maxPrice));
     }
 
-    
+    // Sort based on the selected option
     if (sortOrder === 'lowToHigh') {
       filteredProducts.sort((a, b) => a.new_price - b.new_price);
     } else if (sortOrder === 'highToLow') {
@@ -57,7 +64,7 @@ const SearchResults = () => {
     }
 
     return filteredProducts;
-  }, [query, minPrice, maxPrice, sortOrder, searchResults]);
+  }, [query, minPrice, maxPrice, sortOrder, searchResults, category]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -71,26 +78,52 @@ const SearchResults = () => {
   return (
     <div className="search-container">
       <div className="price-filter">
-        <label>Max Price:</label>
-        <input
-          type="number"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-          placeholder="Max Price"
-        />
-        <label>Min Price:</label>
-        <input
-          type="number"
-          value={minPrice}
-          onChange={(e) => setMinPrice(e.target.value)}
-          placeholder="Min Price"
-        />
+        <div className="max-price-filter">
+          <label>Max Price:</label>
+          <input
+            type="number"
+            className="max-price-input"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            placeholder="Max Price"
+          />
+        </div>
 
-        <div className="sort-by">
+        <div className="min-price-filter">
+          <label>Min Price:</label>
+          <input
+            type="number"
+            className="min-price-input"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            placeholder="Min Price"
+          />
+        </div>
+
+        <div className="sort-by-filter">
           <label>Sort by:</label>
-          <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-            <option value="lowToHigh">Price: Low to High</option>
-            <option value="highToLow">Price: High to Low</option>
+          <select
+            className="sort-by-select"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="default">Default</option>
+            <option value="lowToHigh">Low to High</option>
+            <option value="highToLow">High to Low</option>
+          </select>
+        </div>
+
+        <div className="category-filter">
+          <label>Category:</label>
+          <select
+            className="category-select"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">All</option>
+            <option value="men">Men</option>
+            <option value="women">Women</option>
+            <option value="kid">Kid</option>
           </select>
         </div>
       </div>

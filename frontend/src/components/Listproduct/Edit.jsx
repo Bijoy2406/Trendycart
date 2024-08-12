@@ -4,6 +4,8 @@ import '../Addproduct/Addproduct.css'; // Reuse the same CSS file
 import upload_area from '../../components/Assets/upload_area.svg';
 import back_icon from '../../components/Assets/back.png';
 import { ShopContext } from '../Context/ShopContext';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EditProduct = () => {
   const { id } = useParams(); // Get the product ID from the URL
@@ -74,7 +76,7 @@ const EditProduct = () => {
       body: JSON.stringify(product),
     }).then((resp) => resp.json()).then((data) => {
       if (data.success) {
-        alert('Product Updated');
+        toast.success('Product Updated');
         // Update the product list in the context
         fetch('https://backend-beryl-nu-15.vercel.app/allproducts')
           .then((response) => response.json())
@@ -84,7 +86,7 @@ const EditProduct = () => {
           .catch((error) => console.error('Failed to update product list:', error));
         navigate('/admin');
       } else {
-        alert('Failed to update product');
+        toast.error('Failed to update product');
       }
     });
   };
@@ -161,6 +163,7 @@ const EditProduct = () => {
         />
       </div>
       <button onClick={updateProduct} className='addproduct-btn'>UPDATE</button>
+      <ToastContainer />
     </div>
   );
 };

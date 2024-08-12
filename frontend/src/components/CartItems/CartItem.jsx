@@ -1,10 +1,9 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './CartItem.css';
 import { ShopContext } from '../Context/ShopContext';
 
 const CartItem = () => {
-    const { getTotalCartAmount, all_product, cartItems, removeFromCart } = useContext(ShopContext);
+    const {  getTotalCartAmount, all_product, cartItems, setCartItems} = useContext(ShopContext);
     const [promoCode, setPromoCode] = useState('');
     const [discount, setDiscount] = useState(0);
     const [showPopup, setShowPopup] = useState(false);
@@ -34,15 +33,20 @@ const CartItem = () => {
     const handleClosePopup = () => {
         setShowPopup(false);
     };
-    const navigate = useNavigate();
-
-    const handleProceedToCheckout = () => {
-        navigate('/payment'); // Replace with your payment page route
+    const removeFromCart = (productId) => {
+        const newCartItems = { ...cartItems };
+        if (newCartItems[productId] > 0) {
+            newCartItems[productId] -= 1;
+            if (newCartItems[productId] === 0) {
+                delete newCartItems[productId]; // Remove the product if quantity is zero
+            }
+        }
+        setCartItems(newCartItems); // Update state with new cart items
     };
+    
 
     const totalAmount = getTotalCartAmount();
     const discountedTotal = totalAmount - (totalAmount * discount);
-    
 
     return (
         <div className='cartitems'>
@@ -56,13 +60,13 @@ const CartItem = () => {
             </div>
             <hr />
             {all_product.map((e) => {
-                if (cartItems[e.id] > 0) {
+                if (cartItems[e.id] > 0 && e !== undefined) {  // Ensure product exists
                     return (
                         <div key={e.id}>
                             <div className="cartitem-format">
                                 <img src={e.image} alt={e.name} className='carticon-product-con' />
                                 <p>{e.name}</p>
-                                <p>{e.new_price}</p>
+                                <p>{e.new_price ? e.new_price : 'N/A'}</p>
                                 <button className='quantity-button'>{cartItems[e.id]}</button>
                                 <p>{cartItems[e.id] * e.new_price}</p>
                                 <div className="wrap-delete">
@@ -82,6 +86,7 @@ const CartItem = () => {
                 }
                 return null;
             })}
+
             <div className="cartitem-down">
                 <div className="cartitem-total">
                     <h1>Cart Total</h1>
@@ -104,7 +109,7 @@ const CartItem = () => {
                             <h3>Total</h3>
                             <h3>{discountedTotal.toFixed(2)}</h3>
                         </div>
-                        <button onClick={handleProceedToCheckout}>Proceed to checkout</button>
+                        <button>Proceed to checkout</button>
                     </div>
                 </div>
                 <div className="vertical-line"></div>

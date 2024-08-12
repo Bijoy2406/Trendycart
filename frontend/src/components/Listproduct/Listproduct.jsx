@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import './Listproduct.css';
 import edit_icon from '../../components/Assets/edit_icon.png';
 import back_icon from '../../components/Assets/back.png';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Listproduct = () => {
   const [allproducts, setAllProducts] = useState([]);
-  const { setAll_Product } = useContext(ShopContext); // Get setAll_Product from context
+  const { setAll_Product, removeProductFromCart } = useContext(ShopContext); // Get removeProductFromCart from context
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,8 +41,9 @@ const Listproduct = () => {
       const updatedProducts = allproducts.filter(product => product.id !== id);
       setAllProducts(updatedProducts);
       setAll_Product(updatedProducts); // Update context to reflect the changes
+      removeProductFromCart(id); // Remove product from cart
     } else {
-      alert('Failed to delete the product.');
+      toast.error('Failed to delete the product.');
     }
   };
 
@@ -98,6 +101,7 @@ const Listproduct = () => {
           </div>
         ))}
       </div>
+      <ToastContainer />
     </div>
   );
 };

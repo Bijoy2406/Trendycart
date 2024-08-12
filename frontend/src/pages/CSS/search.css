@@ -25,17 +25,21 @@
 }
 
 .products-grid {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  margin: 20px 170px;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 20px;
+  gap: 30px;
+  position: relative;
+  bottom: 5.5rem;
 }
 
 .product-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 200px;
+  width: 350px;
   padding: 10px;
   border-radius: 10px;
   text-decoration: none;
@@ -77,8 +81,10 @@
 
 .price-filter {
   display: flex;
-  flex-direction: column; /* Changed to column to stack items vertically */
-  gap: 10px; /* Adjust gap between items */
+  flex-direction: column;
+  /* Changed to column to stack items vertically */
+  gap: 10px;
+  /* Adjust gap between items */
   margin: 20px 0;
 }
 
@@ -101,7 +107,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 10px; /* Adjust spacing as needed */
+  margin-top: 10px;
+  /* Adjust spacing as needed */
 }
 
 .sort-by label {
@@ -111,5 +118,60 @@
 .sort-by select {
   padding: 5px;
   border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.max-price-filter {
+  margin-bottom: 15px;
+  position: relative;
+  left: -13rem;
+}
+
+.max-price-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.min-price-filter {
+  margin-bottom: 15px;
+  position: relative;
+  bottom: 58px;
+  left: 4rem;
+}
+
+.min-price-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.sort-by-filter {
+  margin-bottom: 15px;
+  position: relative;
+  left: -13rem;
+  bottom: 4rem;
+}
+
+.sort-by-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.category-filter {
+  margin-bottom: 15px;
+  position: relative;
+  bottom: 148px;
+  left: 4rem;
+}
+
+.category-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
   border-radius: 4px;
 }
