@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from "../components/Assets/svg-viewer.svg";
 import cart_icon from "../components/Assets/cart_icon.png";
@@ -14,12 +14,14 @@ const Navbar = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isLoading, setLoading] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // State to handle menu toggle
     const navigate = useNavigate();
+    const [isMenuOpen, setIsMenuOpen] = useState(false); // State to handle menu toggle
+
+    const searchRef = useRef(null);
+    const dropdownRef = useRef(null);
 
     const handleMenuClick = (menuName) => {
         setMenu(menuName);
-        setIsMenuOpen(false); // Close menu after selecting an item
     };
 
     useEffect(() => {
@@ -36,34 +38,50 @@ const Navbar = () => {
         }
     }, []);
 
-    const handleAdminClick = () => {
-        navigate('/Admin');
-        setDropdownOpen(false);
-        setIsMenuOpen(false); // Close menu after navigating
-    };
-
-    const handleSearchClick = (e) => {
-        e.preventDefault();
+    useEffect(() => {
         if (searchTerm.trim() !== '') {
             navigate(`/search/${searchTerm}`);
         }
+    }, [searchTerm, navigate]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                searchRef.current && !searchRef.current.contains(event.target) &&
+                dropdownRef.current && !dropdownRef.current.contains(event.target)
+            ) {
+                setSearchTerm(""); // Clear search input
+                setDropdownOpen(false); // Close dropdown
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleAdminClick = () => {
+        navigate('/Admin');
         setDropdownOpen(false);
-        setIsMenuOpen(false); // Close menu after search
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+        setDropdownOpen(false);
     };
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
     };
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen); // Toggle menu visibility
-    };
-
     const handleLogout = () => {
         localStorage.removeItem('auth-token');
         window.location.replace('/');
     };
-
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen); // Toggle menu visibility
+    };
     return (
         <div className='navbar'>
             {isLoading && <Loader />}
@@ -71,26 +89,25 @@ const Navbar = () => {
             <Link to="/" className='nav-logo' onClick={() => setMenu("shop")}>
                 <img src={logo} alt="logo" />
             </Link>
-
             <button className="nav-toggle" onClick={toggleMenu}>
                 <span className="bar"></span>
                 <span className="bar"></span>
                 <span className="bar"></span>
             </button>
-            <div className={`wrap-input-17 ${isMenuOpen ? 'active' : ''}`}>
+            <div className="wrap-input-17" ref={searchRef}>
                 <div className="search-box">
-                    <button className="btn-search" onClick={handleSearchClick}>🔍</button>
+                    <button className="btn-search">🔍</button>
                     <input
                         type="text"
                         className="input-search"
                         placeholder="Type to Search..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={handleSearchChange}
                     />
                 </div>
             </div>
 
-            <ul className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
+            <ul className="nav-menu">
                 <li onClick={() => handleMenuClick("shop")}>
                     <Link to='/'>Home</Link>
                     {menu === "shop" && <hr />}
@@ -109,9 +126,9 @@ const Navbar = () => {
                 </li>
             </ul>
 
-            <div className={`nav-login-cart ${isMenuOpen ? 'active' : ''}`}>
+            <div className="nav-login-cart">
                 {localStorage.getItem('auth-token') ? (
-                    <div className="profile-dropdown">
+                    <div className="profile-dropdown" ref={dropdownRef}>
                         <img
                             src={navProfile}
                             alt="Profile"
@@ -136,23 +153,23 @@ const Navbar = () => {
                     </Link>
                 )}
                 {isAdmin && (
-                    <button className="btn-101" onClick={handleAdminClick}>
-                        Admin panel
-                        <svg>
-                            <defs>
-                                <filter id="glow">
-                                    <fegaussianblur result="coloredBlur" stddeviation="5"></fegaussianblur>
-                                    <femerge>
-                                        <femergenode in="coloredBlur"></femergenode>
-                                        <femergenode in="coloredBlur"></femergenode>
-                                        <femergenode in="coloredBlur"></femergenode>
-                                        <femergenode in="SourceGraphic"></femergenode>
-                                    </femerge>
-                                </filter>
-                            </defs>
-                            <rect />
-                        </svg>
-                    </button>
+                <button className="btn-101" onClick={handleAdminClick}>
+                    Admin panel
+                    <svg>
+                        <defs>
+                            <filter id="glow">
+                                <fegaussianblur result="coloredBlur" stddeviation="5"></fegaussianblur>
+                                <femerge>
+                                    <femergenode in="coloredBlur"></femergenode>
+                                    <femergenode in="coloredBlur"></femergenode>
+                                    <femergenode in="coloredBlur"></femergenode>
+                                    <femergenode in="SourceGraphic"></femergenode>
+                                </femerge>
+                            </filter>
+                        </defs>
+                        <rect />
+                    </svg>
+                </button>
                 )}
                 <Link to='/cart' onClick={() => setDropdownOpen(false)}>
                     <img className='cart-img' src={cart_icon} alt="Cart" />

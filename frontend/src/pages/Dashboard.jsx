@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './CSS/Dashboard.css';
-
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function Dashboard() {
     const [users, setUsers] = useState([]);
     const [currentUserEmail, setCurrentUserEmail] = useState('');
@@ -65,7 +66,7 @@ function Dashboard() {
         try {
             const token = localStorage.getItem('auth-token');
             if (!token) {
-                alert('Authentication token not found. Please log in again.');
+                toast.error('Authentication token not found. Please log in again.');
                 return;
             }
             const response = await fetch(`https://backend-beryl-nu-15.vercel.app/approveadmin/${email}`, {
@@ -79,14 +80,14 @@ function Dashboard() {
             });
             const data = await response.json();
             if (response.ok) {
-                alert('Admin approval status updated successfully!');
+                toast.success('Admin approval status updated successfully!');
                 setUsers(users.map(user => user.email === email ? { ...user, isApprovedAdmin: isChecked } : user));
             } else {
-                alert(data.message || 'Failed to update admin approval status');
+                toast.error(data.message || 'Failed to update admin approval status');
             }
         } catch (error) {
             console.error("Failed to update admin approval status:", error);
-            alert('An error occurred. Please try again.');
+            toast.error('An error occurred. Please try again.');
         }
     };
 
@@ -142,6 +143,7 @@ function Dashboard() {
                     </li>
                 ))}
             </ul>
+            <ToastContainer />
         </div>
     );
 }

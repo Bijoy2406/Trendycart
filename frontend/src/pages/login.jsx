@@ -5,6 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './CSS/login.css';
 import { Link } from 'react-router-dom';
 import Loader from '../loader_login'; // Import the Loader component
+import { fetchWithToken } from '../Utils/authUtils';
 import PasswordChecklist from "react-password-checklist";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -16,7 +17,6 @@ function Login() {
     const [loading, setLoading] = useState(false); // Loading state
     const datePickerRef = useRef(null);
     const [isPasswordValid, setIsPasswordValid] = useState(false); // Password validity state
-
 
     const changeHandler = (e) => {
         const { name, value, type, checked } = e.target;
@@ -31,52 +31,41 @@ function Login() {
         console.log("sign in executed", loginForm);
         setLoading(true); // Show loader
         try {
-            const response = await fetch('https://backend-beryl-nu-15.vercel.app/login', {
+            const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/login', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(loginForm) // Use loginForm here
+                body: JSON.stringify(loginForm)
             });
             const data = await response.json();
             
             if (data.success) {
                 const user = data.user;
                 if (user && user.isAdmin && !user.isApprovedAdmin) {
-                    alert('You are not approved as an admin yet.');
+                    toast.error('You are not approved as an admin yet.');
                 } else {
                     localStorage.setItem('auth-token', data.token);
                     localStorage.setItem('refresh-token', data.refreshtoken); // Store refresh token
                     window.location.replace("/");
                 }
             } else {
-                alert(data.errors || 'Login failed. Please try again.');
+                toast.error(data.errors || 'Login failed. Please try again.');
             }
         } catch (error) {
             console.error("Failed to fetch during signin:", error);
-            alert('An error occurred during login. Please try again.');
+            toast.error('An error occurred during login. Please try again.');
         } finally {
             setLoading(false); // Hide loader
         }
     };
     
-
-
     const refreshAccessToken = async () => {
-        const refreshTokenExpiry = localStorage.getItem('refresh-token-expiry');
-        const now = new Date().getTime();
-
-        if (refreshTokenExpiry && now > refreshTokenExpiry) {
-            alert('Session expired, please log in again.');
-            logout();
-            return;
-        }
-
         try {
             const refreshToken = localStorage.getItem('refresh-token');
             if (!refreshToken) throw new Error('No refresh token available');
-
+    
             const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
                 method: 'POST',
                 headers: {
@@ -85,9 +74,9 @@ function Login() {
                 },
                 body: JSON.stringify({ token: refreshToken })
             });
-
+    
             const data = await response.json();
-
+    
             if (data.accessToken) {
                 localStorage.setItem('auth-token', data.accessToken); // Update access token
                 return data.accessToken;
@@ -96,32 +85,13 @@ function Login() {
             }
         } catch (error) {
             console.error('Error refreshing access token:', error);
-            alert('Session expired, please log in again.');
-            logout();
-        }
-    };
-
-    // Function to check if the refresh token is expired
-    const checkRefreshTokenExpiry = () => {
-        const refreshTokenExpiry = localStorage.getItem('refresh-token-expiry');
-        const now = new Date().getTime();
-
-        if (refreshTokenExpiry && now > refreshTokenExpiry) {
+            toast.error('Session expired, please log in again.');
             localStorage.removeItem('auth-token');
             localStorage.removeItem('refresh-token');
-            localStorage.removeItem('refresh-token-expiry');
             window.location.replace("/login");
         }
     };
-
-    // Call this function on page load to check token expiration
-    window.onload = checkRefreshTokenExpiry;
-
-    // Or set an interval to regularly check for expiration (optional)
-    setInterval(checkRefreshTokenExpiry, 60 * 1000); // Check every 1 minute
-
-
-
+    
 
     const signup = async () => {
         if (!isPasswordValid) {
@@ -130,7 +100,7 @@ function Login() {
         }
         setLoading(true); // Show loader
         try {
-            const response = await fetch('https://backend-beryl-nu-15.vercel.app/signup', {
+            const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/signup', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -140,10 +110,10 @@ function Login() {
             });
             const data = await response.json();
             if (data.success) {
-                alert('Signup successful! Please sign in.');
+                toast.error('Signup successful! Please sign in.');
                 setShowLogin(true); // Redirect to sign-in state
             } else {
-                alert(data.errors);
+                toast.error(data.errors);
             }
         } catch (error) {
             console.error("Failed to fetch during signup:", error);
@@ -151,7 +121,7 @@ function Login() {
             setLoading(false); // Hide loader
         }
     };
-
+    
 
     const handleLoginClick = () => {
         setShowLogin(true);
@@ -177,26 +147,6 @@ function Login() {
             signup();
         }
     };
-
-    const logout = () => {
-        localStorage.removeItem('auth-token');
-        localStorage.removeItem('refresh-token');
-        localStorage.removeItem('refresh-token-expiry');
-        window.location.replace("/login");
-    };
-    const checkTokenExpiry = () => {
-        const refreshTokenExpiry = localStorage.getItem('refresh-token-expiry');
-        const now = new Date().getTime();
-
-        if (refreshTokenExpiry && now > refreshTokenExpiry) {
-            alert('Session expired, please log in again.');
-            logout();
-        }
-    };
-
-    // Check token expiry every minute
-    setInterval(checkTokenExpiry, 60 * 1000);
-
     const handlePasswordChange = (password) => {
         console.log("Password:", password); // Debugging password change
         setRegisterForm({ ...registerForm, password });
@@ -206,8 +156,6 @@ function Login() {
         console.log("Is password valid:", isValid); // Debugging password validity
         setIsPasswordValid(isValid);
     };
-
-
 
     return (
         <div className="login-background">
@@ -251,7 +199,7 @@ function Login() {
                         {showLogin ? (
                             <>
                                 <div className="form-inputs">
-                                    <div className="input-group">
+                                <div className="input-group">
                                         <input
                                             type="text"
                                             name="email"
@@ -265,13 +213,12 @@ function Login() {
                                         <input
                                             type="password"
                                             name="password"
-                                            value={loginForm.password} // Use loginForm.password here
-                                            onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
+                                            value={loginForm.password}
+                                            onChange={changeHandler}
                                             required
                                         />
                                         <label>Password</label>
                                     </div>
-
                                     <div className="forgot-pass">
                                         <a href="#">Forgot Password?</a>
                                     </div>
@@ -280,7 +227,7 @@ function Login() {
                         ) : (
                             <>
                                 <div className="form-inputs">
-                                    <div className="input-group">
+                                <div className="input-group">
                                         <input
                                             type="text"
                                             name="username"
@@ -305,7 +252,7 @@ function Login() {
                                             type="password"
                                             name="password"
                                             value={registerForm.password}
-                                            onChange={e => handlePasswordChange(e.target.value)}
+                                            onChange={changeHandler}
                                             required
                                         />
                                         <label>Password</label>
@@ -339,12 +286,10 @@ function Login() {
                             </>
                         )}
                         <div className="input-box">
-                            <button type="submit" className="input-submit">
+                        <button type="submit" className="input-submit">
                                 {showLogin ? "Continue" : "Continue"}
                                 <i className="bx bx-right-arrow-alt"></i>
                             </button>
-
-
                         </div>
                         <div className="social-login">
                             <i className="bx bxl-google"></i>

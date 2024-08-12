@@ -7,21 +7,20 @@ import Item from '../components/Item/Item';
 const ShopCategory = (props) => {
   const { all_product } = useContext(ShopContext);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [sortOrder, setSortOrder] = useState(''); 
-
+  const [sortOrder, setSortOrder] = useState('default'); 
 
   useEffect(() => {
     let updatedProducts = all_product.filter(item => item.category === props.category);
 
-
-    if (sortOrder !== '') {
-      updatedProducts.sort((a, b) => sortOrder === 'lowToHigh' ? a.new_price - b.new_price : b.new_price - a.new_price);
+    if (sortOrder === 'lowToHigh') {
+      updatedProducts.sort((a, b) => a.new_price - b.new_price);
+    } else if (sortOrder === 'highToLow') {
+      updatedProducts.sort((a, b) => b.new_price - a.new_price);
     }
 
     setFilteredProducts(updatedProducts);
   }, [all_product, props.category, sortOrder]);
 
-  
   const handleSortChange = (e) => {
     setSortOrder(e.target.value);
   };
@@ -36,14 +35,14 @@ const ShopCategory = (props) => {
 
         <div className="shopcategory-sort">
           <span>Sort by</span>
-          <select onChange={handleSortChange} value={sortOrder}>           
-            <option value="lowToHigh">Low to High</option>
-            <option value="highToLow">High to Low</option>
-          </select>
-          <img src={dropdown_icon} alt="Sort Icon" className="down-arrow" />
+          <div className="sort-dropdown">
+            <select onChange={handleSortChange} value={sortOrder}>           
+              <option value="default" disabled>Default</option>
+              <option value="lowToHigh">Low to High</option>
+              <option value="highToLow">High to Low</option>
+            </select>
+          </div>
         </div>
-
-
       </div>
       <div className="shopcategory-products">
         {filteredProducts.map((item, index) => (

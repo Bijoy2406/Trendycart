@@ -1,9 +1,8 @@
-import React, { useState, useEffect,useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Payment.css';
 import countries from './countries';
-import { ShopContext } from '../Context/ShopContext'; 
-import { useNavigate } from 'react-router-dom';
-
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Payment = () => {
     const [selectedMethod, setSelectedMethod] = useState(null);
@@ -18,7 +17,6 @@ const Payment = () => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [cardError, setCardError] = useState('');
     const [phoneError, setPhoneError] = useState('');
-    const navigate = useNavigate(); // Initialize navigate
 
     useEffect(() => {
         validateForm();
@@ -52,7 +50,7 @@ const Payment = () => {
         if (phoneNumber.length < 11) {
             setPhoneError('Phone number must be exactly 11 digits.');
         } else if (!isValid) {
-            setPhoneError('Phone number must start with 019, 018, 017, 016, 015, or 013.');
+            setPhoneError('Please input valid phone number.');
         } else {
             setPhoneError('');
         }
@@ -175,43 +173,18 @@ const Payment = () => {
         setIsFormValid(isValid);
     };
 
-    const { clearCart } = useContext(ShopContext);
-
-    const handlePayment = async () => {
+    const handlePayment = () => {
         if (!selectedMethod) {
-            alert('Please select a payment method.');
+            toast.error('Please select a payment method.');
             return;
         }
         if (!isFormValid) {
-            alert('Please fill out the form correctly.');
+            toast.error('Please fill out the form correctly.');
             return;
         }
-    
-        // Simulate payment success for now
-        alert(`Payment complete with ${selectedMethod}`);
-    
-        try {
-            // Clear the cart on the server
-            const response = await fetch('https://backend-beryl-nu-15.vercel.app/clearcart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'auth-token': localStorage.getItem('auth-token'), // Include the auth token
-                }
-            });
-            const result = await response.json();
-    
-            if (result.success) {
-                clearCart(); // Clear the cart locally
-                navigate('/'); // Redirect to another page after payment, e.g., home
-            } else {
-                console.error('Error clearing cart:', result.message);
-            }
-        } catch (error) {
-            console.error('Error clearing cart on the server:', error);
-        }
+        toast.success(`Payment complete with ${selectedMethod}`);
+        setIsPopupOpen(false);
     };
-    
 
     const closePopup = () => {
         setIsPopupOpen(false);
@@ -329,6 +302,7 @@ const Payment = () => {
                     </div>
                 </div>
             )}
+            <ToastContainer />
         </div>
     );
 };
