@@ -20,7 +20,6 @@ const Product = () => {
       <Breadcrumbs product={product} />
       <ProductDisplay product={product} />
       <Descriptionbox />
-      <RelatedProduct/>
     </div>
   );
 };

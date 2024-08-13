@@ -110,7 +110,7 @@ function Login() {
             });
             const data = await response.json();
             if (data.success) {
-                toast.error('Signup successful! Please sign in.');
+                toast.success('Signup successful! Please sign in.');
                 setShowLogin(true); // Redirect to sign-in state
             } else {
                 toast.error(data.errors);

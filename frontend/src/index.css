@@ -1,5 +1,7 @@
-*{
-  margin: 0 ;
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 body {
   margin: 0;
@@ -11,7 +13,16 @@ body {
   font-family: 'poppins';
 }
 
+
+
+
+
+
+
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
