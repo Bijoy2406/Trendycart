@@ -76,24 +76,24 @@ const ShopContextProvider = (props) => {
     }
   };
 
-  const removeProductFromCart = (productId) => {
-    const newCartItems = { ...cartItems };
-    if (newCartItems[productId] > 0) {
-      delete newCartItems[productId]; // Remove the product from cart
-      setCartItems(newCartItems); // Update state with new cart items
-      if (localStorage.getItem('auth-token')) {
-        fetch('https://backend-beryl-nu-15.vercel.app/removefromcart', {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'auth-token': `${localStorage.getItem('auth-token')}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ "itemId": productId }),
-        })
-          .then((response) => response.json())
-          .then((data) => console.log(data));
-      }
+  // New function to clear the cart
+  const clearCart = () => {
+    setCartItems(getDefaultCart());
+    if (localStorage.getItem('auth-token')) {
+      fetch('https://backend-beryl-nu-15.vercel.app/clearcart', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/form-data',
+          'auth-token': `${localStorage.getItem('auth-token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: "",
+      })
+        .then((response) => response.json())
+        .then((data) => console.log('Cart cleared:', data))
+        .catch((error) => {
+          console.error('Error clearing cart:', error);
+        });
     }
   };
 
@@ -126,7 +126,7 @@ const ShopContextProvider = (props) => {
     cartItems,
     removeFromCart,
     addToCart,
-    removeProductFromCart, // Add this line
+    clearCart, // Include clearCart in the context value
   };
 
   return (

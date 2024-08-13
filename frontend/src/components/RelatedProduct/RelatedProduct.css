@@ -1,9 +1,12 @@
 .relatedproducts{
-    display:flex ;
+    display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    height: 90vh;
+    height: 199vh;
+    position: relative;
+    right: 93rem;
+    top: 56rem;
 }
 
 .relatedproducts h1{
@@ -25,4 +28,26 @@
     margin-top: 50px;
     display: flex;
     gap: 30px;
+}
+
+/* Media query for screens 600px and below */
+@media (max-width: 600px) {
+    .relatedproducts {
+        right: 93rem;
+        top: 56rem; /* Remove or adjust position for small screens */
+        padding: 10px; /* Adjust padding for smaller screens */
+    }
+
+    .relatedproducts h1 {
+        font-size: 24px; /* Further reduced font size */
+    }
+
+    .relatedproducts hr {
+        width: 100px; /* Further reduced width */
+        height: 3px; /* Further reduced height */
+    }
+
+    .relatedproducts-item {
+        margin-top: 10px; /* Further reduced margin */
+    }
 }
