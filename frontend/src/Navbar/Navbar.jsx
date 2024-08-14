@@ -15,7 +15,6 @@ const Navbar = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isLoading, setLoading] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -30,7 +29,7 @@ const Navbar = () => {
         try {
             const refreshToken = localStorage.getItem('refresh-token');
             if (!refreshToken) throw new Error('No refresh token available');
-
+  
             const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
                 method: 'POST',
                 headers: {
@@ -39,11 +38,11 @@ const Navbar = () => {
                 },
                 body: JSON.stringify({ token: refreshToken }),
             });
-
+  
             const data = await response.json();
-
+  
             if (data.accessToken) {
-                localStorage.setItem('auth-token', data.accessToken);
+                localStorage.setItem('auth-token', data.accessToken); // Update access token
                 return data.accessToken;
             } else {
                 throw new Error('Failed to refresh token');
@@ -53,7 +52,7 @@ const Navbar = () => {
             toast.error('Session expired, please log in again.');
             localStorage.removeItem('auth-token');
             localStorage.removeItem('refresh-token');
-            window.location.replace('/');
+            
         }
     };
 
@@ -90,15 +89,19 @@ const Navbar = () => {
         } catch (error) {
             console.error('Error verifying token or fetching user role:', error);
             toast.error('Session expired, please log in again.');
-            localStorage.removeItem('auth-token');
-            localStorage.removeItem('refresh-token');
-            window.location.replace('/');
+            
         }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('auth-token');
+        localStorage.removeItem('refresh-token');
+        window.location.replace('/'); // This will reload the page
     };
 
     useEffect(() => {
         verifyTokenAndFetchUserRole();
-    }, []);
+    }, []); // Empty dependency array to avoid re-rendering in a loop
 
     useEffect(() => {
         if (searchTerm.trim() !== '') {
@@ -121,7 +124,7 @@ const Navbar = () => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []);
+    }, []); // Empty dependency array to avoid unnecessary re-renders
 
     const handleAdminClick = () => {
         navigate('/Admin');
@@ -137,17 +140,9 @@ const Navbar = () => {
         setDropdownOpen(!dropdownOpen);
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('auth-token');
-        localStorage.removeItem('refresh-token');
-        window.location.replace('/');
-    };
-
-
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
-
 
     return (
         <div className='navbar'>
@@ -225,13 +220,13 @@ const Navbar = () => {
                         <svg>
                             <defs>
                                 <filter id="glow">
-                                    <fegaussianblur result="coloredBlur" stddeviation="5"></fegaussianblur>
-                                    <femerge>
-                                        <femergenode in="coloredBlur"></femergenode>
-                                        <femergenode in="coloredBlur"></femergenode>
-                                        <femergenode in="coloredBlur"></femergenode>
-                                        <femergenode in="SourceGraphic"></femergenode>
-                                    </femerge>
+                                    <feGaussianBlur result="coloredBlur" stdDeviation="5"></feGaussianBlur>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"></feMergeNode>
+                                        <feMergeNode in="coloredBlur"></feMergeNode>
+                                        <feMergeNode in="coloredBlur"></feMergeNode>
+                                        <feMergeNode in="SourceGraphic"></feMergeNode>
+                                    </feMerge>
                                 </filter>
                             </defs>
                             <rect />
