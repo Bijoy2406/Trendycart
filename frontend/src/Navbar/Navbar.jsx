@@ -52,6 +52,7 @@ const Navbar = () => {
             toast.error('Session expired, please log in again.');
             localStorage.removeItem('auth-token');
             localStorage.removeItem('refresh-token');
+            navigate('/');
             
         }
     };
