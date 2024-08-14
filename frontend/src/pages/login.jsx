@@ -39,6 +39,11 @@ function Login() {
                 },
                 body: JSON.stringify(loginForm)
             });
+    
+            if (!response.ok) {  // Check if response status is not OK (e.g., 404, 500)
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
             const data = await response.json();
             
             if (data.success) {
@@ -60,6 +65,7 @@ function Login() {
             setLoading(false); // Hide loader
         }
     };
+    
     
     const refreshAccessToken = async () => {
         try {

@@ -14,6 +14,7 @@ const Navbar = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isLoading, setLoading] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false); // State to handle menu toggle
 
@@ -27,6 +28,7 @@ const Navbar = () => {
     useEffect(() => {
         const token = localStorage.getItem('auth-token');
         if (token) {
+            setIsLoggedIn(true);
             fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
                 headers: {
                     'auth-token': token,
@@ -79,9 +81,11 @@ const Navbar = () => {
         localStorage.removeItem('auth-token');
         window.location.replace('/');
     };
+
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen); // Toggle menu visibility
     };
+
     return (
         <div className='navbar'>
             {isLoading && <Loader />}
@@ -127,55 +131,57 @@ const Navbar = () => {
             </ul>
 
             <div className="nav-login-cart">
-                {localStorage.getItem('auth-token') ? (
-                    <div className="profile-dropdown" ref={dropdownRef}>
-                        <img
-                            src={navProfile}
-                            alt="Profile"
-                            className="profile-icon"
-                            onClick={toggleDropdown}
-                        />
-                        {dropdownOpen && (
-                            <div className="dropdown-menu">
-                                <Link to="/profile" onClick={() => setDropdownOpen(false)}>
-                                    <button>Profile</button>
-                                </Link>
-                                <Link to="/order" onClick={() => setDropdownOpen(false)}>
-                                    <button>My order</button>
-                                </Link>
-                                <button onClick={handleLogout}>Logout</button>
-                            </div>
+                {isLoggedIn ? (
+                    <>
+                        <div className="profile-dropdown" ref={dropdownRef}>
+                            <img
+                                src={navProfile}
+                                alt="Profile"
+                                className="profile-icon"
+                                onClick={toggleDropdown}
+                            />
+                            {dropdownOpen && (
+                                <div className="dropdown-menu">
+                                    <Link to="/profile" onClick={() => setDropdownOpen(false)}>
+                                        <button>Profile</button>
+                                    </Link>
+                                    <Link to="/order" onClick={() => setDropdownOpen(false)}>
+                                        <button>My order</button>
+                                    </Link>
+                                    <button onClick={handleLogout}>Logout</button>
+                                </div>
+                            )}
+                        </div>
+                        {isAdmin && (
+                            <button className="btn-101" onClick={handleAdminClick}>
+                                Admin panel
+                                <svg>
+                                    <defs>
+                                        <filter id="glow">
+                                            <fegaussianblur result="coloredBlur" stddeviation="5"></fegaussianblur>
+                                            <femerge>
+                                                <femergenode in="coloredBlur"></femergenode>
+                                                <femergenode in="coloredBlur"></femergenode>
+                                                <femergenode in="coloredBlur"></femergenode>
+                                                <femergenode in="SourceGraphic"></femergenode>
+                                            </femerge>
+                                        </filter>
+                                    </defs>
+                                    <rect />
+                                </svg>
+                            </button>
                         )}
-                    </div>
+                        <Link to='/cart' onClick={() => setDropdownOpen(false)}>
+                            <img className='cart-img' src={cart_icon} alt="Cart" />
+                        </Link>
+
+                        <div className="nav-cart-count">{getTotalCartItem()}</div>
+                    </>
                 ) : (
                     <Link to='/login'>
                         <button className='login'>Login</button>
                     </Link>
                 )}
-                {isAdmin && (
-                <button className="btn-101" onClick={handleAdminClick}>
-                    Admin panel
-                    <svg>
-                        <defs>
-                            <filter id="glow">
-                                <fegaussianblur result="coloredBlur" stddeviation="5"></fegaussianblur>
-                                <femerge>
-                                    <femergenode in="coloredBlur"></femergenode>
-                                    <femergenode in="coloredBlur"></femergenode>
-                                    <femergenode in="coloredBlur"></femergenode>
-                                    <femergenode in="SourceGraphic"></femergenode>
-                                </femerge>
-                            </filter>
-                        </defs>
-                        <rect />
-                    </svg>
-                </button>
-                )}
-                <Link to='/cart' onClick={() => setDropdownOpen(false)}>
-                    <img className='cart-img' src={cart_icon} alt="Cart" />
-                </Link>
-
-                <div className="nav-cart-count">{getTotalCartItem()}</div>
             </div>
         </div>
     );
