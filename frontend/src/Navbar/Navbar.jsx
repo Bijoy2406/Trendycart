@@ -6,6 +6,7 @@ import './Navbar.css';
 import { ShopContext } from '../components/Context/ShopContext';
 import navProfile from '../components/Assets/pic/nav-profile.png';
 import Loader from '../Loader';
+import { toast } from 'react-toastify';
 
 const Navbar = () => {
     const [menu, setMenu] = useState("shop");
@@ -15,7 +16,7 @@ const Navbar = () => {
     const [isLoading, setLoading] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // State to handle menu toggle
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const searchRef = useRef(null);
     const dropdownRef = useRef(null);
@@ -24,18 +25,78 @@ const Navbar = () => {
         setMenu(menuName);
     };
 
-    useEffect(() => {
-        const token = localStorage.getItem('auth-token');
-        if (token) {
-            fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
+    const refreshAccessToken = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refresh-token');
+            if (!refreshToken) throw new Error('No refresh token available');
+
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
+                method: 'POST',
                 headers: {
-                    'auth-token': token,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
                 },
-            })
-            .then(response => response.json())
-            .then(data => setIsAdmin(data.isAdmin))
-            .catch(error => console.error('Error fetching user role:', error));
+                body: JSON.stringify({ token: refreshToken }),
+            });
+
+            const data = await response.json();
+
+            if (data.accessToken) {
+                localStorage.setItem('auth-token', data.accessToken);
+                return data.accessToken;
+            } else {
+                throw new Error('Failed to refresh token');
+            }
+        } catch (error) {
+            console.error('Error refreshing access token:', error);
+            toast.error('Session expired, please log in again.');
+            localStorage.removeItem('auth-token');
+            localStorage.removeItem('refresh-token');
+            window.location.replace('/');
         }
+    };
+
+    const verifyTokenAndFetchUserRole = async () => {
+        try {
+            let token = localStorage.getItem('auth-token');
+            if (!token) {
+                token = await refreshAccessToken();
+            }
+            if (token) {
+                const response = await fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
+                    headers: { 'auth-token': token },
+                });
+                if (response.status === 401) { // Unauthorized, token might be invalid
+                    token = await refreshAccessToken(); // Attempt to refresh the token
+                    if (token) {
+                        const retryResponse = await fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
+                            headers: { 'auth-token': token },
+                        });
+                        if (retryResponse.ok) {
+                            const data = await retryResponse.json();
+                            setIsAdmin(data.isAdmin);
+                        } else {
+                            throw new Error('Failed to authenticate');
+                        }
+                    }
+                } else if (response.ok) {
+                    const data = await response.json();
+                    setIsAdmin(data.isAdmin);
+                }
+            } else {
+                throw new Error('No valid token found');
+            }
+        } catch (error) {
+            console.error('Error verifying token or fetching user role:', error);
+            toast.error('Session expired, please log in again.');
+            localStorage.removeItem('auth-token');
+            localStorage.removeItem('refresh-token');
+            window.location.replace('/');
+        }
+    };
+
+    useEffect(() => {
+        verifyTokenAndFetchUserRole();
     }, []);
 
     useEffect(() => {
@@ -50,8 +111,8 @@ const Navbar = () => {
                 searchRef.current && !searchRef.current.contains(event.target) &&
                 dropdownRef.current && !dropdownRef.current.contains(event.target)
             ) {
-                setSearchTerm(""); // Clear search input
-                setDropdownOpen(false); // Close dropdown
+                setSearchTerm("");
+                setDropdownOpen(false);
             }
         };
 
@@ -77,11 +138,14 @@ const Navbar = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('auth-token');
+        localStorage.removeItem('refresh-token');
         window.location.replace('/');
     };
+
     const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen); // Toggle menu visibility
+        setIsMenuOpen(!isMenuOpen);
     };
+
     return (
         <div className='navbar'>
             {isLoading && <Loader />}
@@ -107,7 +171,7 @@ const Navbar = () => {
                 </div>
             </div>
 
-            <ul className="nav-menu">
+            <ul className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
                 <li onClick={() => handleMenuClick("shop")}>
                     <Link to='/'>Home</Link>
                     {menu === "shop" && <hr />}
@@ -153,23 +217,23 @@ const Navbar = () => {
                     </Link>
                 )}
                 {isAdmin && (
-                <button className="btn-101" onClick={handleAdminClick}>
-                    Admin panel
-                    <svg>
-                        <defs>
-                            <filter id="glow">
-                                <fegaussianblur result="coloredBlur" stddeviation="5"></fegaussianblur>
-                                <femerge>
-                                    <femergenode in="coloredBlur"></femergenode>
-                                    <femergenode in="coloredBlur"></femergenode>
-                                    <femergenode in="coloredBlur"></femergenode>
-                                    <femergenode in="SourceGraphic"></femergenode>
-                                </femerge>
-                            </filter>
-                        </defs>
-                        <rect />
-                    </svg>
-                </button>
+                    <button className="btn-101" onClick={handleAdminClick}>
+                        Admin panel
+                        <svg>
+                            <defs>
+                                <filter id="glow">
+                                    <fegaussianblur result="coloredBlur" stddeviation="5"></fegaussianblur>
+                                    <femerge>
+                                        <femergenode in="coloredBlur"></femergenode>
+                                        <femergenode in="coloredBlur"></femergenode>
+                                        <femergenode in="coloredBlur"></femergenode>
+                                        <femergenode in="SourceGraphic"></femergenode>
+                                    </femerge>
+                                </filter>
+                            </defs>
+                            <rect />
+                        </svg>
+                    </button>
                 )}
                 <Link to='/cart' onClick={() => setDropdownOpen(false)}>
                     <img className='cart-img' src={cart_icon} alt="Cart" />
@@ -179,6 +243,6 @@ const Navbar = () => {
             </div>
         </div>
     );
-}
+};
 
 export default Navbar;
