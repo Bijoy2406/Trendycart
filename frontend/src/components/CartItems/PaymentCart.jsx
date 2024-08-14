@@ -21,11 +21,26 @@ const PaymentCart = () => {
     const [phoneError, setPhoneError] = useState('');
     const { clearCart } = useContext(ShopContext); // Using the context
     const navigate = useNavigate(); // Initialize navigate
-   
+
     
     useEffect(() => {
         validateForm();
     }, [selectedMethod, phoneNumber, cardNumber, expiryDate, cvc, country, pinNumber, billingZip]);
+
+    // Listen for Enter key to trigger payment
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Enter' && isFormValid) {
+                handlePayment();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isFormValid]); 
 
     const handlePaymentMethodChange = (method) => {
         setSelectedMethod(method);
@@ -204,7 +219,9 @@ const PaymentCart = () => {
     
             if (result.success) {
                 clearCart(); // Clear the cart locally
-                navigate('/cart'); // Redirect to another page after payment, e.g., home
+                setTimeout(() => {
+                    navigate('/'); // Redirect to another page after payment, e.g., home
+                }, 1500); // 2 m delay
             } else {
                 console.error('Error clearing cart:', result.message);
             }
@@ -217,6 +234,8 @@ const PaymentCart = () => {
     const closePopup = () => {
         setIsPopupOpen(false);
     };
+
+    
 
     return (
         <div className="payment-container">

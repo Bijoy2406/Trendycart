@@ -4,6 +4,7 @@ import { ShopContext } from '../Context/ShopContext';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 const CartItem = () => {
     const { getTotalCartAmount, all_product, cartItems, removeFromCart } = useContext(ShopContext);
     const [promoCode, setPromoCode] = useState('');
@@ -41,8 +42,13 @@ const CartItem = () => {
     const discountedTotal = totalAmount - (totalAmount * discount);
 
     const handleProceedToCheckout = () => {
-        navigate('/cart/payment');
+        if (totalAmount > 0) {
+            navigate('/cart/payment');
+        }
     };
+
+    // Check if there are any items in the cart
+    const isCartEmpty = all_product.every((e) => cartItems[e.id] <= 0);
 
     return (
         <div className='cartitems'>
@@ -104,7 +110,13 @@ const CartItem = () => {
                             <h3>Total</h3>
                             <h3>{discountedTotal.toFixed(2)}</h3>
                             </div>
-                        <button onClick={handleProceedToCheckout}>Proceed to checkout</button>
+                        <button 
+                            onClick={handleProceedToCheckout} 
+                            disabled={isCartEmpty}
+                            style={{ opacity: isCartEmpty ? 0.5 : 1, cursor: isCartEmpty ? 'not-allowed' : 'pointer' }}
+                        >
+                            Proceed to checkout
+                        </button>
                     </div>
                 </div>
                 <div className="vertical-line"></div>
@@ -125,7 +137,6 @@ const CartItem = () => {
                 </div>
             )}
             <ToastContainer />
-
         </div>
     );
 };
