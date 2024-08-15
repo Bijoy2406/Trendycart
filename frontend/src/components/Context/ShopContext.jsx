@@ -27,7 +27,7 @@ const refreshAccessToken = async () => {
     }
   } catch (error) {
     console.error('Error refreshing access token:', error);
-    toast.error('Session expired, please log in again.');
+    
     localStorage.removeItem('auth-token');
     localStorage.removeItem('refresh-token');
     
