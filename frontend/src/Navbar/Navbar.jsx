@@ -49,7 +49,7 @@ const Navbar = () => {
             }
         } catch (error) {
             console.error('Error refreshing access token:', error);
-            toast.error('Session expired, please log in again.');
+            
             localStorage.removeItem('auth-token');
             localStorage.removeItem('refresh-token');
             navigate('/');
@@ -89,7 +89,7 @@ const Navbar = () => {
             }
         } catch (error) {
             console.error('Error verifying token or fetching user role:', error);
-            toast.error('Session expired, please log in again.');
+            
             
         }
     };
