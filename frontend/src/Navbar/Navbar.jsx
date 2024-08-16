@@ -14,6 +14,7 @@ const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isLoading, setLoading] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,7 +30,7 @@ const Navbar = () => {
         try {
             const refreshToken = localStorage.getItem('refresh-token');
             if (!refreshToken) throw new Error('No refresh token available');
-  
+
             const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
                 method: 'POST',
                 headers: {
@@ -38,9 +39,9 @@ const Navbar = () => {
                 },
                 body: JSON.stringify({ token: refreshToken }),
             });
-  
+
             const data = await response.json();
-  
+
             if (data.accessToken) {
                 localStorage.setItem('auth-token', data.accessToken); // Update access token
                 return data.accessToken;
@@ -53,7 +54,6 @@ const Navbar = () => {
             localStorage.removeItem('auth-token');
             localStorage.removeItem('refresh-token');
             navigate('/');
-            
         }
     };
 
@@ -89,18 +89,21 @@ const Navbar = () => {
             }
         } catch (error) {
             console.error('Error verifying token or fetching user role:', error);
-            
-            
         }
     };
 
     const handleLogout = () => {
         localStorage.removeItem('auth-token');
         localStorage.removeItem('refresh-token');
+        setIsLoggedIn(false);
         window.location.replace('/'); // This will reload the page
     };
 
     useEffect(() => {
+        // Check if the user is logged in when the component mounts
+        const token = localStorage.getItem('auth-token');
+        setIsLoggedIn(!!token); // Set isLoggedIn based on the presence of the token
+
         verifyTokenAndFetchUserRole();
     }, []); // Empty dependency array to avoid re-rendering in a loop
 
@@ -190,55 +193,57 @@ const Navbar = () => {
             </ul>
 
             <div className="nav-login-cart">
-                {localStorage.getItem('auth-token') ? (
-                    <div className="profile-dropdown" ref={dropdownRef}>
-                        <img
-                            src={navProfile}
-                            alt="Profile"
-                            className="profile-icon"
-                            onClick={toggleDropdown}
-                        />
-                        {dropdownOpen && (
-                            <div className="dropdown-menu">
-                                <Link to="/profile" onClick={() => setDropdownOpen(false)}>
-                                    <button>Profile</button>
-                                </Link>
-                                <Link to="/order" onClick={() => setDropdownOpen(false)}>
-                                    <button>My order</button>
-                                </Link>
-                                <button onClick={handleLogout}>Logout</button>
-                            </div>
+                {isLoggedIn ? (
+                    <>
+                        <div className="profile-dropdown" ref={dropdownRef}>
+                            <img
+                                src={navProfile}
+                                alt="Profile"
+                                className="profile-icon"
+                                onClick={toggleDropdown}
+                            />
+                            {dropdownOpen && (
+                                <div className="dropdown-menu">
+                                    <Link to="/profile" onClick={() => setDropdownOpen(false)}>
+                                        <button>Profile</button>
+                                    </Link>
+                                    <Link to="/order" onClick={() => setDropdownOpen(false)}>
+                                        <button>My order</button>
+                                    </Link>
+                                    <button onClick={handleLogout}>Logout</button>
+                                </div>
+                            )}
+                        </div>
+                        {isAdmin && (
+                            <button className="btn-101" onClick={handleAdminClick}>
+                                Admin panel
+                                <svg>
+                                    <defs>
+                                        <filter id="glow">
+                                            <feGaussianBlur result="coloredBlur" stdDeviation="5"></feGaussianBlur>
+                                            <feMerge>
+                                                <feMergeNode in="coloredBlur"></feMergeNode>
+                                                <feMergeNode in="coloredBlur"></feMergeNode>
+                                                <feMergeNode in="coloredBlur"></feMergeNode>
+                                                <feMergeNode in="SourceGraphic"></feMergeNode>
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+                                    <rect />
+                                </svg>
+                            </button>
                         )}
-                    </div>
+                        <Link to='/cart' onClick={() => setDropdownOpen(false)}>
+                            <img className='cart-img' src={cart_icon} alt="Cart" />
+                        </Link>
+
+                        <div className="nav-cart-count">{getTotalCartItem()}</div>
+                    </>
                 ) : (
                     <Link to='/login'>
                         <button className='login'>Login</button>
                     </Link>
                 )}
-                {isAdmin && (
-                    <button className="btn-101" onClick={handleAdminClick}>
-                        Admin panel
-                        <svg>
-                            <defs>
-                                <filter id="glow">
-                                    <feGaussianBlur result="coloredBlur" stdDeviation="5"></feGaussianBlur>
-                                    <feMerge>
-                                        <feMergeNode in="coloredBlur"></feMergeNode>
-                                        <feMergeNode in="coloredBlur"></feMergeNode>
-                                        <feMergeNode in="coloredBlur"></feMergeNode>
-                                        <feMergeNode in="SourceGraphic"></feMergeNode>
-                                    </feMerge>
-                                </filter>
-                            </defs>
-                            <rect />
-                        </svg>
-                    </button>
-                )}
-                <Link to='/cart' onClick={() => setDropdownOpen(false)}>
-                    <img className='cart-img' src={cart_icon} alt="Cart" />
-                </Link>
-
-                <div className="nav-cart-count">{getTotalCartItem()}</div>
             </div>
         </div>
     );
