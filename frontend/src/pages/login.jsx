@@ -35,7 +35,7 @@ function Login() {
         console.log("sign in executed", loginForm);
         setLoading(true); // Show loader
         try {
-            const response = await fetchWithToken('http://localhost:4001/login', {
+            const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/login', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -76,7 +76,7 @@ function Login() {
             const refreshToken = localStorage.getItem('refresh-token');
             if (!refreshToken) throw new Error('No refresh token available');
 
-            const response = await fetch('http://localhost:4001/token', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -110,7 +110,7 @@ function Login() {
         }
         setLoading(true); // Show loader
         try {
-            const response = await fetchWithToken('http://localhost:4001/signup', {
+            const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/signup', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',

@@ -10,7 +10,7 @@ function Dashboard() {
     useEffect(() => {
         const fetchCurrentUser = async () => {
         try {
-            const response = await fetch('http://localhost:4001/currentuser', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/currentuser', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
@@ -36,7 +36,7 @@ function Dashboard() {
 
         const fetchUsers = async () => {
             try {
-                const response = await fetch('http://localhost:4001/allusers', {
+                const response = await fetch('https://backend-beryl-nu-15.vercel.app/allusers', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
@@ -69,7 +69,7 @@ function Dashboard() {
                 toast.error('Authentication token not found. Please log in again.');
                 return;
             }
-            const response = await fetch(`http://localhost:4001/approveadmin/${email}`, {
+            const response = await fetch(`https://backend-beryl-nu-15.vercel.app/approveadmin/${email}`, {
                 method: 'PUT',
                 headers: {
                     'Accept': 'application/json',
