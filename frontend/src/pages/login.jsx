@@ -17,6 +17,10 @@ function Login() {
     const [loading, setLoading] = useState(false); // Loading state
     const datePickerRef = useRef(null);
     const [isPasswordValid, setIsPasswordValid] = useState(false); // Password validity state
+    const [showPassword, setShowPassword] = useState(false);
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
 
     const changeHandler = (e) => {
         const { name, value, type, checked } = e.target;
@@ -134,7 +138,7 @@ function Login() {
             setLoading(false); // Hide loader
         }
     };
-    
+
 
 
     const handleLoginClick = () => {
@@ -225,14 +229,22 @@ function Login() {
                                     </div>
                                     <div className="input-group">
                                         <input
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             name="password"
                                             value={loginForm.password}
                                             onChange={changeHandler}
                                             required
                                         />
                                         <label>Password</label>
+                                        <button
+                                            type="button"
+                                            className="password-toggle"
+                                            onClick={togglePasswordVisibility}
+                                        >
+                                            {showPassword ? <i className="bx bx-hide"></i> : <i className="bx bx-show"></i>}
+                                        </button>
                                     </div>
+
                                     <div className="forgot-pass">
                                         <a href="#">Forgot Password?</a>
                                     </div>
@@ -263,14 +275,23 @@ function Login() {
                                     </div>
                                     <div className="input-group">
                                         <input
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             name="password"
                                             value={registerForm.password}
                                             onChange={changeHandler}
                                             required
                                         />
                                         <label>Password</label>
+                                        <button
+                                            type="button"
+                                            className="password-toggle"
+                                            onClick={togglePasswordVisibility}
+                                        >
+                                            {showPassword ? <i className="bx bx-hide"></i> : <i className="bx bx-show"></i>}
+                                        </button>
                                     </div>
+
+
                                     <div className="input-box">
                                         <label htmlFor="dob" className="label">Date of Birth</label>
                                         <div className="dob-container">

@@ -63,7 +63,30 @@ const getDefaultCart = () => {
 
 const ShopContextProvider = (props) => {
   const [all_product, setAll_Product] = useState([]);
-  const [cartItems, setCartItems] = useState({}); // Initialize as an empty object
+  const [cartItems, setCartItems] = useState(getDefaultCart());
+
+  // Load cartItems from localStorage on component mount
+  useEffect(() => {
+    const storedCartItems = localStorage.getItem('cartItems');
+    if (storedCartItems) {
+      setCartItems(JSON.parse(storedCartItems));
+    }
+  }, []);
+
+  // Update localStorage whenever cartItems changes
+  useEffect(() => {
+    // Check if cartItems is empty
+    const isEmpty = Object.values(cartItems).every((item) => item === 0);
+
+    if (isEmpty) {
+      // If empty, clear localStorage
+      localStorage.removeItem('cartItems'); 
+    } else {
+      // Otherwise, update localStorage with current cartItems
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    }
+  }, [cartItems]);
+
 
   useEffect(() => {
     const fetchData = async () => {

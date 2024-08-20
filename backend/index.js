@@ -394,6 +394,17 @@ app.post('/removefromcart',fetchUser,async (req,res)=>{
   
 
 })
+app.post('/clearcart', fetchUser, async (req, res) => {
+    try {
+      await Users.findByIdAndUpdate(req.user.id, { cartData: {} });
+      res.json({ success: true, message: "Cart cleared successfully" });
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      res.status(500).json({ success: false, message: 'Error clearing cart' });
+    }
+  });
+  
+
 // Rate product endpoint
 app.post('/rateproduct', fetchUser, async (req, res) => {
     const { productId, rating } = req.body;

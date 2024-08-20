@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import './CartItem.css';
 import { ShopContext } from '../Context/ShopContext';
 import { useNavigate } from 'react-router-dom';
@@ -6,12 +6,32 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const CartItem = () => {
-    const { getTotalCartAmount, all_product, cartItems, removeFromCart } = useContext(ShopContext);
+    const { getTotalCartAmount, all_product, cartItems, removeFromCart, clearCart } = useContext(ShopContext);
     const [promoCode, setPromoCode] = useState('');
     const [discount, setDiscount] = useState(0);
     const [showPopup, setShowPopup] = useState(false);
     const [popupMessage, setPopupMessage] = useState('');
     const navigate = useNavigate();
+
+    // Calculate if the cart is empty
+    const [isCartEmpty, setIsCartEmpty] = useState(
+        () => {
+            const storedCartItems = localStorage.getItem('cartItems');
+            return !storedCartItems || Object.keys(JSON.parse(storedCartItems)).length === 0;
+        }
+    );
+
+    // Update isCartEmpty whenever cartItems changes
+    useEffect(() => {
+        setIsCartEmpty(Object.values(cartItems).every(item => item === 0));
+    }, [cartItems]);
+
+    const handleClearAll = () => {
+        if (window.confirm('Are you sure you want to clear your cart?')) {
+            clearCart();
+            toast.success('Cart cleared successfully!');
+        }
+    };
 
     const handlePromoCodeChange = (e) => {
         setPromoCode(e.target.value);
@@ -58,9 +78,6 @@ const CartItem = () => {
         }
     };
 
-    // Check if there are any items in the cart
-    const isCartEmpty = all_product.every((e) => cartItems[e.id] <= 0);
-
     return (
         <div className='cartitems'>
             <div className="cartitem-format-main">
@@ -99,6 +116,20 @@ const CartItem = () => {
                 }
                 return null;
             })}
+            {/* Clear All button (now disabled when cart is empty) */}
+            {!isCartEmpty && ( 
+                <div className="wrap-clear-all">
+                    <button className="button-clear-all" onClick={handleClearAll} disabled={isCartEmpty}>
+                        <span className="text">Clear All</span>
+                        <span className="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            )}
+
             <div className="cartitem-down">
                 <div className="cartitem-total">
                     <h1>Cart Total</h1>
@@ -120,9 +151,9 @@ const CartItem = () => {
                         <div className="cartitem-total-item">
                             <h3>Total</h3>
                             <h3>{discountedTotal.toFixed(2)}</h3>
-                            </div>
-                        <button 
-                            onClick={handleProceedToCheckout} 
+                        </div>
+                        <button
+                            onClick={handleProceedToCheckout}
                             disabled={isCartEmpty}
                             style={{ opacity: isCartEmpty ? 0.5 : 1, cursor: isCartEmpty ? 'not-allowed' : 'pointer' }}
                         >
