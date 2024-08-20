@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import './profile.css';
 
 const Profile = () => {
@@ -10,24 +11,70 @@ const Profile = () => {
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refresh-token');
+      if (!refreshToken) throw new Error('No refresh token available');
+
+      const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: refreshToken }),
+      });
+
+      const data = await response.json();
+
+      if (data.accessToken) {
+        localStorage.setItem('auth-token', data.accessToken); // Update access token
+        return data.accessToken;
+      } else {
+        throw new Error('Failed to refresh token');
+      }
+    } catch (error) {
+      console.error('Error refreshing access token:', error);
+      localStorage.removeItem('auth-token');
+      localStorage.removeItem('refresh-token');
+      window.location.replace('/');
+    }
+  };
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('auth-token'); 
+        let token = localStorage.getItem('auth-token');
         if (!token) {
           setError('No auth token found');
           setLoading(false);
           return;
         }
 
-        const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
-          headers: {
-            'auth-token': token
+        try {
+          const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
+            headers: {
+              'auth-token': token,
+            },
+          });
+          setUserData(response.data);
+          setNewUsername(response.data.name);
+        } catch (err) {
+          if (err.response && err.response.status === 401) {
+            token = await refreshAccessToken(); // Try refreshing the token
+            if (token) {
+              const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
+                headers: {
+                  'auth-token': token,
+                },
+              });
+              setUserData(response.data);
+              setNewUsername(response.data.name);
+            }
+          } else {
+            throw err;
           }
-        });
-
-        setUserData(response.data);
-        setNewUsername(response.data.name);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -46,13 +93,15 @@ const Profile = () => {
         password: newPassword,
       }, {
         headers: {
-          'auth-token': token
-        }
+          'auth-token': token,
+        },
       });
       setUserData(response.data.user);
       setEditing(false);
+      toast.success('Profile updated successfully!');
     } catch (err) {
       setError(err.message);
+      toast.error('Failed to update profile.');
     }
   };
 

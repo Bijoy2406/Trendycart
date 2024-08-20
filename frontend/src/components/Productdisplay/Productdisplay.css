@@ -521,6 +521,65 @@ button:hover {
 	}
 }
 
+.productdisplay-right-quantity {
+    /* ... your existing styles ... */
+    display: flex; 
+    align-items: center; 
+  }
+  
+  .quantity-selector {
+    display: flex;
+   /* border: 1px solid #ccc; */
+    border-radius: 4px;
+    overflow: hidden; 
+    margin-left: 10px; 
+  }
+  .quantity-select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    appearance: none; 
+    background-color: #fff; 
+    margin-left: 10px; 
+
+    /* Enable scrolling for the select element */
+    overflow-y: auto;
+}
+.quantity-select::-ms-expand { 
+    display: none; /* Hide the default arrow in IE */
+}
+.quantity-select::after { 
+    /* ... custom arrow styling if needed ... */
+}
+  .quantity-label {
+    background-color: transparent;
+    padding: 8px 12px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .quantity-controls {
+    display: flex;
+  }
+  
+  .quantity-button {
+    /* ... your existing button styles ... */
+  }
+  
+  .quantity-input {
+    width: 100px; 
+    text-align: center;
+    border: none;
+    padding: 8px;
+    font-size: 16px;
+  }
+  
+
+.stock h1{
+    font-size: 21px;
+    color: #007600 !important;
+}
 /* Media query for small displays */
 @media (max-width: 768px) {
     .productdisplay,
@@ -623,6 +682,9 @@ button:hover {
         100% {
             opacity: 1;
         }
+    }
+    .quantity-select {
+        width: 80px; /* Adjust width for smaller screens */
     }
 }
 

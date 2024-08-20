@@ -43,7 +43,18 @@ const CartItem = () => {
 
     const handleProceedToCheckout = () => {
         if (totalAmount > 0) {
-            navigate('/cart/payment');
+            // Prepare cart data to pass to PaymentCart
+            const cartData = all_product.reduce((acc, product) => {
+                if (cartItems[product.id] > 0) {
+                    acc.push({
+                        productId: product._id, // Assuming your product object has an _id
+                        quantity: cartItems[product.id]
+                    });
+                }
+                return acc;
+            }, []);
+
+            navigate('/cart/payment', { state: { cartData, discountedTotal } });
         }
     };
 

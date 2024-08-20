@@ -6,6 +6,7 @@ import './Navbar.css';
 import { ShopContext } from '../components/Context/ShopContext';
 import navProfile from '../components/Assets/pic/nav-profile.png';
 import Loader from '../Loader';
+import { toast } from 'react-toastify';
 
 const Navbar = () => {
     const [menu, setMenu] = useState("shop");
@@ -13,10 +14,10 @@ const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isLoading, setLoading] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // State to handle menu toggle
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const searchRef = useRef(null);
     const dropdownRef = useRef(null);
@@ -25,20 +26,86 @@ const Navbar = () => {
         setMenu(menuName);
     };
 
-    useEffect(() => {
-        const token = localStorage.getItem('auth-token');
-        if (token) {
-            setIsLoggedIn(true);
-            fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
+    const refreshAccessToken = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refresh-token');
+            if (!refreshToken) throw new Error('No refresh token available');
+
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
+                method: 'POST',
                 headers: {
-                    'auth-token': token,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
                 },
-            })
-            .then(response => response.json())
-            .then(data => setIsAdmin(data.isAdmin))
-            .catch(error => console.error('Error fetching user role:', error));
+                body: JSON.stringify({ token: refreshToken }),
+            });
+
+            const data = await response.json();
+
+            if (data.accessToken) {
+                localStorage.setItem('auth-token', data.accessToken); // Update access token
+                return data.accessToken;
+            } else {
+                throw new Error('Failed to refresh token');
+            }
+        } catch (error) {
+            console.error('Error refreshing access token:', error);
+            
+            localStorage.removeItem('auth-token');
+            localStorage.removeItem('refresh-token');
+            navigate('/');
         }
-    }, []);
+    };
+
+    const verifyTokenAndFetchUserRole = async () => {
+        try {
+            let token = localStorage.getItem('auth-token');
+            if (!token) {
+                token = await refreshAccessToken();
+            }
+            if (token) {
+                const response = await fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
+                    headers: { 'auth-token': token },
+                });
+                if (response.status === 401) { // Unauthorized, token might be invalid
+                    token = await refreshAccessToken(); // Attempt to refresh the token
+                    if (token) {
+                        const retryResponse = await fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
+                            headers: { 'auth-token': token },
+                        });
+                        if (retryResponse.ok) {
+                            const data = await retryResponse.json();
+                            setIsAdmin(data.isAdmin);
+                        } else {
+                            throw new Error('Failed to authenticate');
+                        }
+                    }
+                } else if (response.ok) {
+                    const data = await response.json();
+                    setIsAdmin(data.isAdmin);
+                }
+            } else {
+                throw new Error('No valid token found');
+            }
+        } catch (error) {
+            console.error('Error verifying token or fetching user role:', error);
+        }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('auth-token');
+        localStorage.removeItem('refresh-token');
+        setIsLoggedIn(false);
+        window.location.replace('/'); // This will reload the page
+    };
+
+    useEffect(() => {
+        // Check if the user is logged in when the component mounts
+        const token = localStorage.getItem('auth-token');
+        setIsLoggedIn(!!token); // Set isLoggedIn based on the presence of the token
+
+        verifyTokenAndFetchUserRole();
+    }, []); // Empty dependency array to avoid re-rendering in a loop
 
     useEffect(() => {
         if (searchTerm.trim() !== '') {
@@ -52,8 +119,8 @@ const Navbar = () => {
                 searchRef.current && !searchRef.current.contains(event.target) &&
                 dropdownRef.current && !dropdownRef.current.contains(event.target)
             ) {
-                setSearchTerm(""); // Clear search input
-                setDropdownOpen(false); // Close dropdown
+                setSearchTerm("");
+                setDropdownOpen(false);
             }
         };
 
@@ -61,7 +128,7 @@ const Navbar = () => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []);
+    }, []); // Empty dependency array to avoid unnecessary re-renders
 
     const handleAdminClick = () => {
         navigate('/Admin');
@@ -77,13 +144,8 @@ const Navbar = () => {
         setDropdownOpen(!dropdownOpen);
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('auth-token');
-        window.location.replace('/');
-    };
-
     const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen); // Toggle menu visibility
+        setIsMenuOpen(!isMenuOpen);
     };
 
     return (
@@ -111,7 +173,7 @@ const Navbar = () => {
                 </div>
             </div>
 
-            <ul className="nav-menu">
+            <ul className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
                 <li onClick={() => handleMenuClick("shop")}>
                     <Link to='/'>Home</Link>
                     {menu === "shop" && <hr />}
@@ -158,13 +220,13 @@ const Navbar = () => {
                                 <svg>
                                     <defs>
                                         <filter id="glow">
-                                            <fegaussianblur result="coloredBlur" stddeviation="5"></fegaussianblur>
-                                            <femerge>
-                                                <femergenode in="coloredBlur"></femergenode>
-                                                <femergenode in="coloredBlur"></femergenode>
-                                                <femergenode in="coloredBlur"></femergenode>
-                                                <femergenode in="SourceGraphic"></femergenode>
-                                            </femerge>
+                                            <feGaussianBlur result="coloredBlur" stdDeviation="5"></feGaussianBlur>
+                                            <feMerge>
+                                                <feMergeNode in="coloredBlur"></feMergeNode>
+                                                <feMergeNode in="coloredBlur"></feMergeNode>
+                                                <feMergeNode in="coloredBlur"></feMergeNode>
+                                                <feMergeNode in="SourceGraphic"></feMergeNode>
+                                            </feMerge>
                                         </filter>
                                     </defs>
                                     <rect />
@@ -185,6 +247,6 @@ const Navbar = () => {
             </div>
         </div>
     );
-}
+};
 
 export default Navbar;

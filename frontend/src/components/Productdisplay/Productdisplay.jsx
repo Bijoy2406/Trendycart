@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Productdisplay.css';
 import { ShopContext } from '../Context/ShopContext';
@@ -8,10 +8,13 @@ import RelatedProduct from '../RelatedProduct/RelatedProduct';
 const Productdisplay = (props) => {
     const { product } = props;
     const { addToCart } = useContext(ShopContext);
-    const {all_product} = useContext(ShopContext);
+    const { all_product } = useContext(ShopContext);
     const [userRating, setUserRating] = useState(0);
     const [averageRating, setAverageRating] = useState(product.averageRating);
     const navigate = useNavigate();
+    const [quantity, setQuantity] = useState(1); // State for quantity selection
+    const quantitySelectRef = useRef(null); // Ref for the select element    
+    const [selectSize, setSelectSize] = useState(1); // State to manage select size
 
     useEffect(() => {
         // Fetch user's rating for the product
@@ -68,6 +71,8 @@ const Productdisplay = (props) => {
         }
     }, [product.id]);
 
+
+
     const handleRateProduct = async (rating) => {
         try {
             const response = await fetch('/rateproduct', {
@@ -90,16 +95,22 @@ const Productdisplay = (props) => {
         }
     };
 
+    const handleQuantityChange = (event) => {
+        const selectedValue = parseInt(event.target.value, 10);
+        setQuantity(selectedValue); // Update the selected quantity
+        setSelectSize(1); // Collapse the dropdown after selection
+    };
+
     const handleAddToCart = (productId, event) => {
         event.preventDefault();
         const token = localStorage.getItem('auth-token');
         if (!token) {
-            // User is not logged in, show prompt
             navigate('/login');
         } else {
-            addToCart(productId);
+            addToCart(productId, quantity); // Pass the quantity to addToCart
         }
     };
+
     const handleBuyNow = (productId, event) => {
         event.preventDefault();
         const token = localStorage.getItem('auth-token');
@@ -112,6 +123,15 @@ const Productdisplay = (props) => {
     };
 
     const isLoggedIn = !!localStorage.getItem('auth-token');
+
+    const handleFocus = () => {
+        setSelectSize(5); // Expand the dropdown to show 5 options
+    };
+
+    const handleBlur = () => {
+        setSelectSize(1); // Collapse the dropdown back to 1 option
+    };
+
 
     return (
         <div className='productdisplay' data-product-id={product.id}>
@@ -148,6 +168,29 @@ const Productdisplay = (props) => {
                                 </svg>
                             </div>
                         ))}
+                    </div>
+                </div>
+                <div className="productdisplay-right-quantity">
+                    <div className="quantity-selector">
+                        <span className="quantity-label">Quantity:</span>
+                        <div className="quantity-controls">
+            <select
+                id={`quantity-${product.id}`} 
+                value={quantity} 
+                onChange={handleQuantityChange} 
+                className="quantity-input"
+                size={selectSize} // Control the size dynamically
+                onFocus={handleFocus} // Expand on focus
+                onBlur={handleBlur} // Collapse on blur
+                ref={quantitySelectRef} // Reference to select element
+            >
+                {Array.from({ length: 30 }, (_, i) => i + 1).map(num => (
+                    <option key={num} value={num}>
+                        {num}
+                    </option>
+                ))}
+            </select>
+        </div>
                     </div>
                 </div>
 
@@ -207,6 +250,9 @@ const Productdisplay = (props) => {
                         ৳{product.new_price}
                     </div>
                 </div>
+                <div className='stock'>
+                    <h1>In Stock</h1>
+                </div>
                 <div className="productdisplay-right-description">
                     This is description
                 </div>
@@ -219,10 +265,7 @@ const Productdisplay = (props) => {
                         <div>XL</div>
                     </div>
                 </div>
-                <p className='productdisplay-right-category'>
-                    <span>Category :</span>
-                    WOMEN, T-SHIRT, CROP, TOP
-                </p>
+
             </div>
             {all_product && (
                 <RelatedProduct all_product={all_product} category={product.category} currentProductId={product.id} />

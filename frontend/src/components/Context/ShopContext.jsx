@@ -1,6 +1,57 @@
 import React, { createContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 export const ShopContext = createContext(null);
+
+const refreshAccessToken = async () => {
+  try {
+    const refreshToken = localStorage.getItem('refresh-token');
+    if (!refreshToken) throw new Error('No refresh token available');
+
+    const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token: refreshToken }),
+    });
+
+    const data = await response.json();
+
+    if (data.accessToken) {
+      localStorage.setItem('auth-token', data.accessToken); // Update access token
+      return data.accessToken;
+    } else {
+      throw new Error('Failed to refresh token');
+    }
+  } catch (error) {
+    console.error('Error refreshing access token:', error);
+    
+    localStorage.removeItem('auth-token');
+    localStorage.removeItem('refresh-token');
+    
+    return null; // Return null if refresh fails
+  }
+};
+
+const fetchWithToken = async (url, options = {}) => {
+  let token = localStorage.getItem('auth-token');
+  if (!token) {
+    token = await refreshAccessToken(); // Refresh the token if it's not available
+  }
+
+  if (!token) return; // If token is still not available, exit
+
+  // Clone options to prevent modifying the original
+  const fetchOptions = { ...options };
+  fetchOptions.headers = {
+    ...fetchOptions.headers,
+    'auth-token': token,
+  };
+
+  return fetch(url, fetchOptions);
+};
 
 const getDefaultCart = () => {
   let cart = {};
@@ -11,89 +62,111 @@ const getDefaultCart = () => {
 };
 
 const ShopContextProvider = (props) => {
-  const [all_product, setAll_Product] = useState([]); // Define setAll_Product
-  const [cartItems, setCartItems] = useState(getDefaultCart());
+  const [all_product, setAll_Product] = useState([]);
+  const [cartItems, setCartItems] = useState({}); // Initialize as an empty object
 
   useEffect(() => {
-    fetch('https://backend-beryl-nu-15.vercel.app/allproducts')
-      .then((response) => response.json())
-      .then((data) => setAll_Product(data));
+    const fetchData = async () => {
+      try {
+        // Fetch all products
+        const productsResponse = await fetch('https://backend-beryl-nu-15.vercel.app/allproducts');
+        const productsData = await productsResponse.json();
+        setAll_Product(productsData);
 
-    if (localStorage.getItem('auth-token')) {
-      fetch('https://backend-beryl-nu-15.vercel.app/getcart', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/form-data',
-          'auth-token': `${localStorage.getItem('auth-token')}`,
-          'Content-Type': 'application/json',
-        },
-        body: "",
-      }).then((response) => response.json())
-        .then((data) => setCartItems(data));
-    }
+        // Fetch cart items
+        const cartResponse = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/getcart', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (cartResponse.ok) {
+          const cartData = await cartResponse.json();
+          setCartItems(cartData); 
+        } else {
+          console.error('Error fetching cart items:', cartResponse.status);
+          // Handle error, maybe show a toast message
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Handle error, maybe show a toast message
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const addToCart = (ItemId) => {
-    setCartItems((prev) => ({
-      ...prev,
-      [ItemId]: prev[ItemId] + 1,
-    }));
-    if (localStorage.getItem('auth-token')) {
-      fetch('https://backend-beryl-nu-15.vercel.app/addtocart', {
+  const addToCart = async (itemId, quantity = 1) => {
+    try {
+      const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/addtocart', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
-          'auth-token': `${localStorage.getItem('auth-token')}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ "itemId": ItemId }),
-      })
-        .then((response) => response.json())
-        .then((data) => console.log(data))
-        .catch((error) => {
-          console.error('Error adding item to cart:', error);
+        body: JSON.stringify({ itemId, quantity }), // Send quantity to backend
+      });
+
+      if (response.ok) {
+        // Update cartItems state after successful backend update
+        setCartItems(prevCartItems => ({
+          ...prevCartItems,
+          [itemId]: (prevCartItems[itemId] || 0) + quantity
+        }));
+
+        toast.success('Added to cart!', {
+          position: toast.POSITION.TOP_RIGHT
         });
+      } else {
+        console.error('Error adding to cart:', response.status);
+        // Handle error, maybe show a toast message
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      // Handle error, maybe show a toast message
     }
   };
 
-  const removeFromCart = (ItemId) => {
+  const removeFromCart = async (ItemId) => {
     setCartItems((prev) => ({
       ...prev,
       [ItemId]: prev[ItemId] - 1,
     }));
-    if (localStorage.getItem('auth-token')) {
-      fetch('https://backend-beryl-nu-15.vercel.app/removefromcart', {
+
+    try {
+      const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/removefromcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
-          'auth-token': `${localStorage.getItem('auth-token')}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ "itemId": ItemId }),
-      })
-        .then((response) => response.json())
-        .then((data) => console.log(data));
+        body: JSON.stringify({ itemId: ItemId }),
+      });
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error('Error removing item from cart:', error);
     }
   };
 
-  // New function to clear the cart
-  const clearCart = () => {
+  const clearCart = async () => {
     setCartItems(getDefaultCart());
-    if (localStorage.getItem('auth-token')) {
-      fetch('https://backend-beryl-nu-15.vercel.app/clearcart', {
+
+    try {
+      const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/clearcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
-          'auth-token': `${localStorage.getItem('auth-token')}`,
           'Content-Type': 'application/json',
         },
         body: "",
-      })
-        .then((response) => response.json())
-        .then((data) => console.log('Cart cleared:', data))
-        .catch((error) => {
-          console.error('Error clearing cart:', error);
-        });
+      });
+      const data = await response.json();
+      console.log('Cart cleared:', data);
+    } catch (error) {
+      console.error('Error clearing cart:', error);
     }
   };
 
@@ -122,11 +195,11 @@ const ShopContextProvider = (props) => {
     getTotalCartItem,
     getTotalCartAmount,
     all_product,
-    setAll_Product, // Include setAll_Product in the context value
+    setAll_Product,
     cartItems,
     removeFromCart,
     addToCart,
-    clearCart, // Include clearCart in the context value
+    clearCart,
   };
 
   return (
