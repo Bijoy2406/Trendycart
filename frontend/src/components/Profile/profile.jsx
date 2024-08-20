@@ -16,7 +16,7 @@ const Profile = () => {
       const refreshToken = localStorage.getItem('refresh-token');
       if (!refreshToken) throw new Error('No refresh token available');
 
-      const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
+      const response = await fetch('http://localhost:4001/token', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -52,7 +52,7 @@ const Profile = () => {
         }
 
         try {
-          const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
+          const response = await axios.get('http://localhost:4001/profile', {
             headers: {
               'auth-token': token,
             },
@@ -63,7 +63,7 @@ const Profile = () => {
           if (err.response && err.response.status === 401) {
             token = await refreshAccessToken(); // Try refreshing the token
             if (token) {
-              const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
+              const response = await axios.get('http://localhost:4001/profile', {
                 headers: {
                   'auth-token': token,
                 },
@@ -88,7 +88,7 @@ const Profile = () => {
   const handleEdit = async () => {
     try {
       const token = localStorage.getItem('auth-token');
-      const response = await axios.post('https://backend-beryl-nu-15.vercel.app/updateprofile', {
+      const response = await axios.post('http://localhost:4001/updateprofile', {
         username: newUsername,
         password: newPassword,
       }, {

@@ -115,12 +115,12 @@ const Productdisplay = (props) => {
         event.preventDefault();
         const token = localStorage.getItem('auth-token');
         if (!token) {
-            navigate('/login');
+          navigate('/login');
         } else {
-            // Redirect to payment page
-            navigate('/payment');
+          // Redirect to payment page with product data WITHOUT adding to cart
+          navigate('/payment', { state: { buyNowProduct: { productId, quantity } } });
         }
-    };
+      };
 
     const isLoggedIn = !!localStorage.getItem('auth-token');
 
