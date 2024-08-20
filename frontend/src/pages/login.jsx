@@ -39,13 +39,13 @@ function Login() {
                 },
                 body: JSON.stringify(loginForm)
             });
-    
+
             if (!response.ok) {  // Check if response status is not OK (e.g., 404, 500)
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-    
+
             const data = await response.json();
-            
+
             if (data.success) {
                 const user = data.user;
                 if (user && user.isAdmin && !user.isApprovedAdmin) {
@@ -65,13 +65,13 @@ function Login() {
             setLoading(false); // Hide loader
         }
     };
-    
-    
+
+
     const refreshAccessToken = async () => {
         try {
             const refreshToken = localStorage.getItem('refresh-token');
             if (!refreshToken) throw new Error('No refresh token available');
-    
+
             const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
                 method: 'POST',
                 headers: {
@@ -80,9 +80,9 @@ function Login() {
                 },
                 body: JSON.stringify({ token: refreshToken })
             });
-    
+
             const data = await response.json();
-    
+
             if (data.accessToken) {
                 localStorage.setItem('auth-token', data.accessToken); // Update access token
                 return data.accessToken;
@@ -97,7 +97,7 @@ function Login() {
             window.location.replace("/login");
         }
     };
-    
+
 
     const signup = async () => {
         if (!isPasswordValid) {
@@ -112,7 +112,14 @@ function Login() {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ...registerForm, isApprovedAdmin: false }) // Add isApprovedAdmin as false
+                body: JSON.stringify({
+                    username: registerForm.username,
+                    email: registerForm.email,
+                    password: registerForm.password,
+                    dob: registerForm.dob,  // Include DOB
+                    location: registerForm.location,  // Include Location
+                    isAdmin: registerForm.isAdmin || false
+                })
             });
             const data = await response.json();
             if (data.success) {
@@ -128,6 +135,7 @@ function Login() {
         }
     };
     
+
 
     const handleLoginClick = () => {
         setShowLogin(true);
@@ -205,7 +213,7 @@ function Login() {
                         {showLogin ? (
                             <>
                                 <div className="form-inputs">
-                                <div className="input-group">
+                                    <div className="input-group">
                                         <input
                                             type="text"
                                             name="email"
@@ -233,7 +241,7 @@ function Login() {
                         ) : (
                             <>
                                 <div className="form-inputs">
-                                <div className="input-group">
+                                    <div className="input-group">
                                         <input
                                             type="text"
                                             name="username"
@@ -282,21 +290,35 @@ function Login() {
                                             <FaRegCalendarAlt className="calendar-icon" onClick={handleCalendarIconClick} />
                                         </div>
                                     </div>
-                                    <PasswordChecklist
-                                        rules={["minLength", "specialChar", "number", "capital", "lowercase"]}
-                                        minLength={8}
-                                        value={registerForm.password}
-                                        onChange={handlePasswordValidityChange} // Update password validity and show error toast
-                                    />
+                                    <div className="input-group">
+                                        <input
+                                            type="text"
+                                            name="location"
+                                            value={registerForm.location}
+                                            onChange={changeHandler}
+                                            required
+                                        />
+                                        <label>Location</label>
+                                    </div>
                                 </div>
+                                <PasswordChecklist
+                                    rules={["minLength", "specialChar", "number", "capital", "lowercase"]}
+                                    minLength={8}
+                                    value={registerForm.password}
+                                    onChange={handlePasswordValidityChange} // Update password validity and show error toast
+                                />
                             </>
                         )}
                         <div className="input-box">
-                        <button type="submit" className="input-submit">
-                                {showLogin ? "Continue" : "Continue"}
+                            <button
+                                type="submit"
+                                className={`input-submit ${showLogin ? 'login-btn' : 'signup-btn'}`}
+                            >
+                                {showLogin ? "Login" : "Sign Up"}
                                 <i className="bx bx-right-arrow-alt"></i>
                             </button>
                         </div>
+
                         <div className="social-login">
                             <i className="bx bxl-google"></i>
                             <i className="bx bxl-facebook"></i>
@@ -325,3 +347,4 @@ function Login() {
 }
 
 export default Login;
+

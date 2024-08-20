@@ -238,12 +238,12 @@ input[type="text"]::placeholder {
 }
 
 .btn-101 {
-  --thickness: 0.3rem;
+  --thickness: .2rem;
   --roundness: 1.2rem;
   --color: #000000;
   --opacity: 0.6;
-  -webkit-backdrop-filter: blur(100px);
-  backdrop-filter: blur(100px);
+  -webkit-backdrop-filter: blur(10000px);
+  backdrop-filter: blur(1000px);
   background: none;
   background: #769efe;
   border: none;

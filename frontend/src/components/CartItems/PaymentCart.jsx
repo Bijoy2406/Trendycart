@@ -1,10 +1,11 @@
-import React, { useState, useEffect,useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './PaymentCart.css';
 import countries from './countries';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ShopContext } from '../Context/ShopContext'; // Adjust the path based on your project structure
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import cardIcon from "../Assets/cardicon.png"; // Import the card icon
 
 const PaymentCart = () => {
     const [selectedMethod, setSelectedMethod] = useState(null);
@@ -21,8 +22,10 @@ const PaymentCart = () => {
     const [phoneError, setPhoneError] = useState('');
     const { clearCart } = useContext(ShopContext); // Using the context
     const navigate = useNavigate(); // Initialize navigate
+    const location = useLocation();
+    const { cartData, discountedTotal } = location.state || {};
 
-    
+
     useEffect(() => {
         validateForm();
     }, [selectedMethod, phoneNumber, cardNumber, expiryDate, cvc, country, pinNumber, billingZip]);
@@ -40,7 +43,7 @@ const PaymentCart = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isFormValid]); 
+    }, [isFormValid]);
 
     const handlePaymentMethodChange = (method) => {
         setSelectedMethod(method);
@@ -202,40 +205,57 @@ const PaymentCart = () => {
             toast.error('Please fill out the form correctly.');
             return;
         }
-    
+
         // Simulate payment success for now
         toast.success(`Payment complete with ${selectedMethod}`);
-    
+
         try {
-            // Clear the cart on the server
-            const response = await fetch('https://backend-beryl-nu-15.vercel.app/clearcart', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/createorder', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'auth-token': localStorage.getItem('auth-token'), // Include the auth token
-                }
+                    'auth-token': localStorage.getItem('auth-token')
+                },
+                body: JSON.stringify({
+                    products: cartData,
+                    totalAmount: discountedTotal,
+                    paymentMethod: selectedMethod
+                })
             });
+
             const result = await response.json();
-    
+
+
+            /* const response = await fetch('https://backend-beryl-nu-15.vercel.app/clearcart', {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                     'auth-token': localStorage.getItem('auth-token'), // Include the auth token
+                 }
+             });*/
+
             if (result.success) {
-                clearCart(); // Clear the cart locally
+                toast.success('Order placed successfully!');
+                clearCart();
                 setTimeout(() => {
-                    navigate('/'); // Redirect to another page after payment, e.g., home
-                }, 1500); // 2 m delay
+                    navigate('/order', { state: { orderId: result.orderId } });
+                }, 1500);
             } else {
-                console.error('Error clearing cart:', result.message);
+                toast.error('Error placing order. Please try again.');
+                console.error('Error placing order:', result.message);
             }
         } catch (error) {
-            console.error('Error clearing cart on the server:', error);
+            console.error('Error placing order:', error);
+            toast.error('Error placing order. Please try again.');
         }
     };
-    
+
 
     const closePopup = () => {
         setIsPopupOpen(false);
     };
 
-    
+
 
     return (
         <div className="payment-container">
@@ -299,14 +319,15 @@ const PaymentCart = () => {
                         {selectedMethod === 'CARD' ? (
                             <div className="card-inputs">
                                 <label>Card Number:</label>
-                                <input
-                                    type="text"
-                                    value={cardNumber}
-                                    onChange={handleCardNumberChange}
-                                    placeholder="16-digit card number"
-                                    maxLength="16"
-                                    minLength="16"
-                                />
+                                    <input
+                                        type="text"
+                                        value={cardNumber}
+                                        onChange={handleCardNumberChange}
+                                        placeholder="16-digit card number"
+                                        maxLength="16"
+                                        minLength="16"
+                                    />
+                                    <img src={cardIcon} alt="Card" className="card-icon" /> {/* Add the card icon */}
                                 {cardError && <p className="error">{cardError}</p>}
                                 <label>Expiry Date (MM/YY):</label>
                                 <input
@@ -318,7 +339,7 @@ const PaymentCart = () => {
                                 />
                                 <label>CVC:</label>
                                 <input
-                                    type="text"
+                                    type="password"
                                     value={cvc}
                                     onChange={handleCvcChange}
                                     placeholder="3-digit CVC"

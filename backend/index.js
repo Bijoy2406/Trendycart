@@ -367,14 +367,22 @@ app.get('/getUserRole', fetchUser, async (req, res) => {
     }
 });
 
-app.post('/addtocart',fetchUser,async(req,res)=>{
-    console.log("Addtocart",req.body.itemId);
-    let userData =await Users.findOne({_id:req.user.id});
-    userData.cartData[req.body.itemId] +=1;
-    await Users.findOneAndUpdate({_id:req.user.id},{cartData:userData.cartData});
-    res.send("Added")
+app.post('/addtocart', fetchUser, async (req, res) => {
+    const { itemId, quantity } = req.body; // Get quantity from request body
+    console.log("Addtocart", itemId, quantity); 
+    try {
+        let userData = await Users.findOne({ _id: req.user.id });
+        
+        // Update cartData based on the received quantity
+        userData.cartData[itemId] = (userData.cartData[itemId] || 0) + quantity; 
 
-})
+        await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
+        res.send("Added");
+    } catch (error) {
+        console.error("Error adding to cart:", error);
+        res.status(500).send("Error adding to cart");
+    }
+});
 app.post('/removefromcart',fetchUser,async (req,res)=>{
   
     console.log("removed",req.body.itemId);
@@ -481,7 +489,7 @@ app.post('/updateprofile', fetchUser, async (req, res) => {
     }
 });
 
-app.post('/clearcart', fetchUser, async (req, res) => {
+app.post('/ cart', fetchUser, async (req, res) => {
     try {
         // Find the user by ID and clear the cart
         await Users.findByIdAndUpdate(req.user.id, { cartData: getDefaultCart() });
@@ -523,6 +531,79 @@ app.put('/updateproduct/:id', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error updating product' });
     }
 });
+const Order = mongoose.model("Order", {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true },
+    products: [{
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+        quantity: { type: Number, required: true },
+        price: { type: Number, required: true } // Store the price at the time of order
+    }],
+    totalAmount: { type: Number, required: true },
+    paymentMethod: { type: String, required: true },
+    orderDate: { type: Date, default: Date.now },
+    // Add more fields as needed (e.g., shipping address, status)
+});
+app.post('/createorder', fetchUser, async (req, res) => {
+    try {
+        const { products, totalAmount, paymentMethod } = req.body; 
+
+        // 1. Verify and Fetch Product Details (Important!)
+        const productIds = products.map(item => item.productId);
+        const dbProducts = await Product.find({ _id: { $in: productIds } });
+
+        // Check if all products exist and calculate the total
+        if (dbProducts.length !== productIds.length) {
+            return res.status(400).json({ success: false, message: "Some products not found" });
+        }
+
+        // 2. Create Order Items with Price at Time of Order
+        const orderItems = products.map(item => {
+            const dbProduct = dbProducts.find(p => p._id.equals(item.productId));
+            return {
+                productId: item.productId,
+                quantity: item.quantity,
+                price: dbProduct.new_price // Use the current price from the database
+            };
+        });
+
+        // 3. Create the Order
+        const newOrder = new Order({
+            userId: req.user.id,
+            products: orderItems,
+            totalAmount,
+            paymentMethod,
+        });
+
+        await newOrder.save();
+
+        // 4. (Optional) Update Product Stock (if applicable)
+        // ... (Logic to decrement stock quantities)
+
+        // 5. Clear the User's Cart
+        await Users.findByIdAndUpdate(req.user.id, { cartData: getDefaultCart() });
+
+        res.json({ success: true, orderId: newOrder._id });
+    } catch (error) {
+        console.error("Error creating order:", error);
+        res.status(500).json({ success: false, message: "Error creating order" });
+    }
+});
+app.get('/getorders', fetchUser, async (req, res) => {
+    try {
+        const orders = await Order.find({ userId: req.user.id })
+                                  .populate({
+                                      path: 'products.productId', // Populate the 'productId' field
+                                      model: 'Product', // Specify the model to populate from
+                                      select: 'name image new_price id' // Select the fields you need
+                                  }); 
+        res.json({ success: true, orders });
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        res.status(500).json({ success: false, message: "Error fetching orders" });
+    }
+});
+
+
 
 
 app.listen(port, (error) => {

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import './Payment.css';
 import countries from './countries';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ShopContext } from '../Context/ShopContext'; // Adjust the path based on your project structure
+import { useNavigate } from 'react-router-dom';
 
 const Payment = () => {
     const [selectedMethod, setSelectedMethod] = useState(null);
@@ -17,10 +19,27 @@ const Payment = () => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [cardError, setCardError] = useState('');
     const [phoneError, setPhoneError] = useState('');
+    const navigate = useNavigate(); // Initialize navigate
 
+    
     useEffect(() => {
         validateForm();
     }, [selectedMethod, phoneNumber, cardNumber, expiryDate, cvc, country, pinNumber, billingZip]);
+
+    // Listen for Enter key to trigger payment
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Enter' && isFormValid) {
+                handlePayment();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isFormValid]); 
 
     const handlePaymentMethodChange = (method) => {
         setSelectedMethod(method);
@@ -173,7 +192,7 @@ const Payment = () => {
         setIsFormValid(isValid);
     };
 
-    const handlePayment = () => {
+    const handlePayment = async () => {
         if (!selectedMethod) {
             toast.error('Please select a payment method.');
             return;
@@ -182,13 +201,22 @@ const Payment = () => {
             toast.error('Please fill out the form correctly.');
             return;
         }
+    
+        // Simulate payment success for now
         toast.success(`Payment complete with ${selectedMethod}`);
-        setIsPopupOpen(false);
+        setTimeout(() => {
+            navigate('/'); // Redirect to another page after payment, e.g., home
+        }, 1500); // 2 m delay
+    
+        
     };
+    
 
     const closePopup = () => {
         setIsPopupOpen(false);
     };
+
+    
 
     return (
         <div className="payment-container">

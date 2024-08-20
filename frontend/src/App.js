@@ -23,6 +23,8 @@ import Payment from './components/Payment/Payment';
 import PaymentCart from './components/CartItems/PaymentCart';
 import listproduct from './components/Listproduct/Listproduct';
 import EditProduct from './components/Listproduct/Edit'; 
+import Orders from './components/Order/Order';
+
 function App() {
   return (
     <ShopContextProvider>
@@ -69,6 +71,7 @@ function WithNavbar() {
           <Route path="/cart/payment" element={<PaymentCart />} />
           <Route path="/listproducts" element={<Listproduct />} />
         <Route path="/editproduct/:id" element={<EditProduct />} />
+        <Route path="/order" element={<Orders />} />
         </Routes>
       )}
       <Footer />
