@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link,useNavigate  } from 'react-router-dom'; // Import Link
-import './order.css';
+import './Order.css';
 import '../../Navbar/Navbar.css';
 import Loader from '../../Loader'; // Import your Loader component
 
