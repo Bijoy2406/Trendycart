@@ -1,0 +1,69 @@
+/* Order.css */
+
+.order-container {
+    margin: 100px 170px; /* Adjust margins as needed */
+  }
+  
+  .order-card {
+    margin-bottom: 30px; /* Add spacing between order cards */
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .order-details {
+    display: grid;
+    gap: 50px;
+    margin-top: 20px;
+  }
+  
+  .product-info  {
+    display: grid;
+    grid-template-columns: 0.5fr 2fr 1fr 1fr; /* Similar to CartItem.css */
+    align-items: center;
+    gap: 75px;
+    padding: 10px 0px; /* Reduced padding */
+    font-size: 14px; /* Slightly smaller font size */
+    font-weight: 600;
+    border-bottom: 1px solid #eee; /* Add a subtle separator */
+    cursor: pointer;
+  }
+  
+  .product-info:last-child {
+    border-bottom: none; /* Remove separator from the last item */
+  }
+  
+  .order-product-image {
+    width: 130px;
+    height: 150px;
+    object-fit: cover;
+  }
+  .product-link {
+    text-decoration: none;
+    color: black; 
+  }
+  
+  
+  
+  /* Media Query for Mobile Phones (adjust breakpoint as needed) */
+  @media (max-width: 768px) {
+    .order-container {
+      margin: 50px 20px; /* Reduce margins for smaller screens */
+    }
+  
+    .order-details {
+      grid-template-columns: 1fr; /* Stack items vertically */
+      gap: 20px; /* Reduce gap */
+    }
+  
+    .product-info {
+      grid-template-columns: 1fr 1fr; /* Two columns for product info */
+      gap: 10px; /* Reduce gap */
+      font-size: 12px; /* Smaller font size */
+    }
+  
+    .order-product-image {
+      width: 40px; /* Smaller image */
+      height: 40px;
+    }
+  }
