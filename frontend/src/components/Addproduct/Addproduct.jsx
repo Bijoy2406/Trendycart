@@ -12,6 +12,8 @@ const Addproduct = () => {
     const { setAll_Product, all_product } = useContext(ShopContext);
     const [image, setImage] = useState(false);
     const [loading, setLoading] = useState(false); // State for loading
+    const [selectedSizes, setSelectedSizes] = useState([]);
+
     const [productDetails, setProductDetails] = useState({
         name: "",
         image: "",
@@ -21,6 +23,13 @@ const Addproduct = () => {
     });
     const navigate = useNavigate();
 
+    const handleSizeChange = (size) => {
+        if (selectedSizes.includes(size)) {
+            setSelectedSizes(selectedSizes.filter(s => s !== size));
+        } else {
+            setSelectedSizes([...selectedSizes, size]);
+        }
+    };
     const changeHandler = (e) => {
         setProductDetails({ ...productDetails, [e.target.name]: e.target.value });
     };
@@ -32,28 +41,32 @@ const Addproduct = () => {
     };
 
     const Add_product = async () => {
-        const { name, category, new_price, old_price, image } = productDetails;
-    
+        const { name, category, new_price, old_price, image, description } = productDetails;
+
         // Validation: Check if all fields are filled
-        if (!name || !category || !new_price || !old_price || !image) {
+        if (!name || !category || !new_price || !old_price || !image || !description) {
             const missingFields = [];
-    
+
             if (!name) missingFields.push("Product Title");
             if (!category) missingFields.push("Product Category");
             if (!new_price) missingFields.push("Offer Price");
             if (!old_price) missingFields.push("Price");
             if (!image) missingFields.push("Product Image");
-    
+
             toast.error(`Please fill out the following fields: ${missingFields.join(', ')}`);
             return;
         }
-    
+
         setLoading(true); // Show loader when starting the process
         let responseData;
-        let product = { ...productDetails };
+        let product = { 
+            ...productDetails, 
+            sizes: selectedSizes,
+            description: description // Add description to the product object
+        };
         let formData = new FormData();
         formData.append('product', image);
-    
+
         try {
             const uploadResponse = await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
                 method: 'POST',
@@ -63,10 +76,10 @@ const Addproduct = () => {
                 body: formData,
             });
             responseData = await uploadResponse.json();
-    
+
             if (responseData.success) {
                 product.image = responseData.image_url;
-    
+
                 const addProductResponse = await fetch('https://backend-beryl-nu-15.vercel.app/addproduct', {
                     method: 'POST',
                     headers: {
@@ -76,13 +89,13 @@ const Addproduct = () => {
                     body: JSON.stringify(product),
                 });
                 const addProductData = await addProductResponse.json();
-    
+
                 setLoading(false); // Hide loader after the process
-    
+
                 if (addProductData.success) {
                     toast.success("Product Added");
                     setAll_Product([...all_product, product]); // Update context
-    
+
                     // Delay navigation to allow toast to display
                     setTimeout(() => {
                         navigate('/admin');
@@ -99,7 +112,7 @@ const Addproduct = () => {
             toast.error("An error occurred. Please try again.");
         }
     };
-    
+
 
     const goBack = () => {
         navigate(-1);
@@ -157,6 +170,30 @@ const Addproduct = () => {
                     <option value="kid">Kid</option>
                 </select>
             </div>
+            <div className="addproduct-itemfields">
+                <p>Product Description</p>
+                <textarea
+                    value={productDetails.description}
+                    onChange={changeHandler}
+                    name="description"
+                    placeholder="Enter product description"
+                    rows="4" // Adjust rows as needed
+                />
+            </div>
+            <div className="addproduct-itemfields">
+                <p>Product Sizes</p>
+                {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
+                    <label key={size} className="size-checkbox">
+                        <input
+                            type="checkbox"
+                            value={size}
+                            checked={selectedSizes.includes(size)}
+                            onChange={() => handleSizeChange(size)}
+                        />
+                        {size}
+                    </label>
+                ))}
+            </div>
             <div className="addproduct-itemfields" onClick={() => document.getElementById('file-input').click()}>
                 <label>
                     <img
@@ -173,8 +210,10 @@ const Addproduct = () => {
                     style={{ display: 'none' }}
                 />
             </div>
-            <button onClick={Add_product} className='addproduct-btn'>ADD</button>
-            <ToastContainer />
+            <button onClick={Add_product} className='addproduct-btn' disabled={!productDetails.name || !productDetails.category || !productDetails.new_price || !productDetails.old_price || !productDetails.image || !productDetails.description}>
+                ADD
+            </button>           
+             <ToastContainer />
         </div>
     );
 };

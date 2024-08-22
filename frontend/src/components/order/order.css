@@ -19,7 +19,7 @@
 
 .product-info  {
   display: grid;
-  grid-template-columns: 0.5fr 2fr 1fr 1fr; /* Similar to CartItem.css */
+  grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr; /* Similar to CartItem.css */
   align-items: center;
   gap: 75px;
   padding: 10px 0px; /* Reduced padding */

@@ -4,7 +4,7 @@ import countries from './countries';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ShopContext } from '../Context/ShopContext'; // Adjust the path based on your project structure
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation  } from 'react-router-dom';
 
 const Payment = () => {
     const [selectedMethod, setSelectedMethod] = useState(null);
@@ -20,11 +20,19 @@ const Payment = () => {
     const [cardError, setCardError] = useState('');
     const [phoneError, setPhoneError] = useState('');
     const navigate = useNavigate(); // Initialize navigate
+    const [buyNowProduct, setBuyNowProduct] = useState(null); // To store the product
+    const location = useLocation();
 
     
     useEffect(() => {
         validateForm();
     }, [selectedMethod, phoneNumber, cardNumber, expiryDate, cvc, country, pinNumber, billingZip]);
+    useEffect(() => {
+        // Access product data from the location state
+        if (location.state && location.state.buyNowProduct) {
+            setBuyNowProduct(location.state.buyNowProduct);
+        }
+    }, [location.state]);
 
     // Listen for Enter key to trigger payment
     useEffect(() => {
@@ -207,6 +215,46 @@ const Payment = () => {
         setTimeout(() => {
             navigate('/'); // Redirect to another page after payment, e.g., home
         }, 1500); // 2 m delay
+        try {
+            const orderData = buyNowProduct 
+                ? { // Data for direct buy
+                    products: [{ 
+                        productId: buyNowProduct.productId, 
+                        quantity: buyNowProduct.quantity,
+                        price: buyNowProduct.price, // Include price 
+                        selectedSize: buyNowProduct.selectedSize // Add selectedSize to orderData
+                    }],
+                    totalAmount: buyNowProduct.quantity * buyNowProduct.price, // Calculate total
+                    paymentMethod: selectedMethod 
+                }
+                : { // Data from cart (if needed in the future)
+                    // ... your logic to get cart data ...
+                };
+
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/createorder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth-token': localStorage.getItem('auth-token')
+                },
+                body: JSON.stringify(orderData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                toast.success('Order placed successfully!');
+                setTimeout(() => {
+                    navigate('/order', { state: { orderId: result.orderId } }); // Pass orderId
+                }, 1500); 
+            } else {
+                toast.error('Error placing order. Please try again.');
+                console.error('Error placing order:', result.message);
+            }
+        } catch (error) {
+            console.error('Error placing order:', error);
+            toast.error('Error placing order. Please try again.');
+        }
     
         
     };
@@ -327,6 +375,7 @@ const Payment = () => {
                         <button className="payment-button" onClick={handlePayment} disabled={!isFormValid}>
                             Proceed to Pay
                         </button>
+                        
                     </div>
                 </div>
             )}

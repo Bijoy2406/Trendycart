@@ -217,12 +217,18 @@ const PaymentCart = () => {
                     'auth-token': localStorage.getItem('auth-token')
                 },
                 body: JSON.stringify({
-                    products: cartData,
+                    products: cartData.map(item => ({
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        selectedSize: item.selectedSize || 'Default' // Provide a default value if selectedSize is missing
+                    })),
                     totalAmount: discountedTotal,
                     paymentMethod: selectedMethod
                 })
+                
+                
             });
-
+            
             const result = await response.json();
 
 

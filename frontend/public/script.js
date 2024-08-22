@@ -1,4 +1,5 @@
 window.initializeRatings = (productId) => {
+
     // Function to get stored ratings
     const getStoredRatings = () => {
         const storedRatings = localStorage.getItem('productRatings');
@@ -52,8 +53,9 @@ window.initializeRatings = (productId) => {
     const rating_stars = document.querySelectorAll(`.productdisplay[data-product-id="${productId}"] .star`);
     const emojiEl = document.querySelector(`.productdisplay[data-product-id="${productId}"] .emoji`);
     const statusEl = document.querySelector(`.productdisplay[data-product-id="${productId}"] .status`);
-    const avgRatingEl = document.querySelector(`.productdisplay[data-product-id="${productId}"] .average-rating`);
     let currentRatingIndex = 0;
+
+  
 
     // Load stored rating and apply it
     const storedRatings = getStoredRatings();
@@ -78,24 +80,17 @@ window.initializeRatings = (productId) => {
             const updatedRatings = getStoredRatings();
             updatedRatings[productId] = index;
             setStoredRatings(updatedRatings);
-
             // Send rating to the server
             fetch('https://backend-beryl-nu-15.vercel.app/rateproduct', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'auth-token': localStorage.getItem('token') // Assume user token is stored in localStorage
+                  'Content-Type': 'application/json',
+                  'auth-token': localStorage.getItem('auth-token') 
                 },
                 body: JSON.stringify({ productId, rating: index })
             })
             .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    avgRatingEl.innerText = `Average Rating: ${data.averageRating.toFixed(2)}`;
-                } else {
-                    console.error('Error updating rating:', data.message);
-                }
-            })
+            
             .catch(error => console.error('Error:', error));
         });
 
@@ -109,15 +104,5 @@ window.initializeRatings = (productId) => {
         });
     });
 
-    // Fetch and display average rating on initialization
-    fetch(`https://backend-beryl-nu-15.vercel.app/getaveragerating?productId=${productId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                avgRatingEl.innerText = `Average Rating: ${data.averageRating.toFixed(2)}`;
-            } else {
-                console.error('Error fetching average rating:', data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
+
 };

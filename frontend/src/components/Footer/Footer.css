@@ -1,3 +1,14 @@
+body, html {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+
+  
+ 
 .footer{
     display: flex;
     flex-direction: column;
@@ -5,8 +16,15 @@
     align-items: center;
     gap: 10px;
     background: linear-gradient(180deg, #fde1ff 0%, #e1ffea22 60%);
-    height: 40vh;
+    height: 36vh;
+    margin-top: auto;
+    /*position: absolute;
+    top: 117rem;*/
+    /*left: 0rem;*/
+    width: 100%;
+    padding: 20px 0;
 }
+
 
 
 

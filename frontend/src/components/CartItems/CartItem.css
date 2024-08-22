@@ -10,15 +10,15 @@
 
 .cartitem-format-main {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr 1fr;
+  grid-template-columns:1fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
   gap: 50px;
 }
 
 .cartitem-format {
   display: grid;
-  grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr 1fr;
+  grid-template-columns:0.5fr 2fr 1fr 1fr 1fr 0.5fr 0.2fr;
   align-items: center;
-  gap: 75px;
+  gap: 85px;
   padding: 20px 0px;
   font-size: 16px;
   font-weight: 600;
@@ -145,7 +145,7 @@ border-radius: 5px;
 box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
 background:#e62222;
 position: relative;
-left: -60px;
+left: -18px;
 }
 
 .wrap-delete button,
@@ -263,7 +263,7 @@ background-color: #0056b3;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
   position: relative;
   top: 10px;
-  left: 64.5rem;
+  left: 67rem;
 }
 
 .wrap-clear-all button,
