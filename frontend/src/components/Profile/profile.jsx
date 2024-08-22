@@ -10,6 +10,8 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [location, setLocation] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
 
   const refreshAccessToken = async () => {
     try {
@@ -59,6 +61,8 @@ const Profile = () => {
           });
           setUserData(response.data);
           setNewUsername(response.data.name);
+          setLocation(response.data.location);
+          setDateOfBirth(response.data.dateOfBirth);
         } catch (err) {
           if (err.response && err.response.status === 401) {
             token = await refreshAccessToken(); // Try refreshing the token
@@ -91,6 +95,7 @@ const Profile = () => {
       const response = await axios.post('https://backend-beryl-nu-15.vercel.app/updateprofile', {
         username: newUsername,
         password: newPassword,
+        location: location,
       }, {
         headers: {
           'auth-token': token,
@@ -104,6 +109,7 @@ const Profile = () => {
       toast.error('Failed to update profile.');
     }
   };
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -148,8 +154,27 @@ const Profile = () => {
           </div>
           <div className="profile-field">
             <label>Location:</label>
-            <input type="text" value={userData.location || 'N/A'} readOnly />
+            {editing ? (
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              />
+            ) : (
+              <input type="text" value={userData.location || 'N/A'} readOnly />
+            )}
           </div>
+          <div className="profile-field">
+            <label>Date of Birth:</label>
+            <input
+              type="text"
+              value={userData.dateOfBirth ? new Date(userData.dateOfBirth).toLocaleDateString() : 'N/A'}
+              readOnly
+            />
+          </div>
+
+
+
           {editing ? (
             <button className="edit-button" onClick={handleEdit}>Save Changes</button>
           ) : (

@@ -105,22 +105,22 @@ const EditProduct = () => {
       let formData = new FormData();
       formData.append('product', image);
       try {
-          const uploadRes = await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
-              method: 'POST',
-              headers: { Accept: 'application/json' },
-              body: formData,
-          });
-          const responseData = await uploadRes.json();
-          if (responseData.success) {
-              product.image = responseData.image_url;
-          }
+        const uploadRes = await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: formData,
+        });
+        const responseData = await uploadRes.json();
+        if (responseData.success) {
+          product.image = responseData.image_url;
+        }
       } catch (error) {
-          console.error('Error uploading image:', error);
-          setLoading(false);
-          toast.error('Failed to upload image');
-          return;
+        console.error('Error uploading image:', error);
+        setLoading(false);
+        toast.error('Failed to upload image');
+        return;
       }
-  }
+    }
 
     try {
       const updateRes = await fetch(`https://backend-beryl-nu-15.vercel.app/updateproduct/${id}`, {
@@ -226,7 +226,7 @@ const EditProduct = () => {
               checked={selectedSizes.includes(size)}
               onChange={() => handleSizeChange(size)}
             />
-            {size}
+            <span>{size}</span>
           </label>
         ))}
       </div>

@@ -81,4 +81,52 @@
   height: auto;
 }
 
+/* Description Box */
+.addproduct-itemfields textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.addproduct-itemfields textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Size Selector */
+.addproduct-itemfields .size-checkbox {
+  display: inline-block;
+  margin-right: 15px;
+  margin-bottom: 10px;
+}
+
+.addproduct-itemfields .size-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.addproduct-itemfields .size-checkbox span {
+  display: inline-block;
+  padding: 8px 15px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.addproduct-itemfields .size-checkbox input[type="checkbox"]:checked + span {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.addproduct-itemfields .size-checkbox:hover span {
+  background-color: #e0e0e0;
+}
 

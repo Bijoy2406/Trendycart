@@ -17,6 +17,7 @@ const Productdisplay = (props) => {
     const [selectSize, setSelectSize] = useState(1); // State to manage select size
     const location = useLocation(); // Access location to get buyNowProduct
     const [selectedSize, setSelectedSize] = useState(null);
+    const scrollRef = useRef(null);
 
     useEffect(() => {
 
@@ -53,7 +54,10 @@ const Productdisplay = (props) => {
             };
         }
     }, [product._id]);
-
+    useEffect(() => {
+        setSelectedSize(null);
+    }, [product]);
+    
 
 
 
@@ -98,23 +102,23 @@ const Productdisplay = (props) => {
             navigate('/login');
         } else {
             addToCart(productId, quantity, selectedSize); // Call addToCart only once
-        } 
+        }
     };
 
     const handleBuyNow = (productId, event) => {
         event.preventDefault();
         const token = localStorage.getItem('auth-token');
-    
+
         if (!token) {
             navigate('/login');
             return;
         }
-    
+
         if (!selectedSize && product.sizes.length > 0) {
             toast.error("Please select a size");
             return;
         }
-    
+
         navigate('/payment', {
             state: {
                 buyNowProduct: {
@@ -128,7 +132,7 @@ const Productdisplay = (props) => {
             }
         });
     };
-    
+
 
     const isLoggedIn = !!localStorage.getItem('auth-token');
 
@@ -138,6 +142,17 @@ const Productdisplay = (props) => {
 
     const handleBlur = () => {
         setSelectSize(1); // Collapse the dropdown back to 1 option
+    };
+    const handleSizeSelect = (size) => {
+        if (product.sizes.includes(size)) {
+            const currentScrollPosition = window.pageYOffset;
+            setSelectedSize((prevSize) => {
+                setTimeout(() => {
+                    window.scrollTo(0, currentScrollPosition);
+                }, 0);
+                return prevSize === size ? null : size;
+            });
+        }
     };
 
 
@@ -269,16 +284,12 @@ const Productdisplay = (props) => {
                 </div>
                 <div className="productdisplay-right-size">
                     <h1>Select Size</h1>
-                    <div className="productdisplay-right-size-options">
+                    <div className="productdisplay-right-size-options" ref={scrollRef}>
                         {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
                             <div
                                 key={size}
                                 className={`size-option ${selectedSize === size ? 'selected' : ''} ${product.sizes.includes(size) ? 'available' : 'disabled'}`}
-                                onClick={() => {
-                                    if (product.sizes.includes(size)) {
-                                        setSelectedSize(size);
-                                    }
-                                }}
+                                onClick={() => handleSizeSelect(size)}
                             >
                                 {size}
                             </div>
