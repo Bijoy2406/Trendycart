@@ -169,6 +169,8 @@ const Users = mongoose.model('Users', {
     email: { type: String, unique: true },
     password: { type: String },
     cartData: { type: Object },
+    location: { type: String },
+    dateOfBirth: { type: Date },
     data: { type: Date, default: Date.now },
     isAdmin: { type: Boolean, default: false },
     isApprovedAdmin: { type: Boolean, default: false },
@@ -202,6 +204,8 @@ app.post('/signup', async (req, res) => {
         password: hashedPassword,
         cartData: cart,
         isAdmin: req.body.isAdmin || false,
+        location: req.body.location,
+        dateOfBirth: req.body.dob,
     });
 
     await user.save();
@@ -486,23 +490,25 @@ app.post('/getcart',fetchUser,async(req,res)=>{
 })
 
 app.get('/profile', fetchUser, async (req, res) => {
-    console.log("Get Profile");
     let userData = await Users.findOne({ _id: req.user.id });
-    res.json(userData);
+    res.json({
+        name: userData.name,
+        email: userData.email,
+        location: userData.location,
+        dateOfBirth: userData.dateOfBirth
+    });
 });
+
+
 app.post('/updateprofile', fetchUser, async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, location } = req.body;
         
         const updatedData = {};
         
-        if (username) {
-            updatedData.name = username;
-        }
-        
-        if (password) {
-            updatedData.password = await bcrypt.hash(password, 10);
-        }
+        if (username) updatedData.name = username;
+        if (password) updatedData.password = await bcrypt.hash(password, 10);
+        if (location) updatedData.location = location;
 
         const updatedUser = await Users.findByIdAndUpdate(req.user.id, updatedData, { new: true });
 
@@ -512,6 +518,7 @@ app.post('/updateprofile', fetchUser, async (req, res) => {
         res.status(500).json({ success: false, message: "Error updating profile" });
     }
 });
+
 
 app.post('/ cart', fetchUser, async (req, res) => {
     try {

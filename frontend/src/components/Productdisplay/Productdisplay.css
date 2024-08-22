@@ -282,6 +282,24 @@ button:hover {
     margin-top: 20px;
     font-size: 1em;
 }
+.productdisplay-right-size-options .size-option {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.productdisplay-right-size-options .size-option.selected {
+    background-color: #4834d4;
+    color: white;
+}
+
+.productdisplay-right-size-options .size-option.available:hover {
+    background-color: #e0e0e0;
+}
+
+.productdisplay-right-size-options .size-option.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
 @media (hover: hover) {
     #creditcard {

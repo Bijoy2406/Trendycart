@@ -59,8 +59,8 @@ const Addproduct = () => {
 
         setLoading(true); // Show loader when starting the process
         let responseData;
-        let product = { 
-            ...productDetails, 
+        let product = {
+            ...productDetails,
             sizes: selectedSizes,
             description: description // Add description to the product object
         };
@@ -190,7 +190,7 @@ const Addproduct = () => {
                             checked={selectedSizes.includes(size)}
                             onChange={() => handleSizeChange(size)}
                         />
-                        {size}
+                        <span>{size}</span>
                     </label>
                 ))}
             </div>
@@ -212,8 +212,8 @@ const Addproduct = () => {
             </div>
             <button onClick={Add_product} className='addproduct-btn' disabled={!productDetails.name || !productDetails.category || !productDetails.new_price || !productDetails.old_price || !productDetails.image || !productDetails.description}>
                 ADD
-            </button>           
-             <ToastContainer />
+            </button>
+            <ToastContainer />
         </div>
     );
 };
