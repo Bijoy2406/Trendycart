@@ -68,7 +68,8 @@ const CartItem = () => {
                 if (cartItems[product.id] > 0) {
                     acc.push({
                         productId: product._id, // Assuming your product object has an _id
-                        quantity: cartItems[product.id]
+                        quantity: cartItems[product.id],
+                        selectedSize: cartItems[`${product.id}-size`] // Include the selected size
                     });
                 }
                 return acc;
@@ -85,19 +86,22 @@ const CartItem = () => {
                 <p>Title</p>
                 <p>Price</p>
                 <p>Quantity</p>
+                <p>Size</p>
                 <p>Total</p>
                 <p>Remove</p>
             </div>
             <hr />
             {all_product.map((e) => {
                 if (cartItems[e.id] > 0) {
+                    const selectedSize = cartItems[`${e.id}-size`]; // Get selected size from cartItems
                     return (
                         <div key={e.id}>
                             <div className="cartitem-format">
                                 <img src={e.image} alt={e.name} className='carticon-product-con' />
                                 <p>{e.name}</p>
                                 <p>{e.new_price}</p>
-                                <button className='quantity-button'>{cartItems[e.id]}</button>
+                                <p>{cartItems[e.id]}</p>
+                                <p>{selectedSize}</p> {/* Display selected size */}
                                 <p>{cartItems[e.id] * e.new_price}</p>
                                 <div className="wrap-delete">
                                     <button className="button-delete" onClick={() => removeFromCart(e.id)}>
@@ -178,7 +182,6 @@ const CartItem = () => {
                     </div>
                 </div>
             )}
-            <ToastContainer />
         </div>
     );
 };

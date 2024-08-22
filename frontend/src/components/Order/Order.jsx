@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link,useNavigate  } from 'react-router-dom'; // Import Link
+import { Link, useNavigate, useLocation } from 'react-router-dom'; // Import Link
 import './order.css';
 import '../../Navbar/Navbar.css';
 import Loader from '../../Loader'; // Import your Loader component
@@ -8,9 +8,12 @@ const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
     const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(false); // State for loading indicator
     const navigate = useNavigate(); // Initialize useNavigate
-    
+    const location = useLocation(); // To access the order ID if passed
+
+
     useEffect(() => {
         const fetchOrders = async () => {
+            setIsLoading(true);
             try {
                 const response = await fetch('https://backend-beryl-nu-15.vercel.app/getorders', {
                     method: 'GET',
@@ -34,6 +37,8 @@ const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
                 }
             } catch (error) {
                 console.error('Error fetching orders:', error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -47,7 +52,7 @@ const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
         setTimeout(() => {
             setIsLoading(false); // Hide loader after data is fetched (replace with actual data fetching logic)
             navigate(`/product/${productId}`); // Navigate to the product details page
-        }, 1000); 
+        }, 1000);
     };
 
     if (orders.length === 0) {
@@ -61,16 +66,18 @@ const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
                 <div key={orderIndex} className="order-card">
                     <div className="order-details">
                         {order.products.map((product, productIndex) => (
-                            <div key={productIndex} onClick={() => handleProductClick(product.productId.id)}> 
-                                {/* Use onClick to handle navigation and loader */}
+                            <div key={productIndex} onClick={() => handleProductClick(product.productId.id)}>
                                 <div className="product-info">
-                                    <img src={product.productId.image} alt={product.productId.name} className="order-product-image" />
+                                <img src={product.productId.image} alt={product.productId.name} 
+                                    className="order-product-image" />
                                     <p>Product Name: {product.productId.name}</p>
                                     <p>Quantity: {product.quantity}</p>
-                                    <p>Price: {product.price}</p>
-                                </div>
+                                    <p>Price: ৳{product.productId.new_price}</p>
+                                    <p>Size: {product.selectedSize}</p> {/* Add this line */}
+                                    </div>
                             </div>
                         ))}
+
                         <p><strong>Total Amount:</strong> {order.totalAmount}</p>
                         <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
                     </div>
@@ -83,7 +90,7 @@ const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
                     <svg>
                         <defs>
                             <filter id="glow">
-                                <feGaussianBlur result="coloredBlur" stddeviation="5"></feGaussianBlur>
+                                <feGaussianBlur result="coloredBlur" stdDeviation="5"></feGaussianBlur>
                                 <femerge>
                                     <femergenode in="coloredBlur"></femergenode>
                                     <femergenode in="coloredBlur"></femergenode>

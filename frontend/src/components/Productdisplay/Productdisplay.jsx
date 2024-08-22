@@ -1,42 +1,25 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Productdisplay.css';
 import { ShopContext } from '../Context/ShopContext';
 import RelatedProduct from '../RelatedProduct/RelatedProduct';
-
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Productdisplay = (props) => {
     const { product } = props;
     const { addToCart } = useContext(ShopContext);
     const { all_product } = useContext(ShopContext);
     const [userRating, setUserRating] = useState(0);
-    const [averageRating, setAverageRating] = useState(product.averageRating);
     const navigate = useNavigate();
     const [quantity, setQuantity] = useState(1); // State for quantity selection
     const quantitySelectRef = useRef(null); // Ref for the select element    
     const [selectSize, setSelectSize] = useState(1); // State to manage select size
+    const location = useLocation(); // Access location to get buyNowProduct
+    const [selectedSize, setSelectedSize] = useState(null);
 
     useEffect(() => {
-        // Fetch user's rating for the product
-        const fetchUserRating = async () => {
-            try {
-                const response = await fetch(`/userrating?productId=${product._id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'auth-token': localStorage.getItem('auth-token')
-                    }
-                });
-                const data = await response.json();
-                if (data.success) {
-                    setUserRating(data.rating);
-                }
-            } catch (error) {
-                console.error('Error fetching user rating:', error);
-            }
-        };
 
-        fetchUserRating();
 
         // Initialize ratings script
         const script = document.createElement('script');
@@ -69,7 +52,9 @@ const Productdisplay = (props) => {
                 cartButton.removeEventListener('click', cartClick);
             };
         }
-    }, [product.id]);
+    }, [product._id]);
+
+
 
 
 
@@ -86,7 +71,6 @@ const Productdisplay = (props) => {
             const data = await response.json();
             if (data.success) {
                 setUserRating(rating);
-                setAverageRating(data.averageRating);
             } else {
                 console.error('Failed to rate product:', data.message);
             }
@@ -104,23 +88,47 @@ const Productdisplay = (props) => {
     const handleAddToCart = (productId, event) => {
         event.preventDefault();
         const token = localStorage.getItem('auth-token');
+
+        if (!selectedSize && product.sizes.length > 0) {
+            toast.error("Please select a size");
+            return;
+        }
+
         if (!token) {
             navigate('/login');
         } else {
-            addToCart(productId, quantity); // Pass the quantity to addToCart
-        }
+            addToCart(productId, quantity, selectedSize); // Call addToCart only once
+        } 
     };
 
     const handleBuyNow = (productId, event) => {
         event.preventDefault();
         const token = localStorage.getItem('auth-token');
+    
         if (!token) {
-          navigate('/login');
-        } else {
-          // Redirect to payment page with product data WITHOUT adding to cart
-          navigate('/payment', { state: { buyNowProduct: { productId, quantity } } });
+            navigate('/login');
+            return;
         }
-      };
+    
+        if (!selectedSize && product.sizes.length > 0) {
+            toast.error("Please select a size");
+            return;
+        }
+    
+        navigate('/payment', {
+            state: {
+                buyNowProduct: {
+                    productId: product._id,
+                    quantity,
+                    name: product.name,
+                    price: product.new_price,
+                    image: product.image,
+                    selectedSize: selectedSize
+                }
+            }
+        });
+    };
+    
 
     const isLoggedIn = !!localStorage.getItem('auth-token');
 
@@ -134,7 +142,7 @@ const Productdisplay = (props) => {
 
 
     return (
-        <div className='productdisplay' data-product-id={product.id}>
+        <div className="productdisplay" data-product-id={product.id}>
             <div className="productdisplay-left">
                 <div className="productdisplay-img-list">
                     <img src={product.image} alt="" />
@@ -170,27 +178,29 @@ const Productdisplay = (props) => {
                         ))}
                     </div>
                 </div>
+
                 <div className="productdisplay-right-quantity">
                     <div className="quantity-selector">
                         <span className="quantity-label">Quantity:</span>
                         <div className="quantity-controls">
-            <select
-                id={`quantity-${product.id}`} 
-                value={quantity} 
-                onChange={handleQuantityChange} 
-                className="quantity-input"
-                size={selectSize} // Control the size dynamically
-                onFocus={handleFocus} // Expand on focus
-                onBlur={handleBlur} // Collapse on blur
-                ref={quantitySelectRef} // Reference to select element
-            >
-                {Array.from({ length: 30 }, (_, i) => i + 1).map(num => (
-                    <option key={num} value={num}>
-                        {num}
-                    </option>
-                ))}
-            </select>
-        </div>
+                            <select
+                                id={`quantity-${product.id}`}
+                                value={quantity}
+                                onChange={handleQuantityChange}
+                                className="quantity-input"
+                                size={selectSize} // Control the size dynamically
+                                onFocus={handleFocus} // Expand on focus
+                                onBlur={handleBlur} // Collapse on blur
+                                ref={quantitySelectRef} // Reference to select element
+                            >
+                                {Array.from({ length: 30 }, (_, i) => i + 1).map(num => (
+                                    <option key={num} value={num}>
+                                        {num}
+                                    </option>
+                                ))}
+                            </select>
+
+                        </div>
                     </div>
                 </div>
 
@@ -254,23 +264,31 @@ const Productdisplay = (props) => {
                     <h1>In Stock</h1>
                 </div>
                 <div className="productdisplay-right-description">
-                    This is description
+                    <p>Description</p>
+                    {product.description} {/* Display product description */}
                 </div>
                 <div className="productdisplay-right-size">
                     <h1>Select Size</h1>
                     <div className="productdisplay-right-size-options">
-                        <div>S</div>
-                        <div>M</div>
-                        <div>L</div>
-                        <div>XL</div>
+                        {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
+                            <div
+                                key={size}
+                                className={`size-option ${selectedSize === size ? 'selected' : ''} ${product.sizes.includes(size) ? 'available' : 'disabled'}`}
+                                onClick={() => {
+                                    if (product.sizes.includes(size)) {
+                                        setSelectedSize(size);
+                                    }
+                                }}
+                            >
+                                {size}
+                            </div>
+                        ))}
                     </div>
                 </div>
-
             </div>
             {all_product && (
                 <RelatedProduct all_product={all_product} category={product.category} currentProductId={product.id} />
             )}
-
         </div>
     );
 }

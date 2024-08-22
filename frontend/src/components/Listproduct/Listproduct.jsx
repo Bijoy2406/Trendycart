@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const Listproduct = () => {
   const [allproducts, setAllProducts] = useState([]);
-  const { setAll_Product, removeProductFromCart } = useContext(ShopContext); // Get removeProductFromCart from context
+  const { setAll_Product } = useContext(ShopContext); // Get removeProductFromCart from context
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,7 +41,6 @@ const Listproduct = () => {
       const updatedProducts = allproducts.filter(product => product.id !== id);
       setAllProducts(updatedProducts);
       setAll_Product(updatedProducts); // Update context to reflect the changes
-      removeProductFromCart(id); // Remove product from cart
     } else {
       toast.error('Failed to delete the product.');
     }
@@ -50,6 +49,7 @@ const Listproduct = () => {
   const edit_product = (id) => {
     navigate(`/editproduct/${id}`);
   };
+  
 
   const goBack = () => {
     navigate(-1);

@@ -13,6 +13,11 @@ require('dotenv').config();
 
 app.use(express.json());
 app.use(cors());
+// In your Express error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(err.status || 500).json({ success: false, message: err.message || 'Internal Server Error' });
+});
 
 mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART");
 
@@ -41,11 +46,19 @@ const upload = multer({ storage: storage });
 
 
 app.post("/upload", upload.single('product'), (req, res) => {
-    res.json({
-        success: 1,
-        image_url: req.file.path
-    });
+    if (req.file) {
+        res.json({
+            success: 1,
+            image_url: req.file.path
+        });
+    } else {
+        res.json({
+            success: 0,
+            message: "No file uploaded"
+        });
+    }
 });
+
 
 const Product = mongoose.model("Product", {
     id: {
@@ -84,7 +97,15 @@ const Product = mongoose.model("Product", {
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
         rating: { type: Number, required: true }
     }],
-    averageRating: { type: Number, default: 0 }
+    description: {
+        type: String,
+        required: true, // Make description required
+    },
+    sizes: {
+        type: [String], // Array to store available sizes
+        enum: ['S', 'M', 'L', 'XL', 'XXL'], // Define allowed sizes
+        default: [] // Default to empty array if no sizes are selected
+    },
 });
 
 app.post('/addproduct', async (req, res) => {
@@ -107,6 +128,9 @@ app.post('/addproduct', async (req, res) => {
             category: req.body.category,
             new_price: req.body.new_price,
             old_price: req.body.old_price,
+            description: req.body.description, // Make sure to include description here
+            sizes: req.body.sizes // Add this line to include sizes from the request
+
         });
 
         await newProduct.save();
@@ -416,9 +440,8 @@ app.post('/rateproduct', fetchUser, async (req, res) => {
         } else {
             product.ratings.push({ user: req.user.id, rating });
         }
-        const totalRatings = product.ratings.length;
-        const sumOfRatings = product.ratings.reduce((acc, curr) => acc + curr.rating, 0);
-        product.averageRating = totalRatings > 0 ? sumOfRatings / totalRatings : 0;
+        const totalRatingSum = product.ratings.reduce((sum, rating) => sum + rating.rating, 0);
+        product.averageRating = product.ratings.length > 0 ? totalRatingSum / product.ratings.length : 0;
         await product.save();
         res.json({ success: true, averageRating: product.averageRating });
     } catch (error) {
@@ -438,20 +461,10 @@ app.get('/userrating', fetchUser, async (req, res) => {
         console.error('Error fetching user rating:', error);
         res.status(500).json({ success: false, message: 'Error fetching user rating' });
     }
-    // Modify the existing '/allusers' endpoint
-app.get('/allusers', fetchUser, async (req, res) => {
-    try {
-        const currentUserEmail = req.query.email; // Get the email of the logged-in user from the query parameter
-        const users = await Users.find({ email: { $ne: currentUserEmail } }, 'name email isAdmin isApprovedAdmin'); // Exclude the logged-in user
-        res.json({ success: true, users });
-    } catch (error) {
-        console.error("Error fetching users:", error);
-        res.status(500).json({ success: false, message: "Error fetching users" });
-    }
 });
 
 
-});
+
 
 app.get('/allusers', async (req, res) => {
     try {
@@ -523,13 +536,12 @@ const getDefaultCart = () => {
 app.put('/updateproduct/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, image, category, new_price, old_price } = req.body;
+        const { name, image, category, new_price, old_price, description, sizes } = req.body;
 
-        // Find the product by ID and update it
         const updatedProduct = await Product.findOneAndUpdate(
-            { id: parseInt(id) },  // Use parseInt to ensure it's a number
-            { name, image, category, new_price, old_price },
-            { new: true }  // Return the updated document
+            { id: parseInt(id) },
+            { name, image, category, new_price, old_price, description, sizes },
+            { new: true }
         );
 
         if (updatedProduct) {
@@ -542,42 +554,29 @@ app.put('/updateproduct/:id', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error updating product' });
     }
 });
+
 const Order = mongoose.model("Order", {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true },
     products: [{
         productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
         quantity: { type: Number, required: true },
-        price: { type: Number, required: true } // Store the price at the time of order
+        selectedSize: { type: String, default: 'One Size' } // Make it optional with a default value
     }],
     totalAmount: { type: Number, required: true },
     paymentMethod: { type: String, required: true },
-    orderDate: { type: Date, default: Date.now },
-    // Add more fields as needed (e.g., shipping address, status)
+    orderDate: { type: Date, default: Date.now }
 });
+
 app.post('/createorder', fetchUser, async (req, res) => {
     try {
-        const { products, totalAmount, paymentMethod } = req.body; 
+        const { products, totalAmount, paymentMethod } = req.body;
 
-        // 1. Verify and Fetch Product Details (Important!)
-        const productIds = products.map(item => item.productId);
-        const dbProducts = await Product.find({ _id: { $in: productIds } });
+        const orderItems = products.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            selectedSize: item.selectedSize || 'One Size' // Provide a default value if missing
+        }));
 
-        // Check if all products exist and calculate the total
-        if (dbProducts.length !== productIds.length) {
-            return res.status(400).json({ success: false, message: "Some products not found" });
-        }
-
-        // 2. Create Order Items with Price at Time of Order
-        const orderItems = products.map(item => {
-            const dbProduct = dbProducts.find(p => p._id.equals(item.productId));
-            return {
-                productId: item.productId,
-                quantity: item.quantity,
-                price: dbProduct.new_price // Use the current price from the database
-            };
-        });
-
-        // 3. Create the Order
         const newOrder = new Order({
             userId: req.user.id,
             products: orderItems,
@@ -587,32 +586,29 @@ app.post('/createorder', fetchUser, async (req, res) => {
 
         await newOrder.save();
 
-        // 4. (Optional) Update Product Stock (if applicable)
-        // ... (Logic to decrement stock quantities)
-
-        // 5. Clear the User's Cart
-        await Users.findByIdAndUpdate(req.user.id, { cartData: getDefaultCart() });
-
         res.json({ success: true, orderId: newOrder._id });
     } catch (error) {
         console.error("Error creating order:", error);
         res.status(500).json({ success: false, message: "Error creating order" });
     }
 });
+
+
 app.get('/getorders', fetchUser, async (req, res) => {
     try {
         const orders = await Order.find({ userId: req.user.id })
-                                  .populate({
-                                      path: 'products.productId', // Populate the 'productId' field
-                                      model: 'Product', // Specify the model to populate from
-                                      select: 'name image new_price id' // Select the fields you need
-                                  }); 
+            .populate({
+                path: 'products.productId',
+                model: 'Product',
+                select: 'name image new_price id'
+            });
         res.json({ success: true, orders });
     } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).json({ success: false, message: "Error fetching orders" });
     }
 });
+
 
 
 

@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
-
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 export const ShopContext = createContext(null);
 
 const refreshAccessToken = async () => {
@@ -121,7 +121,7 @@ const ShopContextProvider = (props) => {
     fetchData();
   }, []);
 
-  const addToCart = async (itemId, quantity = 1) => {
+  const addToCart = async (itemId, quantity = 1,selectedSize) => {
     try {
       const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/addtocart', {
         method: 'POST',
@@ -136,12 +136,14 @@ const ShopContextProvider = (props) => {
         // Update cartItems state after successful backend update
         setCartItems(prevCartItems => ({
           ...prevCartItems,
-          [itemId]: (prevCartItems[itemId] || 0) + quantity
+          [itemId]: (prevCartItems[itemId] || 0) + quantity,
+          [`${itemId}-size`]: selectedSize 
         }));
 
         toast.success('Added to cart!', {
-          position: toast.POSITION.TOP_RIGHT
+          position: 'top-right',
         });
+        
       } else {
         console.error('Error adding to cart:', response.status);
         // Handle error, maybe show a toast message
@@ -227,8 +229,10 @@ const ShopContextProvider = (props) => {
 
   return (
     <ShopContext.Provider value={contextValue}>
+        <ToastContainer />
       {props.children}
     </ShopContext.Provider>
+    
   );
 };
 
