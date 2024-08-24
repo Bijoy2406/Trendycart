@@ -12,9 +12,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-family: 'poppins';
 }
-
-
-
+.main-content {
+  flex-grow: 1; /* Allows main content to grow and push the footer down */
+}
 
 
 

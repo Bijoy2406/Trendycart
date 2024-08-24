@@ -16,6 +16,12 @@
   gap: 50px;
   margin-top: 20px;
 }
+.order-status p{
+  color: #757575;
+  display: flex;
+  font-size: 26px;
+  justify-content: center;
+}
 
 .product-info  {
   display: grid;

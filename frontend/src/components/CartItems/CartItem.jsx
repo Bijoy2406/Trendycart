@@ -12,6 +12,7 @@ const CartItem = () => {
     const [showPopup, setShowPopup] = useState(false);
     const [popupMessage, setPopupMessage] = useState('');
     const navigate = useNavigate();
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     // Calculate if the cart is empty
     const [isCartEmpty, setIsCartEmpty] = useState(
@@ -27,11 +28,18 @@ const CartItem = () => {
     }, [cartItems]);
 
     const handleClearAll = () => {
-        if (window.confirm('Are you sure you want to clear your cart?')) {
-            clearCart();
-            toast.success('Cart cleared successfully!');
-        }
+        setShowConfirmModal(true); 
     };
+
+    const handleConfirmClearCart = () => {
+        clearCart();
+        setShowConfirmModal(false);
+        toast.success('Cart cleared successfully!');
+    };
+    const handleCancelClearCart = () => {
+        setShowConfirmModal(false);
+    };
+
 
     const handlePromoCodeChange = (e) => {
         setPromoCode(e.target.value);
@@ -76,6 +84,11 @@ const CartItem = () => {
             }, []);
 
             navigate('/cart/payment', { state: { cartData, discountedTotal } });
+        }
+    };
+    const handlePromoCodeKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleApplyPromoCode();
         }
     };
 
@@ -169,8 +182,17 @@ const CartItem = () => {
                 <div className="cartitem-promocode">
                     <p>If you have a promo code, enter it here:</p>
                     <div className="cartitem-promo-box">
-                        <input type="text" placeholder='Promo Code' value={promoCode} onChange={handlePromoCodeChange} />
-                        <button onClick={handleApplyPromoCode}>Submit</button>
+                        <input 
+                            type="text" 
+                            placeholder='Promo Code' 
+                            value={promoCode} 
+                            onChange={handlePromoCodeChange} 
+                            onKeyDown={handlePromoCodeKeyDown} // Add Enter key handler
+                            disabled={isCartEmpty} // Disable input if cart is empty 
+                        />
+                        <button onClick={handleApplyPromoCode} disabled={isCartEmpty}> 
+                            Submit
+                        </button>
                     </div>
                 </div>
             </div>
@@ -179,6 +201,17 @@ const CartItem = () => {
                     <div className="popup-content-cart">
                         <p>{popupMessage}</p>
                         <button onClick={handleClosePopup}>Close</button>
+                    </div>
+                </div>
+            )}
+            {showConfirmModal && (
+                <div className="popup-cart">
+                    <div className="popup-content-cart confirm-modal"> 
+                        <p>Are you sure you want to clear your cart?</p>
+                        <div className="confirm-buttons">
+                            <button onClick={handleConfirmClearCart}>Yes</button>
+                            <button onClick={handleCancelClearCart}>No</button>
+                        </div>
                     </div>
                 </div>
             )}

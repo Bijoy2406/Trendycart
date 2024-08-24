@@ -95,11 +95,10 @@ const Addproduct = () => {
                 if (addProductData.success) {
                     toast.success("Product Added");
                     setAll_Product([...all_product, product]); // Update context
-
-                    // Delay navigation to allow toast to display
                     setTimeout(() => {
                         navigate('/admin');
-                    }, 1500); // 500ms delay
+                        window.location.reload(); 
+                    }, 1000); 
                 } else {
                     toast.error("Failed to add product");
                 }

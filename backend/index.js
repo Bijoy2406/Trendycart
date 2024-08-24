@@ -40,8 +40,10 @@ const storage = new CloudinaryStorage({
     },
 });
 
-const upload = multer({ storage: storage });
-
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+});
 
 
 
@@ -175,7 +177,9 @@ const Users = mongoose.model('Users', {
     isAdmin: { type: Boolean, default: false },
     isApprovedAdmin: { type: Boolean, default: false },
     refreshToken: { type: String },
-    refreshTokenExpiry: { type: Date }
+    refreshTokenExpiry: { type: Date },
+    profilePicture: { type: String }, // Add profilePicture field
+
 });
 
 
@@ -490,25 +494,36 @@ app.post('/getcart',fetchUser,async(req,res)=>{
 })
 
 app.get('/profile', fetchUser, async (req, res) => {
-    let userData = await Users.findOne({ _id: req.user.id });
-    res.json({
-        name: userData.name,
-        email: userData.email,
-        location: userData.location,
-        dateOfBirth: userData.dateOfBirth
-    });
+    try {
+        let userData = await Users.findOne({ _id: req.user.id });
+
+        // Make sure to send the profilePicture property in the response
+        res.json({
+            name: userData.name,
+            email: userData.email,
+            location: userData.location,
+            dateOfBirth: userData.dateOfBirth,
+            profilePicture: userData.profilePicture // Include profilePicture here
+        });
+
+    } catch (error) {
+        console.error("Error fetching profile:", error);
+        res.status(500).json({ success: false, message: "Error fetching profile" });
+    }
 });
 
 
-app.post('/updateprofile', fetchUser, async (req, res) => {
+app.post('/updateprofile', fetchUser, upload.single('profilePicture'), async (req, res) => { 
     try {
         const { username, password, location } = req.body;
-        
         const updatedData = {};
-        
+
         if (username) updatedData.name = username;
         if (password) updatedData.password = await bcrypt.hash(password, 10);
         if (location) updatedData.location = location;
+        if (req.file) {
+            updatedData.profilePicture = req.file.path; 
+        }
 
         const updatedUser = await Users.findByIdAndUpdate(req.user.id, updatedData, { new: true });
 

@@ -5,6 +5,8 @@
     justify-content: space-between;
     height: 70vh;
     margin-left: 200px;
+    margin-bottom: 5em; /* Adjust the value as needed */
+
 }
 .popular h1{
     color: #171717;
@@ -20,7 +22,8 @@
 
 .popular-item{
     margin-top: 50px;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 30px;
     width: 99%;
 }
