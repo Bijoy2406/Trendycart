@@ -54,6 +54,8 @@ const Productdisplay = (props) => {
             };
         }
     }, [product._id]);
+
+    
     useEffect(() => {
         setSelectedSize(null);
     }, [product]);
@@ -296,6 +298,7 @@ const Productdisplay = (props) => {
                         ))}
                     </div>
                 </div>
+                
             </div>
             {all_product && (
                 <RelatedProduct all_product={all_product} category={product.category} currentProductId={product.id} />

@@ -56,7 +56,7 @@ const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
     };
 
     if (orders.length === 0) {
-        return <div>You have no past orders.</div>;
+        return <div className='order-status'><p>You have no past orders.</p></div>;
     }
 
     return (

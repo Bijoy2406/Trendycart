@@ -7,17 +7,20 @@ import { ShopContext } from '../components/Context/ShopContext';
 import navProfile from '../components/Assets/pic/nav-profile.png';
 import Loader from '../Loader';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const Navbar = () => {
-    const [menu, setMenu] = useState("shop");
+    const [menu, setMenu] = useState('shop');
     const { getTotalCartItem } = useContext(ShopContext);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [searchTerm, setSearchTerm] = useState('');
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isLoading, setLoading] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [profilePictureURL, setProfilePictureURL] = useState(null);
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [error, setError] = useState(null);
 
     const searchRef = useRef(null);
     const dropdownRef = useRef(null);
@@ -50,7 +53,7 @@ const Navbar = () => {
             }
         } catch (error) {
             console.error('Error refreshing access token:', error);
-            
+
             localStorage.removeItem('auth-token');
             localStorage.removeItem('refresh-token');
             navigate('/');
@@ -130,6 +133,33 @@ const Navbar = () => {
         };
     }, []); // Empty dependency array to avoid unnecessary re-renders
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                let token = localStorage.getItem('auth-token');
+                if (!token) {
+                    setError('No auth token found');
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
+                    headers: {
+                        'auth-token': token,
+                    },
+                });
+
+                setProfilePictureURL(response.data.profilePicture || null); // Update profile picture URL
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
     const handleAdminClick = () => {
         navigate('/Admin');
         setDropdownOpen(false);
@@ -197,9 +227,9 @@ const Navbar = () => {
                     <>
                         <div className="profile-dropdown" ref={dropdownRef}>
                             <img
-                                src={navProfile}
-                                alt="Profile"
-                                className="profile-icon"
+                                src={profilePictureURL || navProfile} // Use profile picture URL or default profile picture
+                                alt='Profile'
+                                className='profile-icon'
                                 onClick={toggleDropdown}
                             />
                             {dropdownOpen && (

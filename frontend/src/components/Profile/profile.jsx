@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import './profile.css';
+import defaultProfilePic from '../Assets/default-profile.png'; // Import a default profile image
+import Loader from '../../Loader';
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
@@ -12,6 +14,11 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState('');
   const [location, setLocation] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
+  const [profilePicture, setProfilePicture] = useState(null);
+  const inputFileRef = useRef(null);
+  const [profilePictureURL, setProfilePictureURL] = useState(null); // New state for URL
+  const [uploading, setUploading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null); // For image preview
 
   const refreshAccessToken = async () => {
     try {
@@ -53,32 +60,17 @@ const Profile = () => {
           return;
         }
 
-        try {
-          const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
-            headers: {
-              'auth-token': token,
-            },
-          });
-          setUserData(response.data);
-          setNewUsername(response.data.name);
-          setLocation(response.data.location);
-          setDateOfBirth(response.data.dateOfBirth);
-        } catch (err) {
-          if (err.response && err.response.status === 401) {
-            token = await refreshAccessToken(); // Try refreshing the token
-            if (token) {
-              const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
-                headers: {
-                  'auth-token': token,
-                },
-              });
-              setUserData(response.data);
-              setNewUsername(response.data.name);
-            }
-          } else {
-            throw err;
-          }
-        }
+        const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
+          headers: {
+            'auth-token': token,
+          },
+        });
+
+        setUserData(response.data);
+        setNewUsername(response.data.name);
+        setLocation(response.data.location);
+        setDateOfBirth(response.data.dateOfBirth);
+        setProfilePictureURL(response.data.profilePicture || null);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -89,24 +81,54 @@ const Profile = () => {
     fetchUserData();
   }, []);
 
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file && file.size <= 5 * 1024 * 1024) {
+      setProfilePicture(file);
+      setSelectedImage(file); // Set preview image
+    } else {
+      toast.error('File size too large. Max size is 5MB.');
+      event.target.value = null;
+    }
+  };
+
   const handleEdit = async () => {
     try {
+      setUploading(true);
       const token = localStorage.getItem('auth-token');
-      const response = await axios.post('https://backend-beryl-nu-15.vercel.app/updateprofile', {
-        username: newUsername,
-        password: newPassword,
-        location: location,
-      }, {
+      const formData = new FormData();
+      formData.append('username', newUsername);
+      formData.append('password', newPassword);
+      formData.append('location', location);
+      if (profilePicture) {
+        formData.append('profilePicture', profilePicture);
+      }
+  
+      const response = await axios.post('https://backend-beryl-nu-15.vercel.app/updateprofile', formData, {
         headers: {
           'auth-token': token,
+          'Content-Type': 'multipart/form-data',
         },
       });
+  
       setUserData(response.data.user);
+      setProfilePicture(null); 
+      setProfilePictureURL(response.data.user.profilePicture); 
       setEditing(false);
       toast.success('Profile updated successfully!');
     } catch (err) {
       setError(err.message);
       toast.error('Failed to update profile.');
+    } finally {
+      setUploading(false);
+    }
+  };
+  
+
+  const handleProfilePictureClick = () => {
+    if (editing && inputFileRef.current) { // Check if ref is attached
+      inputFileRef.current.click();
     }
   };
 
@@ -124,6 +146,33 @@ const Profile = () => {
       {userData ? (
         <div className="profile-card">
           <h2>Profile Information</h2>
+
+          <div className="profile-picture-container">
+            {uploading ? ( // Show loader during upload
+              <Loader />
+            ) : (
+              <img
+                src={selectedImage ? URL.createObjectURL(selectedImage) : profilePictureURL || defaultProfilePic}
+                alt="Profile"
+                className="profile-picture"
+                onClick={handleProfilePictureClick}
+              />
+            )}
+
+            <img
+              src={defaultProfilePic}
+              alt="Default Profile"
+              className="profile-picture"
+              onClick={handleProfilePictureClick}
+            />
+            <input
+              type="file"
+              accept="image/*"
+              ref={inputFileRef}
+              style={{ display: editing ? 'block' : 'none' }} // Control visibility with CSS
+              onChange={handleImageChange}
+            />
+          </div>
           <div className="profile-field">
             <label>Name:</label>
             {editing ? (
@@ -173,12 +222,14 @@ const Profile = () => {
             />
           </div>
 
-
-
           {editing ? (
-            <button className="edit-button" onClick={handleEdit}>Save Changes</button>
+            <button className="edit-button" onClick={handleEdit}>
+              Save Changes
+            </button>
           ) : (
-            <button className="edit-button" onClick={() => setEditing(true)}>Edit Profile</button>
+            <button className="edit-button" onClick={() => setEditing(true)}>
+              Edit Profile
+            </button>
           )}
         </div>
       ) : (
