@@ -1,0 +1,59 @@
+.relatedproducts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    right: 81rem;
+    top: 56rem;
+}
+
+.relatedproducts h1 {
+
+    color: black;
+    font-size: 50px;
+    font-weight: 600;
+
+}
+
+.relatedproducts hr {
+    width: 200px;
+    height: 6px;
+    border-radius: 10px;
+    background: bisque;
+}
+
+.relatedproducts-item {
+    margin-top: 50px;
+    grid-template-columns: 1fr 1fr 1fr;
+    display: grid;
+    gap: 30px;
+}
+
+/* Media query for screens 600px and below */
+@media (max-width: 600px) {
+    .relatedproducts {
+        right: 93rem;
+        top: 56rem;
+        /* Remove or adjust position for small screens */
+        padding: 10px;
+        /* Adjust padding for smaller screens */
+    }
+
+    .relatedproducts h1 {
+        font-size: 24px;
+        /* Further reduced font size */
+    }
+
+    .relatedproducts hr {
+        width: 100px;
+        /* Further reduced width */
+        height: 3px;
+        /* Further reduced height */
+    }
+
+    .relatedproducts-item {
+        margin-top: 10px;
+        /* Further reduced margin */
+    }
+}

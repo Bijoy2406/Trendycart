@@ -1,0 +1,394 @@
+.cartitems {
+  margin: 100px 170px;
+}
+
+.cartitems hr {
+  height: 3px;
+  background: whitesmoke;
+  border: 0;
+}
+
+.cartitem-format-main {
+  display: grid;
+  grid-template-columns:1fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 50px;
+}
+
+.cartitem-format {
+  display: grid;
+  grid-template-columns:0.5fr 2fr 1fr 1fr 1fr 0.5fr 0.2fr;
+  align-items: center;
+  gap: 85px;
+  padding: 20px 0px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.carticon-product-con {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
+
+.cartitem-remove-icon {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}
+
+.quantity-button{
+  width: 50px;
+}
+
+.cartitem-down {
+  display: flex;
+  
+  margin: 100px 0px;
+}
+
+.cartitem-total {
+  flex: 1;
+  display:flex ;
+  flex-direction: column;
+  margin-right: 200px;
+  gap: 40px;
+  
+}
+
+.cartitem-total-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px 0px;
+  padding: 20px;
+}
+
+.cartitem-total button{
+
+  width:262px ;
+  height: 58px;
+  outline: none;
+  border: none;
+  background: red;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+
+
+}
+
+.cartitem-promocode {
+  margin-top: 20px;
+}
+
+.cartitem-promo-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.cartitem-promo-box input {
+  width: 70%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.cartitem-promo-box button {
+  padding: 8px 12px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#free{
+  padding-left: 550px;
+ 
+}
+
+.vertical-line {
+  width: 5px; 
+  height: 100%; 
+  background-color:black; 
+ 
+}
+
+.wrap-delete * {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+.button-delete {
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+-webkit-tap-highlight-color:
+    transparent;
+}
+
+.wrap-delete button {
+width: 150px;
+height: 50px;
+cursor: pointer;
+display: flex;
+align-items: center;
+background:red;
+border: none;
+border-radius: 5px;
+box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+background:#e62222;
+position: relative;
+left: -18px;
+}
+
+.wrap-delete button,
+.wrap-delete button span {
+transition: 200ms;
+}
+
+.wrap-delete button .text {
+transform: translateX(35px);
+color:
+    white;
+font-weight: bold;
+}
+
+.wrap-delete button .icon {
+position: absolute;
+border-left: 1px solid #c41b1b;
+transform: translateX(110px);
+height: 40px;
+width: 40px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.wrap-delete button svg {
+width: 15px;
+fill:
+    #eee;
+}
+
+.wrap-delete button:hover {
+background:
+    #ff3636;
+}
+
+.wrap-delete button:hover .text {
+color:
+    transparent;
+}
+
+.wrap-delete button:hover .icon {
+width: 150px;
+border-left: none;
+transform: translateX(0);
+}
+
+.wrap-delete button:focus {
+outline: none;
+}
+.popup-cart {
+position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content-cart {
+background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+  width: 900px;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.popup-content-cart p {
+margin-bottom: 20px;
+}
+
+.popup-content-cart button {
+padding: 10px 20px;
+background-color: #007bff;
+color: white;
+border: none;
+cursor: pointer;
+}
+
+.popup-content-cart button:hover {
+background-color: #0056b3;
+}
+.wrap-clear-all * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.button-clear-all {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wrap-clear-all button {
+  width: 150px;
+  height: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  background: #e62222;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+  position: relative;
+  top: 10px;
+  left: 67rem;
+}
+
+.wrap-clear-all button,
+.wrap-clear-all button span {
+  transition: 200ms;
+}
+
+.wrap-clear-all button .text {
+  transform: translateX(35px);
+  color: white;
+  font-weight: bold;
+}
+
+.wrap-clear-all button .icon {
+  position: absolute;
+  border-left: 1px solid #c41b1b;
+  transform: translateX(110px);
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wrap-clear-all button svg {
+  width: 15px;
+  fill: #eee;
+}
+
+.wrap-clear-all button:hover {
+  background: #ff3636;
+}
+
+.wrap-clear-all button:hover .text {
+  color: transparent;
+}
+
+.wrap-clear-all button:hover .icon {
+  width: 150px;
+  border-left: none;
+  transform: translateX(0);
+}
+
+.wrap-clear-all button:focus {
+  outline: none;
+}
+
+.wrap-clear-all button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* ... (your existing styles) */
+
+.confirm-modal {
+  text-align: center; /* Center text content */
+}
+
+.confirm-modal p {
+  margin-bottom: 20px;
+  font-size: 1.2em; 
+}
+
+.confirm-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px; 
+}
+
+.confirm-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.confirm-buttons button:first-child { 
+  background-color: #d9534f; /* Redish color for "Yes" */
+  color: white;
+}
+
+.confirm-buttons button:last-child { 
+  background-color: #5cb85c; /* Greenish color for "No" */
+  color: white;
+}
+
+@media (max-width: 1200px){
+
+.cartitems{
+  margin: 100px 170px;
+  width: 80%;
+}
+.cartitem-total{
+  position: relative;
+  right: 6rem;
+}
+.cartitem-total button{
+  position: relative;
+  top: 6rem;
+}
+.cartitem-format{
+  position: relative;
+  right: 6rem;
+}
+.cartitem-format-main{
+  position: relative;
+  right: 6rem;
+}
+.cartitem-promocode p{
+  position: relative;
+  right: 61rem;
+  font-size: 16px;
+  top:24rem;
+}
+.cartitem-promo-box input{
+  position: relative;
+  right: 40rem;
+  width: 300px;
+  top: 22rem;
+}
+.cartitem-promo-box button{
+  position: relative;
+  right: 38rem;
+  width: 100px;
+  top: 22rem;
+
+}
+}
