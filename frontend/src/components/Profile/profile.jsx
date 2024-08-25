@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './profile.css';
 import defaultProfilePic from '../Assets/default-profile.png'; // Import a default profile image
 import Loader from '../../Loader';
@@ -19,6 +20,7 @@ const Profile = () => {
   const [profilePictureURL, setProfilePictureURL] = useState(null); // New state for URL
   const [uploading, setUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null); // For image preview
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const refreshAccessToken = async () => {
     try {
@@ -37,7 +39,7 @@ const Profile = () => {
       const data = await response.json();
 
       if (data.accessToken) {
-        localStorage.setItem('auth-token', data.accessToken); // Update access token
+        localStorage.setItem('auth-token', data.accessToken);
         return data.accessToken;
       } else {
         throw new Error('Failed to refresh token');
@@ -46,7 +48,8 @@ const Profile = () => {
       console.error('Error refreshing access token:', error);
       localStorage.removeItem('auth-token');
       localStorage.removeItem('refresh-token');
-      window.location.replace('/');
+      
+      // Redirect using useNavigate
     }
   };
 
@@ -72,7 +75,31 @@ const Profile = () => {
         setDateOfBirth(response.data.dateOfBirth);
         setProfilePictureURL(response.data.profilePicture || null);
       } catch (err) {
-        setError(err.message);
+        if (err.response && err.response.status === 401) {
+          // Token might have expired, try refreshing it
+          try {
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+              // Retry fetching user data with the new token
+              const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
+                headers: {
+                  'auth-token': newToken,
+                },
+              });
+
+              setUserData(response.data);
+              setNewUsername(response.data.name);
+              setLocation(response.data.location);
+              setDateOfBirth(response.data.dateOfBirth);
+              setProfilePictureURL(response.data.profilePicture || null);
+            }
+          } catch (refreshError) {
+            setError('Failed to refresh token.');
+            console.error('Error during retry after refreshing token:', refreshError);
+          }
+        } else {
+          setError(err.message);
+        }
       } finally {
         setLoading(false);
       }
@@ -80,7 +107,6 @@ const Profile = () => {
 
     fetchUserData();
   }, []);
-
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -104,17 +130,17 @@ const Profile = () => {
       if (profilePicture) {
         formData.append('profilePicture', profilePicture);
       }
-  
+
       const response = await axios.post('https://backend-beryl-nu-15.vercel.app/updateprofile', formData, {
         headers: {
           'auth-token': token,
           'Content-Type': 'multipart/form-data',
         },
       });
-  
+
       setUserData(response.data.user);
-      setProfilePicture(null); 
-      setProfilePictureURL(response.data.user.profilePicture); 
+      setProfilePicture(null);
+      setProfilePictureURL(response.data.user.profilePicture);
       setEditing(false);
       toast.success('Profile updated successfully!');
     } catch (err) {
@@ -124,14 +150,12 @@ const Profile = () => {
       setUploading(false);
     }
   };
-  
 
   const handleProfilePictureClick = () => {
     if (editing && inputFileRef.current) { // Check if ref is attached
       inputFileRef.current.click();
     }
   };
-
 
   if (loading) {
     return <div>Loading...</div>;
@@ -158,13 +182,6 @@ const Profile = () => {
                 onClick={handleProfilePictureClick}
               />
             )}
-
-            <img
-              src={defaultProfilePic}
-              alt="Default Profile"
-              className="profile-picture"
-              onClick={handleProfilePictureClick}
-            />
             <input
               type="file"
               accept="image/*"
@@ -173,6 +190,7 @@ const Profile = () => {
               onChange={handleImageChange}
             />
           </div>
+
           <div className="profile-field">
             <label>Name:</label>
             {editing ? (

@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import logo from "../components/Assets/svg-viewer.svg";
 import cart_icon from "../components/Assets/cart_icon.png";
 import './Navbar.css';
 import { ShopContext } from '../components/Context/ShopContext';
 import navProfile from '../components/Assets/pic/nav-profile.png';
 import Loader from '../Loader';
-import { toast } from 'react-toastify';
 import axios from 'axios';
 
 const Navbar = () => {
@@ -19,6 +18,7 @@ const Navbar = () => {
     const [isAdmin, setIsAdmin] = useState(false);
     const [profilePictureURL, setProfilePictureURL] = useState(null);
     const navigate = useNavigate();
+    const location = useLocation(); // To get the current location
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [error, setError] = useState(null);
 
@@ -56,7 +56,8 @@ const Navbar = () => {
 
             localStorage.removeItem('auth-token');
             localStorage.removeItem('refresh-token');
-            navigate('/');
+            setIsLoggedIn(false);
+            navigate('/'); // Navigate to the home page programmatically
         }
     };
 
@@ -99,7 +100,7 @@ const Navbar = () => {
         localStorage.removeItem('auth-token');
         localStorage.removeItem('refresh-token');
         setIsLoggedIn(false);
-        window.location.replace('/'); // This will reload the page
+        navigate('/'); // Navigate to the home page programmatically
     };
 
     useEffect(() => {
@@ -177,6 +178,18 @@ const Navbar = () => {
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
+
+    // Reload the page once after navigating to '/'
+    useEffect(() => {
+        const checkAndReload = () => {
+            if (location.pathname === '/' && !sessionStorage.getItem('reloaded')) {
+                sessionStorage.setItem('reloaded', 'true');
+                window.location.reload();
+            }
+        };
+    
+        checkAndReload();
+    }, [location.pathname]);
 
     return (
         <div className='navbar'>
