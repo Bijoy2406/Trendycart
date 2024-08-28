@@ -231,7 +231,7 @@ const Payment = () => {
                     // ... your logic to get cart data ...
                 };
 
-            const response = await fetch('http://localhost:4001/createorder', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/createorder', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

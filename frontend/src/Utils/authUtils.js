@@ -11,7 +11,7 @@ export async function fetchWithToken(url, options = {}) {
     if (response.status === 401) {  // If token is expired
         // Try to refresh the token
         let refreshToken = localStorage.getItem('refresh-token');  // Retrieve the refresh token
-        let refreshResponse = await fetch('http://localhost:4001/token', {
+        let refreshResponse = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: refreshToken })

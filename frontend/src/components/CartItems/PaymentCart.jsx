@@ -210,7 +210,7 @@ const PaymentCart = () => {
         toast.success(`Payment complete with ${selectedMethod}`);
 
         try {
-            const response = await fetch('http://localhost:4001/createorder', {
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/createorder', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -232,7 +232,7 @@ const PaymentCart = () => {
             const result = await response.json();
 
 
-            /* const response = await fetch('http://localhost:4001/clearcart', {
+            /* const response = await fetch('https://backend-beryl-nu-15.vercel.app/clearcart', {
                  method: 'POST',
                  headers: {
                      'Content-Type': 'application/json',
