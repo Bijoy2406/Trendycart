@@ -7,6 +7,8 @@ import { ShopContext } from '../Context/ShopContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from '../../Loader';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const EditProduct = () => {
   const [image, setImage] = useState(null);
@@ -31,7 +33,7 @@ const EditProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`https://backend-beryl-nu-15.vercel.app/product/${id}`);
+        const res = await fetch(`http://localhost:4001/product/${id}`);
         const data = await res.json();
         setProductDetails({
           name: data.name || '',
@@ -97,15 +99,13 @@ const EditProduct = () => {
 
   const updateProduct = async () => {
     setLoading(true);
-    let responseData;
     let product = { ...productDetails, sizes: selectedSizes };
-    let formData = new FormData();
-
-    if (image && image !== productDetails.image) {
+  
+    if (image instanceof File) {
       let formData = new FormData();
       formData.append('product', image);
       try {
-        const uploadRes = await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
+        const uploadRes = await fetch('http://localhost:4001/upload', {
           method: 'POST',
           headers: { Accept: 'application/json' },
           body: formData,
@@ -120,10 +120,14 @@ const EditProduct = () => {
         toast.error('Failed to upload image');
         return;
       }
+    } else if (typeof image === 'string') {
+      product.image = image;
+    } else {
+      delete product.image;
     }
 
     try {
-      const updateRes = await fetch(`https://backend-beryl-nu-15.vercel.app/updateproduct/${id}`, {
+      const updateRes = await fetch(`http://localhost:4001/updateproduct/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -135,7 +139,7 @@ const EditProduct = () => {
       if (updateData.success) {
         toast.success('Product Updated');
         // Update the product list in the context
-        const allProductsRes = await fetch('https://backend-beryl-nu-15.vercel.app/allproducts');
+        const allProductsRes = await fetch('http://localhost:4001/allproducts');
         const allProductsData = await allProductsRes.json();
         setAll_Product(allProductsData);
         setTimeout(() => navigate('/admin'), 1500);
@@ -160,7 +164,7 @@ const EditProduct = () => {
       </button>
       {loading && <Loader />}
       <div className="addproduct-itemfields">
-        <p>Product Title</p>
+        <h1>Product Title</h1>
         <input
           value={productDetails.name || ''}
           onChange={changeHandler}
@@ -172,7 +176,7 @@ const EditProduct = () => {
       </div>
       <div className="addproduct-price">
         <div className="addproduct-itemfields">
-          <p>Price</p>
+          <h1>Price</h1>
           <input
             value={productDetails.old_price || ''}
             onChange={changeHandler}
@@ -182,7 +186,7 @@ const EditProduct = () => {
           />
         </div>
         <div className="addproduct-itemfields">
-          <p>Offer Price</p>
+          <h1>Offer Price</h1>
           <input
             value={productDetails.new_price || ''}
             onChange={changeHandler}
@@ -193,7 +197,7 @@ const EditProduct = () => {
         </div>
       </div>
       <div className="addproduct-itemfields">
-        <p>Product Category</p>
+        <h1>Product Category</h1>
         <select
           value={productDetails.category || ''}
           onChange={changeHandler}
@@ -207,17 +211,30 @@ const EditProduct = () => {
         </select>
       </div>
       <div className="addproduct-itemfields">
-        <p>Product Description</p>
-        <textarea
-          value={productDetails.description || ''}
-          onChange={changeHandler}
-          name="description"
-          placeholder="Enter product description"
-          rows="4"
-        />
+        <h1>Product Description</h1>
+        <ReactQuill
+                    value={productDetails.description}
+                    onChange={(content, delta, source, editor) => {
+                        setProductDetails({ ...productDetails, description: editor.getHTML() });
+                    }}
+                    placeholder="Enter product description"
+                    modules={{
+                        toolbar: [
+                            [{ 'header': '1'}, {'header': '2'}, { 'font': [] }],
+                            [{size: []}],
+                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                            [{'list': 'ordered'}, {'list': 'bullet'}],
+                        ],
+                    }}
+                    formats={[
+                        'header', 'font', 'size', 
+                        'bold', 'italic', 'underline', 'strike', 'blockquote',
+                        'list', 'bullet',
+                    ]}
+                />
       </div>
       <div className="addproduct-itemfields">
-        <p>Product Sizes</p>
+        <h1>Product Sizes</h1>
         {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
           <label key={size} className="size-checkbox">
             <input
