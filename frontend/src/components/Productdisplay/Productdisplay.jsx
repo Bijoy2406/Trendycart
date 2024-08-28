@@ -281,7 +281,7 @@ const Productdisplay = (props) => {
                 </div>
 
                 <div className="productdisplay-right-description">
-                    <p>Description</p>
+                    <h1>Description</h1>
                     <div dangerouslySetInnerHTML={{ __html: product.description }} />
                 </div>
                 <div className="productdisplay-right-size">
