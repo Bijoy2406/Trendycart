@@ -26,7 +26,7 @@ const Profile = () => {
       const refreshToken = localStorage.getItem('refresh-token');
       if (!refreshToken) throw new Error('No refresh token available');
 
-      const response = await fetch('http://localhost:4001/token', {
+      const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -63,7 +63,7 @@ const Profile = () => {
           return;
         }
 
-        const response = await axios.get('http://localhost:4001/profile', {
+        const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
           headers: {
             'auth-token': token,
           },
@@ -109,7 +109,7 @@ const Profile = () => {
         formData.append('profilePicture', profilePicture);
       }
   
-      const response = await axios.post('http://localhost:4001/updateprofile', formData, {
+      const response = await axios.post('https://backend-beryl-nu-15.vercel.app/updateprofile', formData, {
         headers: {
           'auth-token': token,
           'Content-Type': 'multipart/form-data',

@@ -15,7 +15,7 @@ const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
         const fetchOrders = async () => {
             setIsLoading(true);
             try {
-                const response = await fetch('http://localhost:4001/getorders', {
+                const response = await fetch('https://backend-beryl-nu-15.vercel.app/getorders', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
