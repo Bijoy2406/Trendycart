@@ -13,9 +13,9 @@
   gap: 50px;
 }
 
-.addproduct-itemfields p {
+.addproduct-itemfields h1 {
   margin: 0 0 5px;
-  font-weight: bold;
+  font-size: 18px;
 }
 
 .addproduct-itemfields input[type="text"],
@@ -129,4 +129,7 @@
 .addproduct-itemfields .size-checkbox:hover span {
   background-color: #e0e0e0;
 }
+
+
+
 
