@@ -55,11 +55,11 @@ const Productdisplay = (props) => {
         }
     }, [product._id]);
 
-    
+
     useEffect(() => {
         setSelectedSize(null);
     }, [product]);
-    
+
 
 
 
@@ -156,7 +156,6 @@ const Productdisplay = (props) => {
             });
         }
     };
-
 
     return (
         <div className="productdisplay" data-product-id={product.id}>
@@ -280,9 +279,10 @@ const Productdisplay = (props) => {
                 <div className='stock'>
                     <h1>In Stock</h1>
                 </div>
+
                 <div className="productdisplay-right-description">
                     <p>Description</p>
-                    {product.description} {/* Display product description */}
+                    <div dangerouslySetInnerHTML={{ __html: product.description }} />
                 </div>
                 <div className="productdisplay-right-size">
                     <h1>Select Size</h1>
@@ -298,7 +298,7 @@ const Productdisplay = (props) => {
                         ))}
                     </div>
                 </div>
-                
+
             </div>
             {all_product && (
                 <RelatedProduct all_product={all_product} category={product.category} currentProductId={product.id} />
