@@ -7,19 +7,22 @@ import back_icon from '../../components/Assets/back.png';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from '../../Loader'; // Import the loader
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const Addproduct = () => {
     const { setAll_Product, all_product } = useContext(ShopContext);
     const [image, setImage] = useState(false);
     const [loading, setLoading] = useState(false); // State for loading
     const [selectedSizes, setSelectedSizes] = useState([]);
-
+    
     const [productDetails, setProductDetails] = useState({
         name: "",
         image: "",
         category: "",
         new_price: "",
-        old_price: ""
+        old_price: "",
+        description: "" // Ensure description is an empty string initially
     });
     const navigate = useNavigate();
 
@@ -30,6 +33,7 @@ const Addproduct = () => {
             setSelectedSizes([...selectedSizes, size]);
         }
     };
+
     const changeHandler = (e) => {
         setProductDetails({ ...productDetails, [e.target.name]: e.target.value });
     };
@@ -43,7 +47,6 @@ const Addproduct = () => {
     const Add_product = async () => {
         const { name, category, new_price, old_price, image, description } = productDetails;
 
-        // Validation: Check if all fields are filled
         if (!name || !category || !new_price || !old_price || !image || !description) {
             const missingFields = [];
 
@@ -68,7 +71,7 @@ const Addproduct = () => {
         formData.append('product', image);
 
         try {
-            const uploadResponse = await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
+            const uploadResponse = await fetch('http://localhost:4001/upload', {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json'
@@ -80,7 +83,7 @@ const Addproduct = () => {
             if (responseData.success) {
                 product.image = responseData.image_url;
 
-                const addProductResponse = await fetch('https://backend-beryl-nu-15.vercel.app/addproduct', {
+                const addProductResponse = await fetch('http://localhost:4001/addproduct', {
                     method: 'POST',
                     headers: {
                         Accept: 'application/json',
@@ -97,8 +100,8 @@ const Addproduct = () => {
                     setAll_Product([...all_product, product]); // Update context
                     setTimeout(() => {
                         navigate('/admin');
-                        window.location.reload(); 
-                    }, 1000); 
+                        window.location.reload();
+                    }, 1000);
                 } else {
                     toast.error("Failed to add product");
                 }
@@ -112,7 +115,6 @@ const Addproduct = () => {
         }
     };
 
-
     const goBack = () => {
         navigate(-1);
     };
@@ -124,7 +126,7 @@ const Addproduct = () => {
             </button>
             {loading && <Loader />} {/* Render the loader if loading is true */}
             <div className="addproduct-itemfields">
-                <p>Product Title</p>
+                <h1>Product Title</h1>
                 <input
                     value={productDetails.name}
                     onChange={changeHandler}
@@ -135,7 +137,7 @@ const Addproduct = () => {
             </div>
             <div className="addproduct-price">
                 <div className="addproduct-itemfields">
-                    <p>Price</p>
+                    <h1>Price</h1>
                     <input
                         value={productDetails.old_price}
                         onChange={changeHandler}
@@ -145,7 +147,7 @@ const Addproduct = () => {
                     />
                 </div>
                 <div className="addproduct-itemfields">
-                    <p>Offer Price</p>
+                    <h1>Offer Price</h1>
                     <input
                         value={productDetails.new_price}
                         onChange={changeHandler}
@@ -156,7 +158,7 @@ const Addproduct = () => {
                 </div>
             </div>
             <div className="addproduct-itemfields">
-                <p>Product Category</p>
+                <h1>Product Category</h1>
                 <select
                     value={productDetails.category}
                     onChange={changeHandler}
@@ -170,17 +172,31 @@ const Addproduct = () => {
                 </select>
             </div>
             <div className="addproduct-itemfields">
-                <p>Product Description</p>
-                <textarea
+                <h1>Product Description</h1>
+                <ReactQuill
                     value={productDetails.description}
-                    onChange={changeHandler}
-                    name="description"
+                    onChange={(content, delta, source, editor) => {
+                        setProductDetails({ ...productDetails, description: editor.getHTML() });
+                    }}
                     placeholder="Enter product description"
-                    rows="4" // Adjust rows as needed
+                    modules={{
+                        toolbar: [
+                            [{ 'header': '1'}, {'header': '2'}, { 'font': [] }],
+                            [{size: []}],
+                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                            [{'list': 'ordered'}, {'list': 'bullet'}],
+                        ],
+                    }}
+                    formats={[
+                        'header', 'font', 'size', 
+                        'bold', 'italic', 'underline', 'strike', 'blockquote',
+                        'list', 'bullet',
+                    ]}
                 />
+
             </div>
             <div className="addproduct-itemfields">
-                <p>Product Sizes</p>
+                <h1>Product Sizes</h1>
                 {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
                     <label key={size} className="size-checkbox">
                         <input
