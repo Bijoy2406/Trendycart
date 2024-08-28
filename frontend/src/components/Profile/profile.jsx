@@ -20,12 +20,13 @@ const Profile = () => {
   const [uploading, setUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null); // For image preview
 
+
   const refreshAccessToken = async () => {
     try {
       const refreshToken = localStorage.getItem('refresh-token');
       if (!refreshToken) throw new Error('No refresh token available');
 
-      const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
+      const response = await fetch('http://localhost:4001/token', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -53,14 +54,16 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        let token = localStorage.getItem('auth-token');
+        // Declare 'token' inside the function scope
+        const token = localStorage.getItem('auth-token'); 
+
         if (!token) {
           setError('No auth token found');
           setLoading(false);
           return;
         }
 
-        const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
+        const response = await axios.get('http://localhost:4001/profile', {
           headers: {
             'auth-token': token,
           },
@@ -80,6 +83,7 @@ const Profile = () => {
 
     fetchUserData();
   }, []);
+
 
 
   const handleImageChange = (event) => {
@@ -105,7 +109,7 @@ const Profile = () => {
         formData.append('profilePicture', profilePicture);
       }
   
-      const response = await axios.post('https://backend-beryl-nu-15.vercel.app/updateprofile', formData, {
+      const response = await axios.post('http://localhost:4001/updateprofile', formData, {
         headers: {
           'auth-token': token,
           'Content-Type': 'multipart/form-data',

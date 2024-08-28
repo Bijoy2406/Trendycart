@@ -34,7 +34,7 @@ const Navbar = () => {
             const refreshToken = localStorage.getItem('refresh-token');
             if (!refreshToken) throw new Error('No refresh token available');
 
-            const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
+            const response = await fetch('http://localhost:4001/token', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -67,13 +67,13 @@ const Navbar = () => {
                 token = await refreshAccessToken();
             }
             if (token) {
-                const response = await fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
+                const response = await fetch('http://localhost:4001/getUserRole', {
                     headers: { 'auth-token': token },
                 });
                 if (response.status === 401) { // Unauthorized, token might be invalid
                     token = await refreshAccessToken(); // Attempt to refresh the token
                     if (token) {
-                        const retryResponse = await fetch('https://backend-beryl-nu-15.vercel.app/getUserRole', {
+                        const retryResponse = await fetch('http://localhost:4001/getUserRole', {
                             headers: { 'auth-token': token },
                         });
                         if (retryResponse.ok) {
@@ -143,7 +143,7 @@ const Navbar = () => {
                     return;
                 }
 
-                const response = await axios.get('https://backend-beryl-nu-15.vercel.app/profile', {
+                const response = await axios.get('http://localhost:4001/profile', {
                     headers: {
                         'auth-token': token,
                     },

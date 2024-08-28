@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'; // Import Lin
 import './order.css';
 import '../../Navbar/Navbar.css';
 import Loader from '../../Loader'; // Import your Loader component
-
+import { toast, ToastContainer } from 'react-toastify';
 const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
     const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(false); // State for loading indicator
@@ -15,7 +15,7 @@ const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
         const fetchOrders = async () => {
             setIsLoading(true);
             try {
-                const response = await fetch('https://backend-beryl-nu-15.vercel.app/getorders', {
+                const response = await fetch('http://localhost:4001/getorders', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

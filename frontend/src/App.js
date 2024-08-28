@@ -24,7 +24,6 @@ import PaymentCart from './components/CartItems/PaymentCart';
 import listproduct from './components/Listproduct/Listproduct';
 import EditProduct from './components/Listproduct/Edit'; 
 import Orders from './components/Order/Order';
-import RelatedProduct from './components/RelatedProduct/RelatedProduct';
 function App() {
   return (
     <ShopContextProvider>
@@ -67,7 +66,6 @@ function WithNavbar() {
           <Route path='/profile' element={<Profile />} />
           <Route path='/dashboard' element={<Dashboard />} /> {/* Add the Dashboard route */}
           <Route path="/product/:id" element={<Productdisplay />} />
-          <Route path="/RelatedProduct" element={<RelatedProduct />} /> {/* Add the RelatedProduct route */}
           <Route path="/payment" element={<Payment />} />
           <Route path="/cart/payment" element={<PaymentCart />} />
           <Route path="/listproducts" element={<Listproduct />} />

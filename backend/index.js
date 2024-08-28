@@ -9,6 +9,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const serveStatic = require('serve-static');
 require('dotenv').config();
 
 app.use(express.json());
@@ -18,6 +19,14 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(err.status || 500).json({ success: false, message: err.message || 'Internal Server Error' });
 });
+app.use(serveStatic('public', {
+    'index': ['index.html', 'index.htm'],
+    'setHeaders': (res, path) => {
+        if (path.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css');
+        }
+    }
+}));
 
 mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART");
 
@@ -290,21 +299,16 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/currentuser', fetchUser, async (req, res) => {
+    try {
+        const user = await Users.findById(req.user.id);
+        res.json({ success: true, user: { email: user.email, name: user.name } });
+    } catch (error) {
+        console.error("Error fetching current user:", error);
+        res.status(500).json({ success: false, message: "Error fetching current user" });
+    }
+});
 
-
-
-
-
-const authenticate = (req, res, next) => {
-    const token = req.headers['authorization'];
-    if (!token) return res.status(401).send('Unauthorized');
-
-    jwt.verify(token, 'secret_ecom', (err, user) => {
-        if (err) return res.status(403).send('Forbidden');
-        req.user = user;
-        next();
-    });
-};
 
 app.post('/token', async (req, res) => {
     const { token } = req.body;
