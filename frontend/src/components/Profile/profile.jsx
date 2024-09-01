@@ -102,25 +102,25 @@ const Profile = () => {
       setUploading(true);
       const token = localStorage.getItem('auth-token');
       const formData = new FormData();
-      formData.append('username', newUsername);
-      formData.append('password', newPassword);
-      formData.append('location', location);
+
+      // Only append profilePicture if it's changed
       if (profilePicture) {
         formData.append('profilePicture', profilePicture);
-      }
-  
-      const response = await axios.post('https://backend-beryl-nu-15.vercel.app/updateprofile', formData, {
-        headers: {
-          'auth-token': token,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-  
-      setUserData(response.data.user);
-      setProfilePicture(null); 
-      setProfilePictureURL(response.data.user.profilePicture); 
-      setEditing(false);
-      toast.success('Profile updated successfully!');
+        const response = await axios.post('https://backend-beryl-nu-15.vercel.app/updateprofilepic', formData, {
+          headers: {
+            'auth-token': token,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        setUserData(response.data.user);
+        setProfilePicture(null);
+        setProfilePictureURL(response.data.user.profilePicture);
+        toast.success('Profile picture updated successfully!');
+      } else {
+        // Handle other profile updates (if any) without image
+        // ...
+      } 
     } catch (err) {
       setError(err.message);
       toast.error('Failed to update profile.');

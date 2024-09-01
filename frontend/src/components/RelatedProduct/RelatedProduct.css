@@ -1,4 +1,4 @@
-.relatedproducts{
+.relatedproducts {
     padding: 10vw; /* Using vw for responsive padding */
     align-items: center;
     display: flex;
@@ -6,6 +6,7 @@
     gap: 1rem; /* Using rem for responsive gap */
     min-height: 90vh; /* Using min-height for flexibility */
 }
+
 
 .relatedproducts h1{
   

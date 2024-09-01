@@ -43,11 +43,23 @@ app.get("/", (req, res) => {
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-        folder: 'some-folder-name',
+        folder: 'product',
         format: async (req, file) => path.extname(file.originalname).substring(1),
-        public_id: (req, file) => '${file.fieldname}_${Date.now()}'
+        public_id: (req, file) => `${file.fieldname}_${Date.now()}` 
     },
 });
+const uploadProfilePicture = multer({
+    storage: new CloudinaryStorage({
+        cloudinary: cloudinary,
+        params: {
+            folder: 'profile-pictures', // Specify the dedicated folder
+            format: async (req, file) => path.extname(file.originalname).substring(1),
+            public_id: (req, file) => `profile-${req.user.id}-${Date.now()}` // Unique ID
+        },
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 }, 
+});
+
 
 const upload = multer({ 
     storage: storage,
@@ -496,7 +508,19 @@ app.post('/getcart',fetchUser,async(req,res)=>{
     let userData = await Users.findOne({_id:req.user.id});
     res.json(userData.cartData);
 })
-
+app.post('/updateprofilepic', fetchUser, uploadProfilePicture.single('profilePicture'), 
+    async (req, res) => { 
+    try {
+        const updatedUser = await Users.findByIdAndUpdate(req.user.id, 
+            { profilePicture: req.file.path }, 
+            { new: true }
+        );
+        res.json({ success: true, user: updatedUser });
+    } catch (error) {
+        console.error("Error updating profile picture:", error);
+        res.status(500).json({ success: false, message: "Error updating profile picture" });
+    }
+});
 app.get('/profile', fetchUser, async (req, res) => {
     try {
         let userData = await Users.findOne({ _id: req.user.id });
