@@ -10,15 +10,16 @@ body, html {
   
  
 .footer{
-        align-items: center;
-    background: linear-gradient(180deg, #fde1ff, #e1ffea22 60%);
-    gap: 10px;
-    height: 36vh;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    margin-top: 50px;
-    padding: 16px 0px;
-    /* position: relative; */
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(180deg, #fde1ff 0%, #e1ffea22 60%);
+    height: 36vh;
+    margin-top: 150px;
     width: 100%;
+    padding: 20px 0;
 }
 
 
