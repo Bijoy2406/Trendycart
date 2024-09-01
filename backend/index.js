@@ -660,7 +660,30 @@ app.get('/getorders', fetchUser, async (req, res) => {
 });
 
 
+app.get('/productcountsbycategory', async (req, res) => {
+    try {
+        const productCounts = await Product.aggregate([
+            {
+                $group: {
+                    _id: "$category",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    category: "$_id",
+                    count: 1
+                }
+            }
+        ]);
 
+        res.json({ success: true, productCounts });
+    } catch (error) {
+        console.error("Error fetching product counts by category:", error);
+        res.status(500).json({ success: false, message: "Error fetching product counts by category" });
+    }
+});
 
 
 app.listen(port, (error) => {

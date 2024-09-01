@@ -1,6 +1,8 @@
+// ShopContextProvider.jsx
 import React, { createContext, useEffect, useState } from "react";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 export const ShopContext = createContext(null);
 
 const refreshAccessToken = async () => {
@@ -64,6 +66,7 @@ const getDefaultCart = () => {
 const ShopContextProvider = (props) => {
   const [all_product, setAll_Product] = useState([]);
   const [cartItems, setCartItems] = useState(getDefaultCart());
+  const [categories, setCategories] = useState([]);
 
   // Load cartItems from localStorage on component mount
   useEffect(() => {
@@ -87,7 +90,6 @@ const ShopContextProvider = (props) => {
     }
   }, [cartItems]);
 
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -95,6 +97,18 @@ const ShopContextProvider = (props) => {
         const productsResponse = await fetch('https://backend-beryl-nu-15.vercel.app/allproducts');
         const productsData = await productsResponse.json();
         setAll_Product(productsData);
+
+        // Compute categories distribution
+        const categoryCounts = productsData.reduce((acc, product) => {
+          const category = product.category;
+          if (!acc[category]) acc[category] = 0;
+          acc[category] += 1;
+          return acc;
+        }, {});
+
+        const categoryData = Object.entries(categoryCounts).map(([name, value]) => ({ name, value }));
+
+        setCategories(categoryData);
 
         // Fetch cart items
         const cartResponse = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/getcart', {
@@ -121,7 +135,7 @@ const ShopContextProvider = (props) => {
     fetchData();
   }, []);
 
-  const addToCart = async (itemId, quantity = 1,selectedSize) => {
+  const addToCart = async (itemId, quantity = 1, selectedSize) => {
     try {
       const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/addtocart', {
         method: 'POST',
@@ -225,14 +239,14 @@ const ShopContextProvider = (props) => {
     removeFromCart,
     addToCart,
     clearCart,
+    categories, // Add categories to context value
   };
 
   return (
     <ShopContext.Provider value={contextValue}>
-        <ToastContainer />
+      <ToastContainer />
       {props.children}
     </ShopContext.Provider>
-    
   );
 };
 
