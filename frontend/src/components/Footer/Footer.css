@@ -10,20 +10,15 @@ body, html {
   
  
 .footer{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+        align-items: center;
+    background: linear-gradient(180deg, #fde1ff, #e1ffea22 60%);
     gap: 10px;
-    background: linear-gradient(180deg, #fde1ff 0%, #e1ffea22 60%);
     height: 36vh;
-    margin-top: auto;
-    position: relative;
-
-    /*top: 117rem;
-    left: 0rem;*/
+    justify-content: center;
+    margin-top: 50px;
+    padding: 16px 0px;
+    /* position: relative; */
     width: 100%;
-    padding: 20px 0;
 }
 
 
