@@ -187,7 +187,7 @@ const Navbar = () => {
                 window.location.reload();
             }
         };
-    
+
         checkAndReload();
     }, [location.pathname]);
 
@@ -240,7 +240,7 @@ const Navbar = () => {
                     <>
                         <div className="profile-dropdown" ref={dropdownRef}>
                             <img
-                                src={profilePictureURL || navProfile} // Use profile picture URL or default profile picture
+                                src={profilePictureURL || navProfile}
                                 alt='Profile'
                                 className='profile-icon'
                                 onClick={toggleDropdown}

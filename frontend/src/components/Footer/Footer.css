@@ -9,20 +9,18 @@ body, html {
 
   
  
-.footer{
-        align-items: center;
-    background: linear-gradient(180deg, #fde1ff, #e1ffea22 60%);
-    gap: 10px;
-    height: 36vh;
+.footer {
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    margin-top: 50px;
-    padding: 16px 0px;
-    /* position: relative; */
+    align-items: center;
+    gap: 1rem; /* Using rem for responsive gap */
+    background: linear-gradient(180deg, #fde1ff 0%, #e1ffea22 60%);
+    min-height: 36vh; /* Using min-height for flexibility */
+    margin-top: 10vh; /* Adjusted to a responsive unit */
     width: 100%;
+    padding: 2rem 0; /* Using rem for responsive padding */
 }
-
-
-
 
 .footer-logo p{
     color: #383838;

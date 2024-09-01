@@ -1,11 +1,12 @@
-.relatedproducts{
-    padding: 35px;
+.relatedproducts {
+    padding: 10vw; /* Using vw for responsive padding */
     align-items: center;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    height: 90vh;
+    gap: 1rem; /* Using rem for responsive gap */
+    min-height: 90vh; /* Using min-height for flexibility */
 }
+
 
 .relatedproducts h1{
   
