@@ -3,6 +3,7 @@ import './Sidebar.css';
 import { Link } from 'react-router-dom';
 import addproduct_icon from '../Assets/cart_icon.png'
 import listproduct_icon from '../Assets/Product_list_icon.svg'
+import User_list from "../Assets/user_list.png"
 import Dashboard_icon from '../Assets/dashboard_icon.png'
 
 const Sidebar = () => {
@@ -25,15 +26,15 @@ const Sidebar = () => {
                     </p>
                 </div>
             </Link>
-            <Link to='/dashboard' style={{ textDecoration: 'none' }}>
+            <Link to='/userlist' style={{ textDecoration: 'none' }}>
                 <div className="sidebar-item">
-                    <img src={Dashboard_icon} alt="Dashboard Icon" />
-                    <p>Dashboard</p>
+                    <img src={User_list} alt="Userlist Icon" />
+                    <p>Userlist</p>
                 </div>
             </Link>
             <Link to='/chart' style={{ textDecoration: 'none' }}>
                 <div className="sidebar-item">
-                    <img src={Dashboard_icon} alt="Dashboard Icon" />
+                    <img src={Dashboard_icon} alt="Userlist Icon" />
                     <p>Chart</p>
                 </div>
             </Link>

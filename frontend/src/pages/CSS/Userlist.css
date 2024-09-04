@@ -1,11 +1,11 @@
-/* Dashboard.css */
+/* Userlist.css */
 
-.dashboard-container {
+.Userlist-container {
     padding: 20px;
     background-color: #f9f9f9;
 }
 
-.dashboard-header {
+.Userlist-header {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
@@ -76,11 +76,11 @@
 }
 /* Responsive design */
 @media (max-width: 768px) {
-    .dashboard-container {
+    .Userlist-container {
         padding: 10px;
     }
 
-    .dashboard-header {
+    .Userlist-header {
         font-size: 20px;
         padding: 10px 0;
     }
