@@ -17,7 +17,7 @@ import ShopContextProvider from './components/Context/ShopContext';
 import SearchResults from './pages/search';
 import Profile from './components/Profile/profile';
 import Loader from './Loader';
-import Dashboard from './pages/Dashboard'; // Import the Dashboard component
+import Userlist from './pages/Userlist'; // Import the Userlist component
 import Productdisplay from './components/Productdisplay/Productdisplay'; 
 import Payment from './components/Payment/Payment'; 
 import PaymentCart from './components/CartItems/PaymentCart';
@@ -65,8 +65,8 @@ function WithNavbar() {
           <Route path='search/:searchTerm' element={<SearchResults />} />
           <Route path='/admin' element={<Admin />} />
           <Route path='/profile' element={<Profile />} />
-          <Route path='/dashboard' element={<Dashboard />} /> {/* Add the Dashboard route */}
-          <Route path='/chart' element={<Chart />} /> {/* Add the Dashboard route */}
+          <Route path='/Userlist' element={<Userlist />} /> {/* Add the Userlist route */}
+          <Route path='/chart' element={<Chart />} /> {/* Add the Userlist route */}
           <Route path="/product/:id" element={<Productdisplay />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/cart/payment" element={<PaymentCart />} />

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import './CSS/Dashboard.css';
+import './CSS/Userlist.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-function Dashboard() {
+function Userlist() {
     const [users, setUsers] = useState([]);
     const [currentUserEmail, setCurrentUserEmail] = useState('');
     const [currentUserName, setCurrentUserName] = useState('');
@@ -126,8 +126,8 @@ function Dashboard() {
     };
 
     return (
-        <div className="dashboard-container">
-            <h2 className="dashboard-header">User Dashboard</h2>
+        <div className="Userlist-container">
+            <h2 className="Userlist-header">Userlist</h2>
             <ul className="user-list">
                 {sortedUsers.map(user => (
                     <li key={user._id} className={`user-card ${user.isAdmin ? 'admin-user' : ''}`}>
@@ -154,4 +154,4 @@ function Dashboard() {
     );
 }
 
-export default Dashboard;
+export default Userlist;
