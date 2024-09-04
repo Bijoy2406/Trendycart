@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import './Admin.css';
-import Sidebar from '../../components/Sidebar/Sidebar.jsx';
-import { Routes, Route } from 'react-router-dom';
-import Addproduct from '../../components/Addproduct/Addproduct';
-import Listproduct from '../../components/Listproduct/Listproduct';
+import React from 'react';
+import './Chart.css';
+import { PieChart, Pie, Tooltip } from 'recharts';
 
-const Admin = () => {
+const Chart = () => {
   const [data, setData] = useState([]);
 
   // Array of colors for the pie chart slices
@@ -36,22 +33,25 @@ const Admin = () => {
   }, []);
 
   return (
-    <div className='admin'>
-      <Sidebar />
-      <div className="content">
-        <div className="welcome-text">
-          <h2>Welcome to the admin panel.</h2>
-          <p>Here you can add, edit, or browse all of your products.</p>
-        </div>
-
-        
-      </div>
-      <Routes>
-        <Route path='/addproduct' element={<Addproduct />} />
-        <Route path='/listproduct' element={<Listproduct />} />
-      </Routes>  
+    <div className="chart-container">
+      <h2>Product Categories</h2>
+      <PieChart width={400} height={400}>
+        <Pie
+          dataKey="value" // Field for the pie slice size
+          isAnimationActive={false}
+          data={data}
+          cx={200}
+          cy={200}
+          outerRadius={150}
+          fill="#8884d8" // Default color if dynamic colors are not provided
+          label={({ name, value }) => `${name}: ${value}`} // Display category name and count
+          // Provide colors dynamically based on the index
+          colors={colors}
+        />
+        <Tooltip />
+      </PieChart>
     </div>
   );
 };
 
-export default Admin;
+export default Chart;

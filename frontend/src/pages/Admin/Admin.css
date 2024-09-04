@@ -48,3 +48,7 @@
   max-width: 600px; 
   text-align: center; 
 }
+.recharts-wrapper{
+  position: relative;
+  left: 20px;
+}

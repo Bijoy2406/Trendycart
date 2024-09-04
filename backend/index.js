@@ -616,6 +616,62 @@ const Order = mongoose.model("Order", {
     paymentMethod: { type: String, required: true },
     orderDate: { type: Date, default: Date.now }
 });
+// New API endpoint to get weekly order counts
+app.get('/weeklyordercounts', async (req, res) => {
+    try {
+        const { month, year } = req.query;
+
+        const startOfMonth = new Date(year, month - 1, 1);
+        const endOfMonth = new Date(year, month, 1);
+        endOfMonth.setDate(endOfMonth.getDate() - 1); // End of the month
+
+        const weeklyCounts = await Order.aggregate([
+            {
+                $match: {
+                    orderDate: {
+                        $gte: startOfMonth, // Start of the selected month
+                        $lt: new Date(year, month, 1) // Start of the next month
+                    }
+                }
+            },
+            {
+                $project: {
+                    dayOfMonth: { $dayOfMonth: "$orderDate" },
+                    week: {
+                        $ceil: { $divide: [{ $subtract: [{ $dayOfMonth: "$orderDate" }, 1] }, 7] } // Calculate week number
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        week: "$week",
+                        year: { $year: "$orderDate" }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { "_id.year": 1, "_id.week": 1 }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    week: "$_id.week",
+                    year: "$_id.year",
+                    count: 1
+                }
+            }
+        ]);
+
+        res.json({ success: true, weeklyCounts });
+    } catch (error) {
+        console.error("Error fetching weekly order counts:", error);
+        res.status(500).json({ success: false, message: "Error fetching weekly order counts" });
+    }
+});
+
+
 
 app.post('/createorder', fetchUser, async (req, res) => {
     try {
@@ -662,28 +718,32 @@ app.get('/getorders', fetchUser, async (req, res) => {
 
 app.get('/productcountsbycategory', async (req, res) => {
     try {
-        const productCounts = await Product.aggregate([
-            {
-                $group: {
-                    _id: "$category",
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    category: "$_id",
-                    count: 1
-                }
-            }
-        ]);
-
-        res.json({ success: true, productCounts });
+      const productCounts = await Product.aggregate([
+        {
+          $group: {
+            _id: '$category',
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            category: '$_id',
+            count: 1,
+          },
+        },
+        {
+          $sort: { category: 1 }, // Sort by category in ascending order
+        },
+      ]);
+  
+      res.json({ success: true, productCounts });
     } catch (error) {
-        console.error("Error fetching product counts by category:", error);
-        res.status(500).json({ success: false, message: "Error fetching product counts by category" });
+      console.error('Error fetching product counts by category:', error);
+      res.status(500).json({ success: false, message: 'Error fetching product counts by category' });
     }
-});
+  });
+  
 
 
 app.listen(port, (error) => {
