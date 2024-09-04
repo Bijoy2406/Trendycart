@@ -31,6 +31,12 @@ const Sidebar = () => {
                     <p>Dashboard</p>
                 </div>
             </Link>
+            <Link to='/chart' style={{ textDecoration: 'none' }}>
+                <div className="sidebar-item">
+                    <img src={Dashboard_icon} alt="Dashboard Icon" />
+                    <p>Chart</p>
+                </div>
+            </Link>
 
         </div>
     );
