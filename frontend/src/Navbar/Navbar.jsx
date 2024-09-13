@@ -7,7 +7,6 @@ import { ShopContext } from '../components/Context/ShopContext';
 import navProfile from '../components/Assets/pic/nav-profile.png';
 import Loader from '../Loader';
 import axios from 'axios';
-
 const Navbar = () => {
     const [menu, setMenu] = useState('shop');
     const { getTotalCartItem } = useContext(ShopContext);
@@ -21,7 +20,6 @@ const Navbar = () => {
     const location = useLocation(); // To get the current location
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [error, setError] = useState(null);
-
     const searchRef = useRef(null);
     const dropdownRef = useRef(null);
 
@@ -287,6 +285,7 @@ const Navbar = () => {
                         <button className='login'>Login</button>
                     </Link>
                 )}
+                
             </div>
         </div>
     );

@@ -1,4 +1,3 @@
-// ShopContextProvider.jsx
 import React, { createContext, useEffect, useState } from "react";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -110,21 +109,27 @@ const ShopContextProvider = (props) => {
 
         setCategories(categoryData);
 
-        // Fetch cart items
-        const cartResponse = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/getcart', {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        });
+        // Check for authentication before fetching cart
+        const token = localStorage.getItem('auth-token');
+        if (token) { 
+          try {
+            const cartResponse = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/getcart', {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+            });
 
-        if (cartResponse.ok) {
-          const cartData = await cartResponse.json();
-          setCartItems(cartData); 
-        } else {
-          console.error('Error fetching cart items:', cartResponse.status);
-          // Handle error, maybe show a toast message
+            if (cartResponse && cartResponse.ok) { // Check if response exists
+              const cartData = await cartResponse.json();
+              setCartItems(cartData); 
+            } else {
+              console.error('Error fetching cart items:', cartResponse?.status);
+            }
+          } catch (error) {
+            console.error('Error fetching cart items:', error);
+          }
         }
       } catch (error) {
         console.error('Error fetching data:', error);

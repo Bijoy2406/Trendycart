@@ -127,7 +127,7 @@ function Login() {
             });
             const data = await response.json();
             if (data.success) {
-                toast.success('Signup successful! Please sign in.');
+                toast.success('Signup successful! Please check your email for a verification link.'); // Verification message
                 setShowLogin(true); // Redirect to sign-in state
             } else {
                 toast.error(data.errors);
@@ -368,4 +368,3 @@ function Login() {
 }
 
 export default Login;
-

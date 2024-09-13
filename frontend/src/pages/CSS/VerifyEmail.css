@@ -1,0 +1,78 @@
+.verify-email-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f8f8f8;
+  /* Light background */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.verification-box {
+  background-color: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+h2 {
+  color: #228B22;
+  /* Green color for success */
+  margin-bottom: 20px;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid #eee;
+  border-top: 5px solid #228B22;
+  /* Green */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.success-icon,
+.error-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.success-icon {
+  color: #228B22;
+  /* Green */
+}
+
+.error-icon {
+  color: #d9534f;
+  /* Red */
+}
+
+.login-button {
+  background-color: #228B22;
+  /* Green */
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  position: relative;
+  top: 15px;
+}
+
+.login-button:hover {
+  background-color: #28a745;
+  /* Darker green on hover */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
