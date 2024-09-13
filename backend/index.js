@@ -11,6 +11,9 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const serveStatic = require('serve-static');
 require('dotenv').config();
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const successfulVerifications = new Set(); // Keep track of successful verification IDs
 
 app.use(express.json());
 app.use(cors());
@@ -28,7 +31,7 @@ app.use(serveStatic('public', {
     }
 }));
 
-mongoose.connect("mongodb+srv://labibfarhan285:CR7@cluster0.m7lnrxb.mongodb.net/TRANDYCART");
+mongoose.connect(process.env.MONGODB_URI); 
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
@@ -200,6 +203,8 @@ const Users = mongoose.model('Users', {
     refreshToken: { type: String },
     refreshTokenExpiry: { type: Date },
     profilePicture: { type: String }, // Add profilePicture field
+    isVerified: { type: Boolean, default: false },
+    verificationToken: String,
 
 });
 
@@ -222,6 +227,7 @@ app.post('/signup', async (req, res) => {
     for (let i = 0; i < 300; i++) {
         cart[i] = 0;
     }
+    const verificationToken = crypto.randomBytes(20).toString('hex');
 
     const user = new Users({
         name: req.body.username,
@@ -231,6 +237,8 @@ app.post('/signup', async (req, res) => {
         isAdmin: req.body.isAdmin || false,
         location: req.body.location,
         dateOfBirth: req.body.dob,
+        verificationToken,
+
     });
 
     await user.save();
@@ -242,10 +250,70 @@ app.post('/signup', async (req, res) => {
     };
 
     const token = jwt.sign(data, 'secret_ecom',{expiresIn:"30m"});
-  
+   // Send verification email
+   const verificationUrl = `http://localhost:3000/verify-email/${verificationToken}`;
+   sendVerificationEmail(user.email, verificationUrl);
     res.json({ success: true, token});
 });
 
+app.get('/verify-email/:token', async (req, res) => {
+    const { token } = req.params;
+    const { verificationId } = req.query; // Get the verification ID
+  
+    try {
+      // Check if already verified with this ID
+      if (successfulVerifications.has(verificationId)) {
+        return res.json({ success: true, message: 'Email already verified' });
+      }
+  
+      const user = await Users.findOne({ verificationToken: token });
+  
+      if (!user) {
+        return res.status(400).json({ success: false, message: 'Invalid token' });
+      }
+  
+      user.isVerified = true;
+      user.verificationToken = undefined;
+      await user.save();
+  
+      successfulVerifications.add(verificationId); // Mark as successful
+  
+      res.json({ success: true, message: 'Email verified successfully' });
+    } catch (error) {
+      console.error('Verification error:', error);
+      res.status(500).json({ success: false, message: 'Server error during verification' });
+    }
+  });
+
+
+
+
+
+
+function sendVerificationEmail(email, verificationUrl) {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.USER,
+            pass: process.env.PASS,
+        }
+    });
+
+    const mailOptions = {
+        from: process.env.USER,
+        to: email,
+        subject: 'Email Verification',
+        text: `Please click on the following link to verify your email: ${verificationUrl}`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+}
 //auth-token
 const fetchUser = async (req, res, next) => {
     const token = req.header('auth-token');
@@ -269,6 +337,11 @@ app.post('/login', async (req, res) => {
             return res.json({ success: false, errors: "Wrong email" });
         }
 
+        // Verification Check 
+        if (!user.isVerified) { 
+            return res.status(401).json({ success: false, errors: "Please verify your email before logging in." }); 
+        }
+
         const passCompare = await bcrypt.compare(req.body.password, user.password);
         if (!passCompare) {
             return res.json({ success: false, errors: "Wrong Password" });
@@ -285,6 +358,12 @@ app.post('/login', async (req, res) => {
                 isApprovedAdmin: user.isApprovedAdmin,
             }
         };
+
+        // If login is successful and user is verified, clear the verification token
+        if (passCompare && user.isVerified) { 
+            user.verificationToken = undefined;
+            await user.save();
+        } 
 
         // Check the refresh token and its expiry
         let refreshtoken = user.refreshToken;
@@ -502,12 +581,22 @@ app.get('/allusers', async (req, res) => {
 
 
 
-app.post('/getcart',fetchUser,async(req,res)=>{
-   
-    console.log("GetCart");
-    let userData = await Users.findOne({_id:req.user.id});
-    res.json(userData.cartData);
-})
+app.post('/getcart', fetchUser, async (req, res) => {
+    try {
+        console.log("GetCart", req.user.id); // Log the user ID
+        let userData = await Users.findOne({ _id: req.user.id });
+
+        if (!userData) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(userData.cartData);
+    } catch (error) {
+        console.error("Error fetching cart:", error);
+        res.status(500).json({ message: 'Error fetching cart' });
+    }
+});
+
 app.post('/updateprofilepic', fetchUser, uploadProfilePicture.single('profilePicture'), 
     async (req, res) => { 
     try {

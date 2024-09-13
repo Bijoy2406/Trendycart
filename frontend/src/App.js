@@ -18,18 +18,20 @@ import SearchResults from './pages/search';
 import Profile from './components/Profile/profile';
 import Loader from './Loader';
 import Userlist from './pages/Userlist'; // Import the Userlist component
-import Productdisplay from './components/Productdisplay/Productdisplay'; 
-import Payment from './components/Payment/Payment'; 
+import Productdisplay from './components/Productdisplay/Productdisplay';
+import Payment from './components/Payment/Payment';
 import PaymentCart from './components/CartItems/PaymentCart';
 import listproduct from './components/Listproduct/Listproduct';
-import EditProduct from './components/Listproduct/Edit'; 
+import EditProduct from './components/Listproduct/Edit';
 import Orders from './components/Order/Order';
 import Chart from './pages/Chart';
+import VerifyEmail from './pages/VerifyEmail';
 function App() {
   return (
     <ShopContextProvider>
       <BrowserRouter>
         <Routes>
+        <Route path="/verify-email/:token" element={<VerifyEmail />} />
           <Route path='/login/*' element={<Login />} />
           <Route path='/addproduct' element={<Addproduct />} />
           <Route path='/listproduct' element={<Listproduct />} />
@@ -71,8 +73,9 @@ function WithNavbar() {
           <Route path="/payment" element={<Payment />} />
           <Route path="/cart/payment" element={<PaymentCart />} />
           <Route path="/listproducts" element={<Listproduct />} />
-        <Route path="/editproduct/:id" element={<EditProduct />} />
-        <Route path="/order" element={<Orders />} />
+          <Route path="/editproduct/:id" element={<EditProduct />} />
+          <Route path="/order" element={<Orders />} />
+
         </Routes>
       )}
       <Footer />
