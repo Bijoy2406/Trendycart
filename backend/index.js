@@ -16,8 +16,9 @@ const nodemailer = require('nodemailer');
 const successfulVerifications = new Set(); // Keep track of successful verification IDs
 
 app.use(express.json());
-app.use(cors());
-// In your Express error handling middleware
+app.use(cors({
+     origin: 'https://trendycart.vercel.app' // Replace with your frontend domain
+ }));// In your Express error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(err.status || 500).json({ success: false, message: err.message || 'Internal Server Error' });
