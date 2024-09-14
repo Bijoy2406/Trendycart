@@ -1,0 +1,146 @@
+/* Userlist.css */
+
+.Userlist-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.Userlist-header {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.user-list {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 50px; /* Add margin to avoid overlap with sticky header */
+}
+
+.user-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px #0000001a;
+    margin: 10px 0;
+    padding: 20px;
+    transition: box-shadow 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: auto; /* Use auto height for flexibility */
+}
+
+.user-card:hover {
+    box-shadow: 0 4px 8px #0000001a;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name,
+.user-email {
+    margin: 5px 0; /* Ensure consistent spacing between elements */
+}
+
+.user-name {
+    font-weight: bold;
+    color: #555;
+}
+
+.user-email {
+    color: #888;
+}
+
+.user-card.admin-user .user-email,
+.user-card.admin-user .user-name {
+    color: red;
+    font-weight: bold; /* Makes the text bold */
+    height: 20px;
+}
+
+.admin-toggle {
+    margin-top: 10px;
+}
+.wrap-check-57{
+  position: relative;
+  top: 10px;
+}
+.approve-admin-label {
+  font-size: 16px;       
+  font-weight: bold;      
+  color: #333;        
+}
+/* Responsive design */
+@media (max-width: 768px) {
+    .Userlist-container {
+        padding: 10px;
+    }
+
+    .Userlist-header {
+        font-size: 20px;
+        padding: 10px 0;
+    }
+
+    .user-card {
+        padding: 15px;
+    }
+
+    .user-name,
+    .user-email {
+        margin: 3px 0;
+    }
+}
+
+
+
+/* ToggleSwitch.css */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  left: 10px;
+  bottom: 5px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  border-radius: 50%;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px); /* Move slider knob to the right */
+}
