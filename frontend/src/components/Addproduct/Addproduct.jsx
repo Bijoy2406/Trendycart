@@ -6,23 +6,24 @@ import { ShopContext } from '../Context/ShopContext';
 import back_icon from '../../components/Assets/back.png';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Loader from '../../Loader'; // Import the loader
+import Loader from '../../Loader'; 
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 const Addproduct = () => {
     const { setAll_Product, all_product } = useContext(ShopContext);
     const [image, setImage] = useState(false);
-    const [loading, setLoading] = useState(false); // State for loading
+    const [loading, setLoading] = useState(false); 
     const [selectedSizes, setSelectedSizes] = useState([]);
-    
+    const [dragging, setDragging] = useState(false); 
+
     const [productDetails, setProductDetails] = useState({
         name: "",
         image: "",
         category: "",
         new_price: "",
         old_price: "",
-        description: "" // Ensure description is an empty string initially
+        description: "" 
     });
     const navigate = useNavigate();
 
@@ -40,6 +41,41 @@ const Addproduct = () => {
 
     const imageHandler = (e) => {
         const file = e.target.files[0];
+        if (file && !file.type.startsWith('image/')) {
+            toast.error('Only image files are allowed!');
+            return;
+        }
+        setImage(file);
+        setProductDetails({ ...productDetails, image: file });
+    };
+
+    const handleDragEnter = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragging(false);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragging(false);
+
+        const file = e.dataTransfer.files[0];
+        if (file && !file.type.startsWith('image/')) {
+            toast.error('Only image files are allowed!');
+            return;
+        }
         setImage(file);
         setProductDetails({ ...productDetails, image: file });
     };
@@ -47,7 +83,7 @@ const Addproduct = () => {
     const Add_product = async () => {
         const { name, category, new_price, old_price, image, description } = productDetails;
 
-        if (!name || !category || !new_price || !old_price || !image || !description) {
+        if (!name || !category || !new_price || !old_price || !image || !description || selectedSizes.length === 0) {
             const missingFields = [];
 
             if (!name) missingFields.push("Product Title");
@@ -55,17 +91,18 @@ const Addproduct = () => {
             if (!new_price) missingFields.push("Offer Price");
             if (!old_price) missingFields.push("Price");
             if (!image) missingFields.push("Product Image");
+            if (selectedSizes.length === 0) missingFields.push("Product Sizes"); 
 
             toast.error(`Please fill out the following fields: ${missingFields.join(', ')}`);
             return;
         }
 
-        setLoading(true); // Show loader when starting the process
+        setLoading(true); 
         let responseData;
         let product = {
             ...productDetails,
             sizes: selectedSizes,
-            description: description // Add description to the product object
+            description: description 
         };
         let formData = new FormData();
         formData.append('product', image);
@@ -93,11 +130,11 @@ const Addproduct = () => {
                 });
                 const addProductData = await addProductResponse.json();
 
-                setLoading(false); // Hide loader after the process
+                setLoading(false); 
 
                 if (addProductData.success) {
                     toast.success("Product Added");
-                    setAll_Product([...all_product, product]); // Update context
+                    setAll_Product([...all_product, product]); 
                     setTimeout(() => {
                         navigate('/admin');
                         window.location.reload();
@@ -106,11 +143,11 @@ const Addproduct = () => {
                     toast.error("Failed to add product");
                 }
             } else {
-                setLoading(false); // Hide loader in case of failure
+                setLoading(false); 
                 toast.error("Failed to upload image");
             }
         } catch (error) {
-            setLoading(false); // Hide loader in case of error
+            setLoading(false); 
             toast.error("An error occurred. Please try again.");
         }
     };
@@ -118,13 +155,18 @@ const Addproduct = () => {
     const goBack = () => {
         navigate(-1);
     };
-
+    const removeImage = (e) => {
+        e.stopPropagation(); 
+        setImage(false);
+        setProductDetails({ ...productDetails, image: '' });
+    };
+    
     return (
         <div className='addproduct'>
             <button onClick={goBack} className='addproduct-back-btn'>
                 <img src={back_icon} alt="Back" />
             </button>
-            {loading && <Loader />} {/* Render the loader if loading is true */}
+            {loading && <Loader />} 
             <div className="addproduct-itemfields">
                 <h1>Product Title</h1>
                 <input
@@ -209,13 +251,32 @@ const Addproduct = () => {
                     </label>
                 ))}
             </div>
-            <div className="addproduct-itemfields" onClick={() => document.getElementById('file-input').click()}>
+            <div 
+                className={`addproduct-itemfields ${dragging ? 'dragging' : ''}`}
+                onClick={() => document.getElementById('file-input').click()}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+            >
                 <label>
-                    <img
-                        src={image ? URL.createObjectURL(image) : upload_area}
-                        className='addproduct-thumbnail-image'
-                        alt=""
-                    />
+                    {image ? ( 
+                        <>
+                            <img
+                                src={URL.createObjectURL(image)}
+                                className='addproduct-thumbnail-image'
+                                alt=""
+                            />
+                            <button className="remove-image" onClick={removeImage}> 
+                                &times; 
+                            </button>
+                        </>
+                    ) : ( 
+                        <div className="upload-instructions">
+                            <img src={upload_area} alt="Upload Area" />
+                            <p>Click here or drag & drop to upload</p>
+                        </div>
+                    )}
                 </label>
                 <input
                     onChange={imageHandler}
