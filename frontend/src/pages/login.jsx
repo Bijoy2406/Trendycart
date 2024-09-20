@@ -35,7 +35,7 @@ function Login() {
         console.log("sign in executed");
         setLoading(true); // Show loader 
         try {
-            const response = await fetchWithToken('http://localhost:4001/login', {
+            const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/login', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',

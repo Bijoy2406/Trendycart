@@ -15,7 +15,7 @@ const Listproduct = () => {
   useEffect(() => {
     const fetchInfo = async () => {
       try {
-        const res = await fetch('http://localhost:4001/allproducts');
+        const res = await fetch('https://backend-beryl-nu-15.vercel.app/allproducts');
         const data = await res.json();
         setAllProducts(data);
         setAll_Product(data); // Keep the context in sync
@@ -28,7 +28,7 @@ const Listproduct = () => {
   }, [setAll_Product]); // Include setAll_Product as a dependency
 
   const remove_product = async (id) => {
-    const response = await fetch('http://localhost:4001/remove', {
+    const response = await fetch('https://backend-beryl-nu-15.vercel.app/remove', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

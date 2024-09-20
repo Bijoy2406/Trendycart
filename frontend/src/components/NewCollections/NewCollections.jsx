@@ -9,7 +9,7 @@ const NewCollections = () => {
   useEffect(() => {
 
 
-    fetch('http://localhost:4001/newcollections')
+    fetch('https://backend-beryl-nu-15.vercel.app/newcollections')
       .then((response) => response.json())
       .then((data) => setNewCollections(data));
 

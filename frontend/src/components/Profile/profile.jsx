@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import './profile.css';
-import defaultProfilePic from '../Assets/default-profile.png'; // Import a default profile image
+import defaultProfilePic from '../Assets/default-profile.png'; // Default profile image
 import Loader from '../../Loader';
 
 const Profile = () => {
@@ -16,11 +15,11 @@ const Profile = () => {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
   const inputFileRef = useRef(null);
-  const [profilePictureURL, setProfilePictureURL] = useState(null); // New state for URL
+  const [profilePictureURL, setProfilePictureURL] = useState(null); // State for image URL
   const [uploading, setUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null); // For image preview
 
-
+  // Function to refresh access token using refresh token
   const refreshAccessToken = async () => {
     try {
       const refreshToken = localStorage.getItem('refresh-token');
@@ -36,9 +35,8 @@ const Profile = () => {
       });
 
       const data = await response.json();
-
       if (data.accessToken) {
-        localStorage.setItem('auth-token', data.accessToken); // Update access token
+        localStorage.setItem('auth-token', data.accessToken);
         return data.accessToken;
       } else {
         throw new Error('Failed to refresh token');
@@ -51,29 +49,59 @@ const Profile = () => {
     }
   };
 
+  // Helper function to make authenticated fetch requests
+  const fetchWithToken = async (url, options = {}) => {
+    let token = localStorage.getItem('auth-token');
+    if (!token) {
+      token = await refreshAccessToken(); // Get new token if expired
+    }
+
+    if (!token) {
+      throw new Error('No valid token available');
+    }
+
+    const fetchOptions = { ...options };
+    fetchOptions.headers = {
+      ...fetchOptions.headers,
+      'auth-token': token,
+    };
+
+    let response = await fetch(url, fetchOptions);
+    
+    // If token is expired or invalid, try to refresh and retry
+    if (response.status === 401) {
+      token = await refreshAccessToken();
+      if (token) {
+        fetchOptions.headers['auth-token'] = token;
+        response = await fetch(url, fetchOptions); // Retry with refreshed token
+      }
+    }
+
+    return response; // Return the final response
+  };
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Declare 'token' inside the function scope
-        const token = localStorage.getItem('auth-token'); 
-
+        const token = localStorage.getItem('auth-token');
         if (!token) {
           setError('No auth token found');
           setLoading(false);
           return;
         }
 
-        const response = await axios.get('http://localhost:4001/profile', {
-          headers: {
-            'auth-token': token,
-          },
-        });
-
-        setUserData(response.data);
-        setNewUsername(response.data.name);
-        setLocation(response.data.location);
-        setDateOfBirth(response.data.dateOfBirth);
-        setProfilePictureURL(response.data.profilePicture || null);
+        const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/profile');
+        const data = await response.json();
+        
+        if (response.ok) {
+          setUserData(data);
+          setNewUsername(data.name);
+          setLocation(data.location);
+          setDateOfBirth(data.dateOfBirth);
+          setProfilePictureURL(data.profilePicture || null);
+        } else {
+          throw new Error(data.message || 'Failed to fetch user data');
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -84,13 +112,12 @@ const Profile = () => {
     fetchUserData();
   }, []);
 
-
-
+  // Handle profile picture change and preview
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file && file.size <= 5 * 1024 * 1024) {
       setProfilePicture(file);
-      setSelectedImage(file); // Set preview image
+      setSelectedImage(file); 
     } else {
       toast.error('File size too large. Max size is 5MB.');
       event.target.value = null;
@@ -100,27 +127,42 @@ const Profile = () => {
   const handleEdit = async () => {
     try {
       setUploading(true);
-      const token = localStorage.getItem('auth-token');
       const formData = new FormData();
 
-      // Only append profilePicture if it's changed
       if (profilePicture) {
         formData.append('profilePicture', profilePicture);
-        const response = await axios.post('http://localhost:4001/updateprofilepic', formData, {
-          headers: {
-            'auth-token': token,
-            'Content-Type': 'multipart/form-data',
-          },
+        const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/updateprofilepic', {
+          method: 'POST',
+          body: formData,
         });
 
-        setUserData(response.data.user);
-        setProfilePicture(null);
-        setProfilePictureURL(response.data.user.profilePicture);
-        toast.success('Profile picture updated successfully!');
-      } else {
-        // Handle other profile updates (if any) without image
-        // ...
-      } 
+        const data = await response.json();
+        if (response.ok) {
+          setUserData(data.user);
+          setProfilePicture(null);
+          setProfilePictureURL(data.user.profilePicture);
+          toast.success('Profile picture updated successfully!');
+        } else {
+          throw new Error(data.message || 'Failed to update profile picture');
+        }
+      }
+
+      if (newPassword) {
+        const passwordResponse = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/updatepassword', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ password: newPassword }),
+        });
+
+        const passwordData = await passwordResponse.json();
+        if (passwordResponse.ok) {
+          toast.success('Password updated successfully');
+        } else {
+          throw new Error(passwordData.message || 'Failed to update password');
+        }
+      }
     } catch (err) {
       setError(err.message);
       toast.error('Failed to update profile.');
@@ -128,17 +170,16 @@ const Profile = () => {
       setUploading(false);
     }
   };
-  
 
+  // Trigger file input for profile picture change
   const handleProfilePictureClick = () => {
-    if (editing && inputFileRef.current) { // Check if ref is attached
+    if (editing && inputFileRef.current) {
       inputFileRef.current.click();
     }
   };
 
-
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   if (error) {
@@ -152,7 +193,7 @@ const Profile = () => {
           <h2>Profile Information</h2>
 
           <div className="profile-picture-container">
-            {uploading ? ( // Show loader during upload
+            {uploading ? (
               <Loader />
             ) : (
               <img
@@ -163,20 +204,15 @@ const Profile = () => {
               />
             )}
 
-            <img
-              src={defaultProfilePic}
-              alt="Default Profile"
-              className="profile-picture"
-              onClick={handleProfilePictureClick}
-            />
             <input
               type="file"
               accept="image/*"
               ref={inputFileRef}
-              style={{ display: editing ? 'block' : 'none' }} // Control visibility with CSS
+              style={{ display: 'none' }}
               onChange={handleImageChange}
             />
           </div>
+
           <div className="profile-field">
             <label>Name:</label>
             {editing ? (
@@ -189,10 +225,12 @@ const Profile = () => {
               <input type="text" value={userData.name} readOnly />
             )}
           </div>
+
           <div className="profile-field">
             <label>Email:</label>
             <input type="text" value={userData.email} readOnly />
           </div>
+
           <div className="profile-field">
             <label>Password:</label>
             {editing ? (
@@ -205,6 +243,7 @@ const Profile = () => {
               <input type="text" value="Protected" readOnly />
             )}
           </div>
+
           <div className="profile-field">
             <label>Location:</label>
             {editing ? (
@@ -217,6 +256,7 @@ const Profile = () => {
               <input type="text" value={userData.location || 'N/A'} readOnly />
             )}
           </div>
+
           <div className="profile-field">
             <label>Date of Birth:</label>
             <input
