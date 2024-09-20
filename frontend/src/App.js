@@ -26,8 +26,6 @@ import EditProduct from './components/Listproduct/Edit';
 import Orders from './components/Order/Order';
 import Chart from './pages/Chart';
 import VerifyEmail from './pages/VerifyEmail';
-import ForgotPassword from './pages/ForgotPassword'; 
-import ResetPassword from './pages/ResetPassword';
 function App() {
   return (
     <ShopContextProvider>
@@ -35,8 +33,6 @@ function App() {
         <Routes>
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
           <Route path='/login/*' element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} /> 
-          <Route path="/reset-password/:token" element={<ResetPassword />} /> 
           <Route path='/addproduct' element={<Addproduct />} />
           <Route path='/listproduct' element={<Listproduct />} />
           <Route path='*' element={<WithNavbar />} />

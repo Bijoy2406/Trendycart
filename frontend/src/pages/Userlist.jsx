@@ -40,30 +40,33 @@ function Userlist() {
     fetchCurrentUser();
 
 
-    const fetchUsers = async () => {
-        try {
-            const response = await fetch('https://backend-beryl-nu-15.vercel.app/allusers', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (response.ok) {
-                const data = await response.json();
-                // Filter users based on isVerified
-                setUsers(data.users.filter(user => user.isVerified)); 
-            } else {
-                console.error("Failed to fetch users:", await response.json());
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch('https://backend-beryl-nu-15.vercel.app/allusers', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setUsers(data.users);
+                } else {
+                    console.error("Failed to fetch users:", await response.json());
+                }
+            } catch (error) {
+                console.error("Failed to fetch users:", error);
             }
-        } catch (error) {
-            console.error("Failed to fetch users:", error);
-        }
-    };
+        };
 
-    fetchUsers();
-}, []);
+        fetchUsers();
+    }, []);
+
+
+
+
 
     const handleToggle = async (email, isChecked) => {
         try {

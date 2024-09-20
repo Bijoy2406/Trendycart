@@ -110,7 +110,7 @@ const ShopContextProvider = (props) => {
         setCategories(categoryData);
 
         // Check for authentication before fetching cart
-        const token = localStorage.getItem('auth-token');
+        const token = localStorage.getItem('auth-token'); 
         if (token) { 
           try {
             const cartResponse = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/getcart', {
