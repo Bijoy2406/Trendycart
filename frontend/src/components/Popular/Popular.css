@@ -1,44 +1,99 @@
-.popular{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    height: 70vh;
-    margin-left: 200px;
-    margin-bottom: 5em; /* Adjust the value as needed */
-
-}
-.popular h1{
-    color: #171717;
-    font-size: 50px;
-    font-weight: 600;
-}
-.popular hr{
-    width: 200px;
-    height: 6px;
-    border-radius: 10px;
-    background: #252525;
+.popular {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 70vh;
+  margin-left: 200px;
+  margin-bottom: 5em; /* Adjust the value as needed */
 }
 
-.popular-item{
-    margin-top: 50px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 30px;
-    width: 99%;
+.popular h1 {
+  color: #171717;
+  font-size: 50px;
+  font-weight: 600;
 }
+
+.popular hr {
+  width: 200px;
+  height: 6px;
+  border-radius: 10px;
+  background: #252525;
+}
+
+.popular-item {
+  margin-top: 50px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 30px;
+  width: 99%;
+}
+
+/* Fade-in animation */
 .fade-in {
-    opacity: 0;
-    animation: fadeIn 1s ease-in-out forwards;
-  }
-  
-  @keyframes fadeIn {
-    0% {
+  opacity: 0;
+  animation: fadeIn 1s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  0% {
       opacity: 0;
       transform: translateY(20px);
-    }
-    100% {
+  }
+  100% {
       opacity: 1;
       transform: translateY(0);
-    }
   }
+}
+
+/* Responsive layout for smaller screens */
+@media (max-width: 1024px) {
+  .popular {
+      margin-left: 50px; /* Adjust margin for medium-sized screens */
+      height: auto; /* Make height more flexible on smaller screens */
+  }
+
+  .popular-item {
+      grid-template-columns: 1fr 1fr; /* Display 2 items side by side */
+  }
+}
+
+@media (max-width: 768px) {
+  .popular {
+      margin-left: 0; /* Remove left margin for smaller screens */
+  }
+
+  .popular-item {
+      grid-template-columns: 1fr 1fr; /* 2 items side by side */
+      gap: 20px; /* Adjust gap for smaller screens */
+  }
+
+  .popular h1 {
+      font-size: 40px; /* Reduce font size on smaller screens */
+  }
+
+  .popular hr {
+      width: 150px; /* Adjust hr width */
+      height: 4px; /* Adjust hr height */
+  }
+}
+
+@media (max-width: 480px) {
+  .popular {
+      height: auto; /* Adjust height for mobile */
+      margin: 0 auto; /* Center content for mobile */
+  }
+
+  .popular-item {
+      grid-template-columns: 1fr; /* Display 1 item per row on very small screens */
+  }
+
+  .popular h1 {
+      font-size: 32px; /* Reduce font size further for mobile */
+  }
+
+  .popular hr {
+      width: 100px;
+      height: 3px;
+  }
+}
