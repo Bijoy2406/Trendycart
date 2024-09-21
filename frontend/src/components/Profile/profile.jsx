@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import './profile.css';
-import defaultProfilePic from '../Assets/default-profile.png'; // Default profile image
+import defaultProfilePic from '../Assets/default-profile.png'; 
 import Loader from '../../Loader';
 
 const Profile = () => {
@@ -15,11 +15,10 @@ const Profile = () => {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
   const inputFileRef = useRef(null);
-  const [profilePictureURL, setProfilePictureURL] = useState(null); // State for image URL
+  const [profilePictureURL, setProfilePictureURL] = useState(null); 
   const [uploading, setUploading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null); // For image preview
+  const [selectedImage, setSelectedImage] = useState(null); 
 
-  // Function to refresh access token using refresh token
   const refreshAccessToken = async () => {
     try {
       const refreshToken = localStorage.getItem('refresh-token');
@@ -49,11 +48,10 @@ const Profile = () => {
     }
   };
 
-  // Helper function to make authenticated fetch requests
   const fetchWithToken = async (url, options = {}) => {
     let token = localStorage.getItem('auth-token');
     if (!token) {
-      token = await refreshAccessToken(); // Get new token if expired
+      token = await refreshAccessToken();
     }
 
     if (!token) {
@@ -67,17 +65,16 @@ const Profile = () => {
     };
 
     let response = await fetch(url, fetchOptions);
-    
-    // If token is expired or invalid, try to refresh and retry
+
     if (response.status === 401) {
       token = await refreshAccessToken();
       if (token) {
         fetchOptions.headers['auth-token'] = token;
-        response = await fetch(url, fetchOptions); // Retry with refreshed token
+        response = await fetch(url, fetchOptions);
       }
     }
 
-    return response; // Return the final response
+    return response; 
   };
 
   useEffect(() => {
@@ -112,7 +109,6 @@ const Profile = () => {
     fetchUserData();
   }, []);
 
-  // Handle profile picture change and preview
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file && file.size <= 5 * 1024 * 1024) {
@@ -127,9 +123,23 @@ const Profile = () => {
   const handleEdit = async () => {
     try {
       setUploading(true);
-      const formData = new FormData();
+      const updates = {};
 
+      if (newUsername && newUsername !== userData.name) {
+        updates.username = newUsername;
+      }
+
+      if (location && location !== userData.location) {
+        updates.location = location;
+      }
+
+      if (newPassword) {
+        updates.password = newPassword;
+      }
+
+      // Profile Picture logic
       if (profilePicture) {
+        const formData = new FormData();
         formData.append('profilePicture', profilePicture);
         const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/updateprofilepic', {
           method: 'POST',
@@ -147,20 +157,22 @@ const Profile = () => {
         }
       }
 
-      if (newPassword) {
-        const passwordResponse = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/updatepassword', {
+      // Update user details like username, location, and password
+      if (Object.keys(updates).length > 0) {
+        const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/updateprofile', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ password: newPassword }),
+          body: JSON.stringify(updates),
         });
 
-        const passwordData = await passwordResponse.json();
-        if (passwordResponse.ok) {
-          toast.success('Password updated successfully');
+        const data = await response.json();
+        if (response.ok) {
+          setUserData(data.user);
+          toast.success('Profile updated successfully');
         } else {
-          throw new Error(passwordData.message || 'Failed to update password');
+          throw new Error(data.message || 'Failed to update profile details');
         }
       }
     } catch (err) {
@@ -168,10 +180,10 @@ const Profile = () => {
       toast.error('Failed to update profile.');
     } finally {
       setUploading(false);
+      setEditing(false); // Disable editing mode after saving
     }
   };
 
-  // Trigger file input for profile picture change
   const handleProfilePictureClick = () => {
     if (editing && inputFileRef.current) {
       inputFileRef.current.click();
@@ -284,3 +296,4 @@ const Profile = () => {
 };
 
 export default Profile;
+
