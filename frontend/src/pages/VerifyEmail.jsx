@@ -17,7 +17,7 @@ const VerifyEmail = () => {
 
     (async () => {
       try {
-        const response = await axios.get(`https://backend-beryl-nu-15.vercel.app/verify-email/${token}`, {
+        const response = await axios.get(`http://localhost:4001/verify-email/${token}`, {
           params: { verificationId } // Send the ID to the backend
         });
         setVerificationStatus({ success: true, message: response.data.message });

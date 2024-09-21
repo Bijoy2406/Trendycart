@@ -9,7 +9,7 @@ const refreshAccessToken = async () => {
     const refreshToken = localStorage.getItem('refresh-token');
     if (!refreshToken) throw new Error('No refresh token available');
 
-    const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
+    const response = await fetch('http://localhost:4001/token', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -93,7 +93,7 @@ const ShopContextProvider = (props) => {
     const fetchData = async () => {
       try {
         // Fetch all products
-        const productsResponse = await fetch('https://backend-beryl-nu-15.vercel.app/allproducts');
+        const productsResponse = await fetch('http://localhost:4001/allproducts');
         const productsData = await productsResponse.json();
         setAll_Product(productsData);
 
@@ -113,7 +113,7 @@ const ShopContextProvider = (props) => {
         const token = localStorage.getItem('auth-token');
         if (token) { 
           try {
-            const cartResponse = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/getcart', {
+            const cartResponse = await fetchWithToken('http://localhost:4001/getcart', {
               method: 'POST',
               headers: {
                 Accept: 'application/json',
@@ -142,7 +142,7 @@ const ShopContextProvider = (props) => {
 
   const addToCart = async (itemId, quantity = 1, selectedSize) => {
     try {
-      const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/addtocart', {
+      const response = await fetchWithToken('http://localhost:4001/addtocart', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -180,7 +180,7 @@ const ShopContextProvider = (props) => {
     }));
 
     try {
-      const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/removefromcart', {
+      const response = await fetchWithToken('http://localhost:4001/removefromcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',
@@ -199,7 +199,7 @@ const ShopContextProvider = (props) => {
     setCartItems(getDefaultCart());
 
     try {
-      const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/clearcart', {
+      const response = await fetchWithToken('http://localhost:4001/clearcart', {
         method: 'POST',
         headers: {
           Accept: 'application/form-data',

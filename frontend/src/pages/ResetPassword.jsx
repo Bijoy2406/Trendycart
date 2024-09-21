@@ -17,7 +17,7 @@ function ResetPassword() {
 
     const checkTokenValidity = async () => {
         try {
-            const response = await fetch(`https://backend-beryl-nu-15.vercel.app/verify-reset-token/${token}`);
+            const response = await fetch(`http://localhost:4001/verify-reset-token/${token}`);
             const data = await response.json();
             setTokenValid(data.valid);
         } catch (error) {
@@ -68,7 +68,7 @@ function ResetPassword() {
         }
     
         try {
-            const response = await fetch(`https://backend-beryl-nu-15.vercel.app/reset-password/${token}`, {
+            const response = await fetch(`http://localhost:4001/reset-password/${token}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

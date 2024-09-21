@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "proxy": "https://backend-beryl-nu-15.vercel.app",
+  "proxy": "http://localhost:4001",
   "description": "",
   "main": "index.js",
   "scripts": {

@@ -81,7 +81,7 @@ window.initializeRatings = (productId) => {
             updatedRatings[productId] = index;
             setStoredRatings(updatedRatings);
             // Send rating to the server
-            fetch('https://backend-beryl-nu-15.vercel.app/rateproduct', {
+            fetch('http://localhost:4001/rateproduct', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
