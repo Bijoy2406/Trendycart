@@ -16,13 +16,16 @@
     padding-left: 180px;
     line-height: 1.1;
 }
+.hero-title {
+    position: absolute;
+    top: 15rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
 
-/* Heading in the hero section */
-.hero-left h2 {
-    color: #090909;
-    font-size: 26px;
-    font-weight: 600;
-}
+
 
 /* Paragraph in the hero section */
 .hero-left p {
@@ -85,9 +88,7 @@
         padding-right: 20px; /* Add some right padding */
     }
 
-    .hero-left h2 {
-        font-size: 22px; /* Adjust font size */
-    }
+    
 
     .hero-left p {
         font-size: 40px; /* Adjust font size */
@@ -120,9 +121,7 @@
         text-align: center; /* Center text */
     }
 
-    .hero-left h2 {
-        font-size: 20px; /* Adjust font size */
-    }
+   
 
     .hero-left p {
         font-size: 30px; /* Adjust font size */
@@ -141,4 +140,13 @@
     .hero-right img {
         width: 90%; /* Adjust image width */
     }
+    .hero-title{
+        position: relative;
+        top: 10px;
+    }
+    .hero-hand-icon{
+        position: relative;
+        top: -9px;
+        left: 32px;
+        }
 }
