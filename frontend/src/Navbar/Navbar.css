@@ -385,28 +385,29 @@ input[type="text"]::placeholder {
 }
 
 /* Media Queries for Mobile Devices */
-@media (max-width: 750px) {
-  .nav-toggle {
-      display: block;
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 16px;
   }
 
-  .nav-menu,
-  .nav-login-cart,
   .wrap-input-17 {
-      display: none;
-      flex-direction: column;
-      align-items: center;
+    margin: 10px 0;
   }
 
-  .nav-menu.active,
-  .nav-login-cart.active,
-  .wrap-input-17.active {
-      display: flex;
+  .nav-menu {
+    flex-direction: column;
+    gap: 20px;
   }
-  .nav-logo img {
-    width: 40px;
-    height: auto;
-    position: relative;
-    right: 10rem;
+
+  .nav-login-cart {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .nav-cart-count {
+    left: 1rem;
+    top: -3rem;
   }
 }
