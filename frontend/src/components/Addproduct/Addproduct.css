@@ -1,0 +1,161 @@
+.addproduct {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.addproduct-itemfields {
+  margin-bottom: 20px;
+  padding-right: 20px;
+  gap: 50px;
+}
+
+.addproduct-itemfields h1 {
+  margin: 0 0 5px;
+  font-size: 18px;
+}
+
+.addproduct-itemfields input[type="text"],
+.addproduct-itemfields select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.addproduct-price {
+  display: flex;
+  justify-content: space-around;
+
+  padding-right: 20px;
+}
+
+.add-product-selector{
+  padding: 50px;
+
+}
+
+.addproduct-itemfields label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.addproduct-thumbnail-image {
+  width: 200px; 
+  height: 200px;
+  object-fit:fill;
+  border-radius: 4px; 
+}
+.addproduct-btn {
+  display: block;
+  width: 20%;
+  padding: 10px;
+ 
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 38%;
+}
+
+.addproduct-btn:hover {
+  background-color: #0056b3;
+}
+
+.addproduct-back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.addproduct-back-btn img {
+  width: 50px; 
+  height: auto;
+}
+
+/* Description Box */
+.addproduct-itemfields textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.addproduct-itemfields textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Size Selector */
+.addproduct-itemfields .size-checkbox {
+  display: inline-block;
+  margin-right: 15px;
+  margin-bottom: 10px;
+}
+
+.addproduct-itemfields .size-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.addproduct-itemfields .size-checkbox span {
+  display: inline-block;
+  padding: 8px 15px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.addproduct-itemfields .size-checkbox input[type="checkbox"]:checked + span {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.addproduct-itemfields .size-checkbox:hover span {
+  background-color: #e0e0e0;
+}
+
+.addproduct-itemfields.dragging {
+  background-color: lightblue; /* Change background color when dragging */
+}
+.remove-image {
+  position: relative;
+    bottom: 13rem;
+    left: 10rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+
+
+.upload-instructions {
+  display: flex;
+  flex-direction: column; /* Align items vertically */
+  align-items: center;   /* Center horizontally */
+  justify-content: center; /* Center vertically */
+  height: 100%;            /* Make sure it fills the container */
+  cursor: pointer;        /* Indicate that it's clickable */
+}
+
+.upload-instructions p {
+  margin-top: 10px;      /* Add some spacing between image and text */
+}

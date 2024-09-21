@@ -1,0 +1,105 @@
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: auto;
+}
+
+.chart-container h2 {
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.recharts-pie-label-text {
+  font-size: 14px;
+  font-weight: bold;
+  fill: #333;
+}
+
+.recharts-tooltip-wrapper {
+  font-family: 'Roboto', sans-serif;
+}
+
+.recharts-cartesian-axis-tick-value {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+}
+
+.recharts-legend-wrapper {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+}
+
+.recharts-pie-sector {
+  cursor: pointer;
+}
+
+
+/* Chart.css */
+/*woman*/
+.cell-pop-up-upper-right {
+    transform: translate(-10px, -45px) scale(1.1);
+    transition: transform 0.3s ease;
+  }
+  /*kid*/
+  .cell-pop-up-lower-right {
+    transform: translate(-40px, -30px) scale(1.1);
+    transition: transform 0.3s ease;
+  }
+  /*men*/
+  .cell-pop-up-left {
+    transform: translate(-10px, -10px) scale(1.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .cell-reset {
+    transform: scale(1);
+    transition: transform 0.3s ease;
+  }
+  /* Container for the input fields */
+.date-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Label styles */
+.date-input-container label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-right: 10px;
+}
+
+/* Input field styles */
+.date-input-container input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+/* Input field focus styles */
+.date-input-container input:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+}
+
+/* Input field hover styles */
+.date-input-container input:hover {
+  border-color: #6c63ff;
+}
+
+/* Spacing between input fields */
+.date-input-container input:not(:last-child) {
+  margin-right: 20px;
+}
