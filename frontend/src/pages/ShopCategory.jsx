@@ -8,6 +8,8 @@ const ShopCategory = (props) => {
   const { all_product } = useContext(ShopContext);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [sortOrder, setSortOrder] = useState('default'); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 5; 
 
   useEffect(() => {
     let updatedProducts = all_product.filter(item => item.category === props.category);
@@ -23,6 +25,24 @@ const ShopCategory = (props) => {
 
   const handleSortChange = (e) => {
     setSortOrder(e.target.value);
+    setCurrentPage(1); // Reset to page 1 when sort order changes
+  };
+
+  // Logic for pagination
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  const handleNextPage = () => {
+    if (indexOfLastProduct < filteredProducts.length) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   return (
@@ -30,7 +50,8 @@ const ShopCategory = (props) => {
       <img className='shopcategory-banner' src={props.banner} alt="Category Banner" />
       <div className="shopcategory-indexsort">
         <p>
-          <span>Showing 1-{filteredProducts.length} </span> out of {filteredProducts.length} products
+          <span>Showing {indexOfFirstProduct + 1}-{indexOfLastProduct > filteredProducts.length ? filteredProducts.length : indexOfLastProduct} </span> 
+          out of {filteredProducts.length} products
         </p>
 
         <div className="shopcategory-sort">
@@ -45,7 +66,7 @@ const ShopCategory = (props) => {
         </div>
       </div>
       <div className="shopcategory-products">
-        {filteredProducts.map((item, index) => (
+        {currentProducts.map((item, index) => ( 
           <Item key={index}
             id={item.id}
             name={item.name}
@@ -55,11 +76,14 @@ const ShopCategory = (props) => {
           />
         ))}
       </div>
-      {filteredProducts.length > 0 && (
-        <div className="shopcategory-loadmore">
-          Explore More
-        </div>
-      )}
+      <div className="shopcategory-pagination">
+        <button onClick={handlePrevPage} disabled={currentPage === 1}>
+          Previous
+        </button>
+        <button onClick={handleNextPage} disabled={indexOfLastProduct >= filteredProducts.length}>
+          Next
+        </button>
+      </div>
     </div>
   );
 };

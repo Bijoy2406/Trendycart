@@ -347,26 +347,23 @@ function Login() {
                             </button>
                         </div>
 
-                        <div className="social-login">
-                            <i className="bx bxl-google"></i>
-                            <i className="bx bxl-facebook"></i>
-                            <i className="bx bxl-github"></i>
-                            <i className="bx bxl-twitter"></i>
-                        </div>
+                
                     </form>
                 </div>
                 {!showLogin && (
                     <div className="admin-box">
-                        <label className="admin-checkbox">
-                            <input
-                                type="checkbox"
-                                name="isAdmin"
-                                checked={registerForm.isAdmin}
-                                onChange={changeHandler}
-                            />
-                            Sign up as an admin
-                        </label>
-                    </div>
+                    <label className="admin-checkbox">
+                        <input
+                            type="checkbox"
+                            name="isAdmin"
+                            checked={registerForm.isAdmin}
+                            onChange={changeHandler}
+                        />
+                        <span className="admin-text">
+                        &nbsp;&nbsp;&nbsp;&nbsp;Sign up<br />as an admin
+                        </span>
+                    </label>
+                </div>                
                 )}
             </div>
             <ToastContainer />
