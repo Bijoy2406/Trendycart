@@ -206,7 +206,8 @@ const Users = mongoose.model('Users', {
     profilePicture: { type: String }, // Add profilePicture field
     isVerified: { type: Boolean, default: false },
     verificationToken: String,
-
+    resetPasswordToken: String, // Add this line
+    resetPasswordExpires: Date // Add this line
 });
 
 
@@ -252,7 +253,7 @@ app.post('/signup', async (req, res) => {
 
     const token = jwt.sign(data, 'secret_ecom',{expiresIn:"30m"});
    // Send verification email
-    const verificationUrl = `${process.env.BASE_URL}/verify-email/${verificationToken}`; 
+   const verificationUrl = `https://trendycart.vercel.app/verify-email/${verificationToken}`;
    sendVerificationEmail(user.email, verificationUrl);
     res.json({ success: true, token});
 });
@@ -315,6 +316,37 @@ function sendVerificationEmail(email, verificationUrl) {
         }
     });
 }
+function sendPasswordResetEmail(email, resetUrl) {
+    // ... (your email sending logic using nodemailer)
+    // Example using Nodemailer:
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.USER,
+        pass: process.env.PASS,
+      },
+    });
+  
+    const mailOptions = {
+      from: process.env.USER,
+      to: email,
+      subject: 'Password Reset Request',
+      html: `
+        <p>You are receiving this email because you (or someone else) has requested a password reset for your account.</p>
+        <p>Please click on the following link to complete the process:</p>
+        <a href="${resetUrl}">${resetUrl}</a>
+        <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+      `,
+    };
+  
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending password reset email:', error);
+      } else {
+        console.log('Password reset email sent:', info.response);
+      }
+    });
+  }
 //auth-token
 const fetchUser = async (req, res, next) => {
     const token = req.header('auth-token');
@@ -390,7 +422,118 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ success: false, message: "Error logging in" });
     }
 });
+// Forgot Password Endpoint
+app.post('/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      const user = await Users.findOne({ email });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Generate a unique reset token
+      const resetToken = crypto.randomBytes(20).toString('hex');
+      user.resetPasswordToken = resetToken;
+      user.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
+  
+      // SAVE THE UPDATED USER DOCUMENT
+      await user.save(); // <-- This is the missing line!
+  
+      // Create the reset URL
+      const resetUrl = `https://trendycart.vercel.app/reset-password/${resetToken}`;
+  
+      sendPasswordResetEmail(user.email, resetUrl);
+      console.log("Generated Reset Token:", resetToken); // Log the generated token
 
+      res.json({ message: 'Password reset link sent!' });
+    } catch (error) {
+      console.error('Error handling forgot password request:', error);
+      res.status(500).json({ message: 'Failed to send reset link' });
+    }
+  });
+  
+  
+  // Reset Password Endpoint
+  app.post('/reset-password/:token', async (req, res) => {
+    try {
+      const { token } = req.params;
+      const { password } = req.body;
+  
+      const user = await Users.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() }, // Check if token is expired
+      });
+  
+      if (!user) {
+        return res.status(400).json({ message: 'Invalid or expired token' });
+      }
+  
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      user.password = hashedPassword;
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+  
+      await user.save();
+  
+      res.json({ message: 'Password reset successfully!' });
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      res.status(500).json({ message: 'Failed to reset password' });
+    }
+  });
+  // Verify Reset Token Endpoint
+  app.get('/verify-reset-token/:token', async (req, res) => {
+    try {
+      const { token } = req.params;
+      console.log("Received token for verification:", token); // Log the received token
+  
+      const user = await Users.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() },
+      });
+  
+      if (!user) {
+        console.log("User not found for token:", token); // Log if no matching user is found
+        return res.status(400).json({ valid: false, message: 'Invalid or expired token' });
+      } else {
+        console.log("Found user for token:", user); // Log the user if found
+      }
+  
+      res.json({ valid: true, message: 'Token is valid' });
+    } catch (error) {
+      console.error('Error verifying token:', error);
+      res.status(500).json({ valid: false, message: 'Failed to verify token' });
+    }
+  });
+  app.get('/check-reset-token/:token', async (req, res) => {
+    try {
+      const { token } = req.params;
+      console.log("Received token for verification:", token);
+  
+      const user = await Users.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() },
+      });
+  
+      if (!user) {
+        console.log("User not found for token:", token);
+        return res.status(400).json({ valid: false, message: 'Invalid or expired token' });
+      } else {
+        console.log("Found user for token:", user);
+      }
+  
+      res.json({ valid: true, message: 'Token is valid' });
+    } catch (error) {
+      console.error('Error verifying token:', error);
+      res.status(500).json({ valid: false, message: 'Failed to verify token' });
+    }
+  });
+  
+  
+  
 app.get('/currentuser', fetchUser, async (req, res) => {
     try {
         const user = await Users.findById(req.user.id);
@@ -572,13 +715,14 @@ app.get('/userrating', fetchUser, async (req, res) => {
 
 app.get('/allusers', async (req, res) => {
     try {
-        const users = await Users.find({}, 'name email isAdmin isApprovedAdmin'); // Include isAdmin field
+        const users = await Users.find({}, 'name email isAdmin isApprovedAdmin isVerified'); // Include isVerified field
         res.json({ success: true, users });
     } catch (error) {
         console.error("Error fetching users:", error);
         res.status(500).json({ success: false, message: "Error fetching users" });
     }
 });
+
 
 
 

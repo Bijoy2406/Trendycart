@@ -4,22 +4,79 @@ import './order.css';
 import '../../Navbar/Navbar.css';
 import Loader from '../../Loader'; // Import your Loader component
 import { toast, ToastContainer } from 'react-toastify';
+
 const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
     const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(false); // State for loading indicator
     const navigate = useNavigate(); // Initialize useNavigate
     const location = useLocation(); // To access the order ID if passed
 
+    const refreshAccessToken = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refresh-token');
+            if (!refreshToken) throw new Error('No refresh token available');
+
+            const response = await fetch('https://backend-beryl-nu-15.vercel.app/token', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token: refreshToken }),
+            });
+
+            const data = await response.json();
+            if (data.accessToken) {
+                localStorage.setItem('auth-token', data.accessToken);
+                return data.accessToken;
+            } else {
+                throw new Error('Failed to refresh token');
+            }
+        } catch (error) {
+            console.error('Error refreshing access token:', error);
+            localStorage.removeItem('auth-token');
+            localStorage.removeItem('refresh-token');
+            window.location.replace('/');
+        }
+    };
+
+    const fetchWithToken = async (url, options = {}) => {
+        let token = localStorage.getItem('auth-token');
+        if (!token) {
+            token = await refreshAccessToken();
+        }
+
+        if (!token) {
+            throw new Error('No valid token available');
+        }
+
+        const fetchOptions = { ...options };
+        fetchOptions.headers = {
+            ...fetchOptions.headers,
+            'auth-token': token,
+        };
+
+        let response = await fetch(url, fetchOptions);
+
+        if (response.status === 401) {
+            token = await refreshAccessToken();
+            if (token) {
+                fetchOptions.headers['auth-token'] = token;
+                response = await fetch(url, fetchOptions);
+            }
+        }
+
+        return response;
+    };
 
     useEffect(() => {
         const fetchOrders = async () => {
             setIsLoading(true);
             try {
-                const response = await fetch('https://backend-beryl-nu-15.vercel.app/getorders', {
+                const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/getorders', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'auth-token': localStorage.getItem('auth-token')
                     },
                 });
 
@@ -46,12 +103,11 @@ const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
     }, []);
 
     const handleProductClick = (productId) => {
-        setIsLoading(true); // Show loader when a product is clicked
+        setIsLoading(true);
 
-        // Simulate a delay for demonstration purposes (remove in production)
         setTimeout(() => {
-            setIsLoading(false); // Hide loader after data is fetched (replace with actual data fetching logic)
-            navigate(`/product/${productId}`); // Navigate to the product details page
+            setIsLoading(false);
+            navigate(`/product/${productId}`);
         }, 1000);
     };
 
@@ -68,16 +124,15 @@ const Order = ({ order, orderIndex }) => { // Receive orderIndex as a prop
                         {order.products.map((product, productIndex) => (
                             <div key={productIndex} onClick={() => handleProductClick(product.productId.id)}>
                                 <div className="product-info">
-                                <img src={product.productId.image} alt={product.productId.name} 
-                                    className="order-product-image" />
+                                    <img src={product.productId.image} alt={product.productId.name} 
+                                        className="order-product-image" />
                                     <p>Product Name: {product.productId.name}</p>
                                     <p>Quantity: {product.quantity}</p>
                                     <p>Price: ৳{product.productId.new_price}</p>
                                     <p>Size: {product.selectedSize}</p> {/* Add this line */}
-                                    </div>
+                                </div>
                             </div>
                         ))}
-
                         <p><strong>Total Amount:</strong> {order.totalAmount}</p>
                         <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
                     </div>

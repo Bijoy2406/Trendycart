@@ -137,7 +137,7 @@ const Profile = () => {
         updates.password = newPassword;
       }
 
-      // Profile Picture logic
+      
       if (profilePicture) {
         const formData = new FormData();
         formData.append('profilePicture', profilePicture);
@@ -157,7 +157,7 @@ const Profile = () => {
         }
       }
 
-      // Update user details like username, location, and password
+      
       if (Object.keys(updates).length > 0) {
         const response = await fetchWithToken('https://backend-beryl-nu-15.vercel.app/updateprofile', {
           method: 'POST',
@@ -180,7 +180,7 @@ const Profile = () => {
       toast.error('Failed to update profile.');
     } finally {
       setUploading(false);
-      setEditing(false); // Disable editing mode after saving
+      setEditing(false); 
     }
   };
 
