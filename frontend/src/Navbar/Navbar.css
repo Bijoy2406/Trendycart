@@ -1,4 +1,4 @@
-
+/* Base styles for desktop and larger screens */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -34,7 +34,7 @@
 
 .wrap-input-17 .input-search {
   height: 50px;
-  width: 200px; 
+  width: 50px;
   border-style: none;
   padding: 10px;
   font-size: 18px;
@@ -198,7 +198,11 @@ input[type="text"]::placeholder {
 }
 
 .btn-101,
-.btn-101 * {
+.btn-101 *,
+.btn-101 :after,
+.btn-101 :before,
+.btn-101:after,
+.btn-101:before {
   border: 0 solid;
   box-sizing: border-box;
 }
@@ -314,7 +318,7 @@ input[type="text"]::placeholder {
 }
 
 
-
+/* Style for the toggle button */
 .nav-toggle {
   display: none;
   cursor: pointer;
@@ -322,18 +326,18 @@ input[type="text"]::placeholder {
   border: none;
   font-size: 24px;
   position: relative;
-  width: 30px; 
-  height: 25px; 
+  width: 30px; /* Adjust the width */
+  height: 25px; /* Adjust the height to fit the bars */
   left: 10rem;
   bottom: 4rem;
 }
 
-
+/* Bars for the hamburger icon */
 .nav-toggle .bar {
   display: block;
   width: 100%;
-  height: 3px; 
-  background-color: #000; 
+  height: 3px; /* Adjust the thickness of the bars */
+  background-color: #000; /* Adjust the color of the bars */
   position: absolute;
   left: 0;
   transition: 0.3s;
@@ -353,12 +357,13 @@ input[type="text"]::placeholder {
 }
 
 
-
+/* Media Queries for Tablets */
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;
     padding: 16px;
   }
+  
 
   .wrap-input-17 {
     margin: 10px 0;
@@ -371,13 +376,37 @@ input[type="text"]::placeholder {
 
   .nav-login-cart {
     flex-direction: column;
-    padding: 15px;
+    gap: 10px;
   }
-
   .nav-cart-count {
     left: 1rem;
     top: -3rem;
   }
 }
 
+/* Media Queries for Mobile Devices */
+@media (max-width: 750px) {
+  .nav-toggle {
+      display: block;
+  }
 
+  .nav-menu,
+  .nav-login-cart,
+  .wrap-input-17 {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+  }
+
+  .nav-menu.active,
+  .nav-login-cart.active,
+  .wrap-input-17.active {
+      display: flex;
+  }
+  .nav-logo img {
+    width: 40px;
+    height: auto;
+    position: relative;
+    right: 10rem;
+  }
+}

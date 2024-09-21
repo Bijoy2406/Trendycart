@@ -15,7 +15,7 @@ const Admin = () => {
     // Fetch data from backend
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:4001/productcountsbycategory'); // Adjust the URL as needed
+        const response = await fetch('https://backend-beryl-nu-15.vercel.app/productcountsbycategory'); // Adjust the URL as needed
         const result = await response.json();
         if (result.success) {
           // Transform data to match PieChart requirements

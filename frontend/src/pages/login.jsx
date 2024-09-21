@@ -3,7 +3,7 @@ import { FaRegCalendarAlt } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './CSS/login.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Loader from '../loader_login'; // Import the Loader component
 import { fetchWithToken } from '../Utils/authUtils';
 import PasswordChecklist from "react-password-checklist";
@@ -18,6 +18,8 @@ function Login() {
     const datePickerRef = useRef(null);
     const [isPasswordValid, setIsPasswordValid] = useState(false); // Password validity state
     const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate(); // Initialize useNavigate
+
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
@@ -174,6 +176,9 @@ function Login() {
         console.log("Is password valid:", isValid); // Debugging password validity
         setIsPasswordValid(isValid);
     };
+    const handleForgotPassword = () => {
+        navigate('/forgot-password'); // Navigate to the forgot password page
+    };
 
     return (
         <div className="login-background">
@@ -246,7 +251,9 @@ function Login() {
                                     </div>
 
                                     <div className="forgot-pass">
-                                        <a href="#">Forgot Password?</a>
+                                        <a href="#" onClick={handleForgotPassword}>
+                                            Forgot Password?
+                                        </a>
                                     </div>
                                 </div>
                             </>

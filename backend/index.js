@@ -441,7 +441,7 @@ app.post('/forgot-password', async (req, res) => {
       await user.save(); // <-- This is the missing line!
   
       // Create the reset URL
-      const resetUrl = `https://trendycart.vercel.app/reset-password/${resetToken}`;
+      const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
   
       sendPasswordResetEmail(user.email, resetUrl);
       console.log("Generated Reset Token:", resetToken); // Log the generated token
