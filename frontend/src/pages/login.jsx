@@ -251,7 +251,7 @@ function Login() {
                                     </div>
 
                                     <div className="forgot-pass">
-                                        <a href="#" onClick={handleForgotPassword}>
+                                        <a onClick={handleForgotPassword}>
                                             Forgot Password?
                                         </a>
                                     </div>
