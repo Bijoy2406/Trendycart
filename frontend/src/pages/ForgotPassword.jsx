@@ -42,7 +42,7 @@ function ForgotPassword() {
         <div className="form__group field">
           <input
             type="email"
-            className="form__field"
+            className="form_field"
             placeholder="Email"
             id="email"
             value={email}
