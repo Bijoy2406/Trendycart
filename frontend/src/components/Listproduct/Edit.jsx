@@ -33,7 +33,7 @@ const EditProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:4001/product/${id}`);
+        const res = await fetch(`https://backend-beryl-nu-15.vercel.app/product/${id}`);
         const data = await res.json();
         setProductDetails({
           name: data.name || '',
@@ -105,7 +105,7 @@ const EditProduct = () => {
       let formData = new FormData();
       formData.append('product', image);
       try {
-        const uploadRes = await fetch('http://localhost:4001/upload', {
+        const uploadRes = await fetch('https://backend-beryl-nu-15.vercel.app/upload', {
           method: 'POST',
           headers: { Accept: 'application/json' },
           body: formData,
@@ -127,7 +127,7 @@ const EditProduct = () => {
     }
 
     try {
-      const updateRes = await fetch(`http://localhost:4001/updateproduct/${id}`, {
+      const updateRes = await fetch(`https://backend-beryl-nu-15.vercel.app/updateproduct/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -139,7 +139,7 @@ const EditProduct = () => {
       if (updateData.success) {
         toast.success('Product Updated');
         // Update the product list in the context
-        const allProductsRes = await fetch('http://localhost:4001/allproducts');
+        const allProductsRes = await fetch('https://backend-beryl-nu-15.vercel.app/allproducts');
         const allProductsData = await allProductsRes.json();
         setAll_Product(allProductsData);
         setTimeout(() => navigate('/admin'), 1500);

@@ -12,7 +12,7 @@ function ForgotPassword() {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:4001/forgot-password', {
+      const response = await fetch('https://backend-beryl-nu-15.vercel.app/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

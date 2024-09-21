@@ -253,7 +253,7 @@ app.post('/signup', async (req, res) => {
 
     const token = jwt.sign(data, 'secret_ecom',{expiresIn:"30m"});
    // Send verification email
-   const verificationUrl = `http://localhost:3000/verify-email/${verificationToken}`;
+   const verificationUrl = `https://trendycart.vercel.app/verify-email/${verificationToken}`;
    sendVerificationEmail(user.email, verificationUrl);
     res.json({ success: true, token});
 });

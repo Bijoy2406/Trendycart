@@ -58,7 +58,7 @@ const Chart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:4001/productcountsbycategory');
+        const response = await fetch('https://backend-beryl-nu-15.vercel.app/productcountsbycategory');
         const result = await response.json();
         if (result.success) {
           const formattedData = result.productCounts.map((item) => ({
@@ -78,7 +78,7 @@ const Chart = () => {
     const fetchWeeklyOrderData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:4001/weeklyordercounts?month=${selectedMonth}&year=${selectedYear}`
+          `https://backend-beryl-nu-15.vercel.app/weeklyordercounts?month=${selectedMonth}&year=${selectedYear}`
         );
         const result = await response.json();
         if (result.success) {
