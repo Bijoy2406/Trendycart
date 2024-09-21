@@ -1,9 +1,13 @@
-.hero{
+/* Base styles for .hero section */
+.hero {
     height: 100vh;
-    background: linear-gradient(180deg, #fde1ff,#e1ffea22 60%);
+    background: linear-gradient(180deg, #fde1ff, #e1ffea22 60%);
     display: flex;
+    flex-direction: row;
 }
-.hero-left{
+
+/* Left side of the hero section */
+.hero-left {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -12,25 +16,35 @@
     padding-left: 180px;
     line-height: 1.1;
 }
-.hero-left h2{
+
+/* Heading in the hero section */
+.hero-left h2 {
     color: #090909;
     font-size: 26px;
     font-weight: 600;
 }
-.hero-left p{
+
+/* Paragraph in the hero section */
+.hero-left p {
     color: #171717;
     font-size: 50px;
     font-weight: 700;
 }
-.hero-hand-icon{
+
+/* Hand icon section */
+.hero-hand-icon {
     display: flex;
     align-items: center;
     gap: 20px;
 }
-.hero-hand-icon img{
+
+/* Hand icon image */
+.hero-hand-icon img {
     width: 80px;
 }
-.hero-latest-btn{
+
+/* Button styling */
+.hero-latest-btn {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -42,16 +56,89 @@
     background: #ff4141;
     color: white;
     font-size: 22px;
-    font-weight: 500 ;
-    cursor: pointer; /* Added this line */
+    font-weight: 500;
+    cursor: pointer;
 }
 
-.hero-right{
+/* Right side of the hero section */
+.hero-right {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+/* Image in the right side of the hero section */
 .hero-right img {
     width: 62%;
+}
+
+/* Media Queries for Tablets */
+@media (max-width: 1024px) {
+    .hero {
+        flex-direction: column; /* Stack hero items vertically */
+        height: auto; /* Allow height to adjust based on content */
+        text-align: center; /* Center text on smaller screens */
+    }
+
+    .hero-left {
+        padding-left: -5px; /* Remove left padding for smaller screens */
+        padding-right: 20px; /* Add some right padding */
+    }
+
+    .hero-left h2 {
+        font-size: 22px; /* Adjust font size */
+    }
+
+    .hero-left p {
+        font-size: 40px; /* Adjust font size */
+    }
+
+    .hero-hand-icon img {
+        width: 60px; /* Adjust icon size */
+    }
+
+    .hero-latest-btn {
+        width: 250px; /* Adjust button width */
+        height: 60px; /* Adjust button height */
+        font-size: 20px; /* Adjust font size */
+    }
+
+    .hero-right img {
+        width: 80%; /* Adjust image width */
+    }
+}
+
+/* Media Queries for Mobile Devices */
+@media (max-width: 768px) {
+    .hero {
+        padding: 20px; /* Add padding around the hero section */
+    }
+
+    .hero-left {
+        padding-left: 0; /* Remove left padding */
+        padding-right: 0; /* Remove right padding */
+        text-align: center; /* Center text */
+    }
+
+    .hero-left h2 {
+        font-size: 20px; /* Adjust font size */
+    }
+
+    .hero-left p {
+        font-size: 30px; /* Adjust font size */
+    }
+
+    .hero-hand-icon img {
+        width: 50px; /* Adjust icon size */
+    }
+
+    .hero-latest-btn {
+        width: 200px; /* Adjust button width */
+        height: 50px; /* Adjust button height */
+        font-size: 18px; /* Adjust font size */
+    }
+
+    .hero-right img {
+        width: 90%; /* Adjust image width */
+    }
 }
